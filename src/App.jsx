@@ -57,7 +57,7 @@ function App() {
             La plataforma definitiva para la administración transparente. Automatiza cobros, concilia pagos bancarios y mantén a toda tu comunidad conectada e informada.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="mailto:contacto@iacondo.com" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Solicitar una Demo</a>
+            <a href="#contacto" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Solicitar una Demo</a>
             <a href="#features" className="btn btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Conoce Más</a>
           </div>
         </div>
@@ -130,15 +130,15 @@ function App() {
       </section>
 
       {/* CTA SECTION */}
-      <section style={{ padding: '6rem 5%', textAlign: 'center', borderTop: '1px solid var(--border-light)' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>¿Listo para modernizar tu condominio?</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
-            Únete a la plataforma que está cambiando la forma en que los vecinos y administradores colaboran.
-          </p>
-          <a href="mailto:contacto@iacondo.com" className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.2rem' }}>
-            Contáctanos Hoy
-          </a>
+      <section id="contacto" style={{ padding: '6rem 5%', borderTop: '1px solid var(--border-light)' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Solicita tu Demo</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+              Déjanos tus datos y nos pondremos en contacto contigo para mostrarte cómo IACondo transformará tu edificio.
+            </p>
+          </div>
+          <ContactForm />
         </div>
       </section>
 
@@ -176,6 +176,88 @@ function BenefitItem({ text }) {
       <span style={{ color: 'var(--success)', color: '#10b981', marginTop: '2px' }}>✓</span>
       <span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem' }}>{text}</span>
     </li>
+  );
+}
+
+function ContactForm() {
+  const [formData, setFormData] = useState({ name: '', email: '', condominium: '', message: '' });
+  const [status, setStatus] = useState('idle');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      // In production this should be https://api.iacondo.com/api/public/contact
+      const response = await fetch('https://condopro-api.onrender.com/api/public/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        setStatus('success');
+        setFormData({ name: '', email: '', condominium: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>¡Mensaje Enviado!</h3>
+        <p style={{ color: 'var(--text-secondary)' }}>Gracias por contactarnos. Te escribiremos muy pronto.</p>
+        <button onClick={() => setStatus('idle')} className="btn btn-secondary" style={{ marginTop: '2rem' }}>Enviar otro mensaje</button>
+      </div>
+    );
+  }
+
+  return (
+    <form className="glass-panel" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div>
+        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre Completo *</label>
+        <input 
+          type="text" required
+          value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+        />
+      </div>
+      <div>
+        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Correo Electrónico *</label>
+        <input 
+          type="email" required
+          value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+        />
+      </div>
+      <div>
+        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre del Condominio</label>
+        <input 
+          type="text" 
+          value={formData.condominium} onChange={e => setFormData({...formData, condominium: e.target.value})}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+        />
+      </div>
+      <div>
+        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Mensaje o Dudas *</label>
+        <textarea 
+          required rows="4"
+          value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', resize: 'vertical' }} 
+        />
+      </div>
+      {status === 'error' && (
+        <div style={{ color: '#ef4444', fontSize: '0.9rem' }}>Ocurrió un error. Por favor intenta de nuevo.</div>
+      )}
+      <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.1rem', marginTop: '1rem' }}>
+        {status === 'loading' ? 'Enviando...' : 'Solicitar Demo Ahora'}
+      </button>
+    </form>
   );
 }
 
