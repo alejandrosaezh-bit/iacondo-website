@@ -181,38 +181,84 @@ function BenefitItem({ text }) {
 
 function ContactForm() {
   const [formData, setFormData] = useState({ name: '', email: '', condominium: '', message: '' });
+  const [submittedData, setSubmittedData] = useState(null);
   const [status, setStatus] = useState('idle');
+
+  const getWhatsAppLink = (data) => {
+    const d = data || formData;
+    const text = `Hola, mi nombre es *${d.name || ''}*${d.condominium ? ` del condominio *${d.condominium}*` : ''}.\nCorreo: ${d.email || ''}\n\n*Mensaje:* ${d.message || 'Quiero conocer más de IACondo y solicitar una demo.'}`;
+    return `https://wa.me/584122537239?text=${encodeURIComponent(text)}`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
+    setSubmittedData({ ...formData });
+
     try {
-      // In production this should be https://api.iacondo.com/api/public/contact
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       const response = await fetch('https://condopro-api.onrender.com/api/public/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        signal: controller.signal
       });
-      
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         setStatus('success');
-        setFormData({ name: '', email: '', condominium: '', message: '' });
       } else {
         setStatus('error');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error enviando formulario:', error);
       setStatus('error');
     }
   };
 
   if (status === 'success') {
     return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem' }}>
+      <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>¡Mensaje Enviado!</h3>
-        <p style={{ color: 'var(--text-secondary)' }}>Gracias por contactarnos. Te escribiremos muy pronto.</p>
-        <button onClick={() => setStatus('idle')} className="btn btn-secondary" style={{ marginTop: '2rem' }}>Enviar otro mensaje</button>
+        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>¡Solicitud Recibida con Éxito!</h3>
+        <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 1.5rem auto', lineHeight: 1.6 }}>
+          Gracias por tu interés en IACondo. Hemos guardado tu mensaje y nos pondremos en contacto contigo a la brevedad.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+          <a 
+            href={getWhatsAppLink(submittedData)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+            style={{ 
+              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', 
+              border: 'none', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '0.5rem', 
+              padding: '0.85rem 1.75rem',
+              color: 'white',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              borderRadius: '8px',
+              boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)'
+            }}
+          >
+            <span>💬</span> ¿Atención inmediata? Escríbenos por WhatsApp
+          </a>
+          <button 
+            onClick={() => {
+              setStatus('idle');
+              setFormData({ name: '', email: '', condominium: '', message: '' });
+            }} 
+            className="btn btn-secondary" 
+            style={{ marginTop: '0.5rem' }}
+          >
+            Enviar otro mensaje
+          </button>
+        </div>
       </div>
     );
   }
@@ -252,7 +298,17 @@ function ContactForm() {
         />
       </div>
       {status === 'error' && (
-        <div style={{ color: '#ef4444', fontSize: '0.9rem' }}>Ocurrió un error. Por favor intenta de nuevo.</div>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '1rem', borderRadius: '8px', color: '#fca5a5', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div>⚠️ Hubo un retraso temporal al enviar el mensaje.</div>
+          <a 
+            href={getWhatsAppLink(formData)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ color: '#34d399', fontWeight: 'bold', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <span>💬</span> Haz clic aquí para enviarlo directo por WhatsApp ➜
+          </a>
+        </div>
       )}
       <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.1rem', marginTop: '1rem' }}>
         {status === 'loading' ? 'Enviando...' : 'Solicitar Demo Ahora'}
