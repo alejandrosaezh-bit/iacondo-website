@@ -45,7 +45,7 @@ export default async function handler(req, res) {
 
   // 1. Generar respuesta inteligente de Sofía (Agente IA Comercial de IA Condo)
   let aiReplyHtml = null;
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY || 'AIzaSyD6qTMrJN38VEaFv31JBPWI33M2U7EpP9c';
   if (geminiKey) {
     try {
       const prompt = `Eres Sofía, la Ejecutiva Comercial de IA de IA Condo (www.iacondo.com), plataforma líder de gestión de condominios con Inteligencia Artificial en Venezuela.

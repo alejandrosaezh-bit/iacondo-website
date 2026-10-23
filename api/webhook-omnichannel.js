@@ -36,7 +36,7 @@ function extractQualificationHeuristics(text = '', senderName = '') {
 
 async function generateSofiaReply({ channel, senderName, senderId, messageText }) {
   const info = extractQualificationHeuristics(messageText, senderName);
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY || 'AIzaSyD6qTMrJN38VEaFv31JBPWI33M2U7EpP9c';
 
   if (geminiKey) {
     try {
