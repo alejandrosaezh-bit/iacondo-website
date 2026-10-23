@@ -155,6 +155,8 @@ function App() {
           <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Soporte</a>
         </div>
       </footer>
+
+      <SofiaChatWidget />
     </div>
   );
 }
@@ -314,6 +316,192 @@ function ContactForm() {
         {status === 'loading' ? 'Enviando...' : 'Solicitar Demo Ahora'}
       </button>
     </form>
+  );
+}
+
+function SofiaChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [senderName, setSenderName] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      text: '¡Hola! 👋 Soy Sofía, ejecutiva comercial IA de IACondo. ¿En qué ciudad está tu condominio y cuántos apartamentos tiene aproximadamente?'
+    }
+  ]);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/webhook-omnichannel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: 'whatsapp',
+          sender_id: senderPhone.trim() || 'visitante-web-iacondo',
+          sender_name: senderName.trim() || 'Visitante Web IACondo',
+          message_text: userMsg
+        })
+      });
+      const data = await res.json();
+      if (data && data.reply) {
+        setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          { role: 'assistant', text: 'Gracias por escribirnos. ¿Me confirmas tu correo o WhatsApp para agendarte tu Demo?' }
+        ]);
+      }
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', text: 'Puedes escribirnos también directo a nuestro WhatsApp +58 412-2537239.' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', bottom: '22px', right: '22px', zIndex: 9999, fontFamily: 'system-ui, sans-serif' }}>
+      {open ? (
+        <div style={{
+          width: '350px',
+          maxWidth: 'calc(100vw - 32px)',
+          background: '#0f172a',
+          border: '1px solid rgba(14, 165, 233, 0.35)',
+          borderRadius: '16px',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0284c7 0%, #0f172a 100%)',
+            padding: '14px 16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div>
+              <div style={{ fontWeight: '700', color: 'white', fontSize: '0.98rem' }}>🤖 Sofía — Asesora IA Condo</div>
+              <div style={{ fontSize: '0.75rem', color: '#bae6fd' }}>En línea 24/7 · Conectada a Odoo CRM</div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={{ padding: '8px 12px', background: '#1e293b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            <input
+              placeholder="Tu nombre"
+              value={senderName}
+              onChange={e => setSenderName(e.target.value)}
+              style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: 'white', fontSize: '0.78rem' }}
+            />
+            <input
+              placeholder="Tu WhatsApp (+58...)"
+              value={senderPhone}
+              onChange={e => setSenderPhone(e.target.value)}
+              style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: 'white', fontSize: '0.78rem' }}
+            />
+          </div>
+
+          <div style={{
+            padding: '12px',
+            height: '260px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            background: '#090f1d'
+          }}>
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                style={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  background: m.role === 'user' ? '#0284c7' : '#1e293b',
+                  color: 'white',
+                  padding: '9px 12px',
+                  borderRadius: '12px',
+                  maxWidth: '85%',
+                  fontSize: '0.86rem',
+                  lineHeight: 1.45,
+                  whiteSpace: 'pre-wrap'
+                }}
+              >
+                {m.text}
+              </div>
+            ))}
+            {loading && (
+              <div style={{ alignSelf: 'flex-start', color: '#94a3b8', fontSize: '0.8rem' }}>
+                Sofía está escribiendo...
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={sendMessage} style={{ display: 'flex', padding: '10px', background: '#0f172a', borderTop: '1px solid #1e293b', gap: '6px' }}>
+            <input
+              placeholder="Escribe tu consulta aquí..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              style={{ flex: 1, padding: '8px 10px', borderRadius: '8px', border: '1px solid #334155', background: '#1e293b', color: 'white', fontSize: '0.85rem' }}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ background: '#0ea5e9', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 12px', fontWeight: '700', cursor: 'pointer' }}
+            >
+              ➤
+            </button>
+          </form>
+
+          <div style={{ padding: '6px 12px 10px', background: '#0f172a', textAlign: 'center' }}>
+            <a
+              href="https://wa.me/584122537239?text=Hola%20Sof%C3%ADa%2C%20vengo%20de%20iacondo.com%20y%20quiero%20una%20Demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#34d399', fontSize: '0.78rem', textDecoration: 'none', fontWeight: '600' }}
+            >
+              💬 Continuar por WhatsApp (+58 412-2537239) ➜
+            </a>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          style={{
+            background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '999px',
+            padding: '13px 20px',
+            fontWeight: '700',
+            fontSize: '0.95rem',
+            boxShadow: '0 8px 25px rgba(14, 165, 233, 0.45)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <span>🤖</span> Hablar con Sofía IA
+        </button>
+      )}
+    </div>
   );
 }
 
