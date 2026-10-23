@@ -96,7 +96,7 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
           <li>¿Cuál es tu número de WhatsApp para coordinar el acceso de prueba?</li>
         </ol>
       </div>
-      <p>Puedes responder directamente a este correo o escribirnos por WhatsApp al <a href="https://wa.me/584122537239">+58 412-2537239</a>.</p>
+      <p>Puedes responder directamente a este correo o escribirnos por WhatsApp al <a href="https://wa.me/584222537239">+58 422-2537239</a>.</p>
     `;
   }
 

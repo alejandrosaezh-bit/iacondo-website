@@ -189,7 +189,7 @@ function ContactForm() {
   const getWhatsAppLink = (data) => {
     const d = data || formData;
     const text = `Hola, mi nombre es *${d.name || ''}*${d.condominium ? ` del condominio *${d.condominium}*` : ''}.\nCorreo: ${d.email || ''}\n\n*Mensaje:* ${d.message || 'Quiero conocer más de IACondo y solicitar una demo.'}`;
-    return `https://wa.me/584122537239?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/584222537239?text=${encodeURIComponent(text)}`;
   };
 
   const handleSubmit = async (e) => {
@@ -363,7 +363,7 @@ function SofiaChatWidget() {
     } catch (err) {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', text: 'Puedes escribirnos también directo a nuestro WhatsApp +58 412-2537239.' }
+        { role: 'assistant', text: 'Puedes escribirnos también directo a nuestro WhatsApp +58 422-2537239.' }
       ]);
     } finally {
       setLoading(false);
@@ -471,12 +471,12 @@ function SofiaChatWidget() {
 
           <div style={{ padding: '6px 12px 10px', background: '#0f172a', textAlign: 'center' }}>
             <a
-              href="https://wa.me/584122537239?text=Hola%20Sof%C3%ADa%2C%20vengo%20de%20iacondo.com%20y%20quiero%20una%20Demo"
+              href="https://wa.me/584222537239?text=Hola%20Sof%C3%ADa%2C%20vengo%20de%20iacondo.com%20y%20quiero%20una%20Demo"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#34d399', fontSize: '0.78rem', textDecoration: 'none', fontWeight: '600' }}
             >
-              💬 Continuar por WhatsApp (+58 412-2537239) ➜
+              💬 Continuar por WhatsApp (+58 422-2537239) ➜
             </a>
           </div>
         </div>
