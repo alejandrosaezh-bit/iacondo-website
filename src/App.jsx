@@ -343,18 +343,67 @@ function ContactForm() {
   );
 }
 
+const INITIAL_SOFIA_GREETING = {
+  role: 'assistant',
+  text: '¡Hola! 👋 Soy Sofía, del equipo de IA Condo. ¿Deseas información para el condominio o conjunto donde vives, o buscas soporte técnico?'
+};
+
 function SofiaChatWidget() {
   const [open, setOpen] = useState(false);
-  const [senderName, setSenderName] = useState('');
-  const [senderPhone, setSenderPhone] = useState('');
+  const [sessionId, setSessionId] = useState(() => {
+    try {
+      const existing = localStorage.getItem('iacondo_web_session_id');
+      if (existing) return existing;
+      const created = `web_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      localStorage.setItem('iacondo_web_session_id', created);
+      return created;
+    } catch {
+      return `web_${Date.now()}`;
+    }
+  });
+  const [senderName, setSenderName] = useState(() => {
+    try { return localStorage.getItem('iacondo_web_sender_name') || ''; } catch { return ''; }
+  });
+  const [senderPhone, setSenderPhone] = useState(() => {
+    try { return localStorage.getItem('iacondo_web_sender_phone') || ''; } catch { return ''; }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: '¡Hola! 👋 Soy Sofía, ejecutiva comercial IA de IACondo. ¿En qué ciudad está tu condominio y cuántos apartamentos tiene aproximadamente?'
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iacondo_web_messages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [INITIAL_SOFIA_GREETING];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('iacondo_web_messages', JSON.stringify(messages));
+    } catch {}
+    const box = document.getElementById('sofia-web-chat-messages');
+    if (box) {
+      box.scrollTop = box.scrollHeight;
     }
-  ]);
+  }, [messages, open, loading]);
+
+  const handleResetChat = async () => {
+    const newId = `web_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    setSessionId(newId);
+    setMessages([INITIAL_SOFIA_GREETING]);
+    try {
+      localStorage.setItem('iacondo_web_session_id', newId);
+      localStorage.setItem('iacondo_web_messages', JSON.stringify([INITIAL_SOFIA_GREETING]));
+      await fetch('https://condopro-api.onrender.com/api/sofia-whatsapp/web-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reset: true })
+      });
+    } catch {}
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -365,29 +414,40 @@ function SofiaChatWidget() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/webhook-omnichannel', {
+      if (senderName.trim()) localStorage.setItem('iacondo_web_sender_name', senderName.trim());
+      if (senderPhone.trim()) localStorage.setItem('iacondo_web_sender_phone', senderPhone.trim());
+    } catch {}
+
+    try {
+      const res = await fetch('https://condopro-api.onrender.com/api/sofia-whatsapp/web-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          channel: 'whatsapp',
-          sender_id: senderPhone.trim() || 'visitante-web-iacondo',
-          sender_name: senderName.trim() || 'Visitante Web IACondo',
-          message_text: userMsg
+          sessionId,
+          senderName: senderName.trim() || 'Visitante Web',
+          senderPhone: senderPhone.trim() || '',
+          text: userMsg
         })
       });
       const data = await res.json();
       if (data && data.reply) {
         setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
+        if (data.profile?.name && !senderName) {
+          setSenderName(data.profile.name);
+        }
+        if (data.profile?.phone && !senderPhone) {
+          setSenderPhone(data.profile.phone);
+        }
       } else {
         setMessages(prev => [
           ...prev,
-          { role: 'assistant', text: 'Gracias por escribirnos. ¿Me confirmas tu correo o WhatsApp para agendarte tu Demo?' }
+          { role: 'assistant', text: 'Te leo perfecto. ¿Me comentas en qué ciudad está tu condominio o cuál es tu consulta?' }
         ]);
       }
     } catch (err) {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', text: 'Puedes escribirnos también directo a nuestro WhatsApp +58 422-2537239.' }
+        { role: 'assistant', text: 'Estamos conectando con el servidor en este segundo. También puedes escribirme directo al WhatsApp +58 422-2537239.' }
       ]);
     } finally {
       setLoading(false);
@@ -398,7 +458,7 @@ function SofiaChatWidget() {
     <div style={{ position: 'fixed', bottom: '22px', right: '22px', zIndex: 9999, fontFamily: 'system-ui, sans-serif' }}>
       {open ? (
         <div style={{
-          width: '350px',
+          width: '365px',
           maxWidth: 'calc(100vw - 32px)',
           background: '#0f172a',
           border: '1px solid rgba(14, 165, 233, 0.35)',
@@ -417,41 +477,55 @@ function SofiaChatWidget() {
             borderBottom: '1px solid rgba(255,255,255,0.1)'
           }}>
             <div>
-              <div style={{ fontWeight: '700', color: 'white', fontSize: '0.98rem' }}>🤖 Sofía — Asesora IA Condo</div>
-              <div style={{ fontSize: '0.75rem', color: '#bae6fd' }}>En línea 24/7 · Atención inmediata</div>
+              <div style={{ fontWeight: '700', color: 'white', fontSize: '0.98rem' }}>🤖 Sofía — IA Condo</div>
+              <div style={{ fontSize: '0.74rem', color: '#bae6fd' }}>🟢 En línea (Gemini Flash · Memoria activa)</div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
-            >
-              ✕
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={handleResetChat}
+                title="Reiniciar conversación"
+                style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#e0f2fe', fontSize: '0.72rem', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}
+              >
+                🔄 Nuevo
+              </button>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           <div style={{ padding: '8px 12px', background: '#1e293b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
             <input
-              placeholder="Tu nombre"
+              placeholder="Tu nombre (opcional)"
               value={senderName}
               onChange={e => setSenderName(e.target.value)}
               style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: 'white', fontSize: '0.78rem' }}
             />
             <input
-              placeholder="Tu WhatsApp (+58...)"
+              placeholder="Tu WhatsApp (opcional)"
               value={senderPhone}
               onChange={e => setSenderPhone(e.target.value)}
               style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #334155', background: '#0f172a', color: 'white', fontSize: '0.78rem' }}
             />
           </div>
 
-          <div style={{
-            padding: '12px',
-            height: '260px',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            background: '#090f1d'
-          }}>
+          <div
+            id="sofia-web-chat-messages"
+            style={{
+              padding: '12px',
+              height: '280px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              background: '#090f1d'
+            }}
+          >
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -479,7 +553,7 @@ function SofiaChatWidget() {
 
           <form onSubmit={sendMessage} style={{ display: 'flex', padding: '10px', background: '#0f172a', borderTop: '1px solid #1e293b', gap: '6px' }}>
             <input
-              placeholder="Escribe tu consulta aquí..."
+              placeholder="Escribe tu mensaje aquí..."
               value={input}
               onChange={e => setInput(e.target.value)}
               style={{ flex: 1, padding: '8px 10px', borderRadius: '8px', border: '1px solid #334155', background: '#1e293b', color: 'white', fontSize: '0.85rem' }}
@@ -495,12 +569,12 @@ function SofiaChatWidget() {
 
           <div style={{ padding: '6px 12px 10px', background: '#0f172a', textAlign: 'center' }}>
             <a
-              href="https://wa.me/584222537239?text=Hola%20Sof%C3%ADa%2C%20vengo%20de%20iacondo.com%20y%20quiero%20una%20Demo"
+              href="https://wa.me/584222537239?text=Hola%20Sof%C3%ADa%2C%20vengo%20de%20iacondo.com"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#34d399', fontSize: '0.78rem', textDecoration: 'none', fontWeight: '600' }}
             >
-              💬 Continuar por WhatsApp (+58 422-2537239) ➜
+              💬 Pasar este chat a WhatsApp (+58 422-2537239) ➜
             </a>
           </div>
         </div>
