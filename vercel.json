@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/demo",
+      "destination": "https://app.iacondo.com/demo",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
