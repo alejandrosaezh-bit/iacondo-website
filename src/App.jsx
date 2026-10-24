@@ -149,10 +149,11 @@ function App() {
           <span style={{ color: 'white' }}>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <p style={{ marginBottom: '1rem' }}>© {new Date().getFullYear()} IACondo.com. Todos los derechos reservados.</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem', flexWrap: 'wrap' }}>
+          <a href="mailto:hola@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>📧 hola@iacondo.com</a>
+          <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>🛠️ soporte@iacondo.com</a>
           <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Términos de Servicio</a>
           <a href="#" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Privacidad</a>
-          <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Soporte</a>
         </div>
       </footer>
 
@@ -212,7 +213,17 @@ function ContactForm() {
       if (response.ok) {
         setStatus('success');
       } else {
-        setStatus('error');
+        // Fallback directo al backend principal si la ruta local de Vercel devuelve error
+        const fallbackRes = await fetch('https://condopro-api.onrender.com/api/public/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (fallbackRes.ok) {
+          setStatus('success');
+        } else {
+          setStatus('error');
+        }
       }
     } catch (error) {
       console.error('Error enviando formulario:', error);
@@ -268,35 +279,48 @@ function ContactForm() {
   return (
     <form className="glass-panel" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre Completo *</label>
+        <label htmlFor="contact-name" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre Completo *</label>
         <input 
-          type="text" required
+          id="contact-name"
+          name="name"
+          type="text"
+          autoComplete="name"
+          required
           value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', fontSize: '1rem' }} 
         />
       </div>
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Correo Electrónico *</label>
+        <label htmlFor="contact-email" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Correo Electrónico *</label>
         <input 
-          type="email" required
+          id="contact-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
           value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}
-          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', fontSize: '1rem' }} 
         />
       </div>
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre del Condominio</label>
+        <label htmlFor="contact-condominium" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Nombre del Condominio</label>
         <input 
-          type="text" 
+          id="contact-condominium"
+          name="condominium"
+          type="text"
+          autoComplete="organization"
           value={formData.condominium} onChange={e => setFormData({...formData, condominium: e.target.value})}
-          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white' }} 
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', fontSize: '1rem' }} 
         />
       </div>
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Mensaje o Dudas *</label>
+        <label htmlFor="contact-message" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Mensaje o Dudas *</label>
         <textarea 
+          id="contact-message"
+          name="message"
           required rows="4"
           value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})}
-          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', resize: 'vertical' }} 
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', resize: 'vertical', fontSize: '1rem' }} 
         />
       </div>
       {status === 'error' && (

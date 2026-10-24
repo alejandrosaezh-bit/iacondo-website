@@ -113,11 +113,11 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
   `;
 
   try {
-    // A. Inyectar Lead directo al Pipeline "IA Condo" en Odoo CRM + Copia a hola@iacondo.com
+    // A. Inyectar Lead directo al Pipeline "IA Condo" en Odoo CRM + Copia a hola@iacondo.com y dirección comercial
     await transporter.sendMail({
       from: `"${name.replace(/"/g, '')} (Web IA Condo)" <${smtpUser}>`,
       replyTo: `"${name.replace(/"/g, '')}" <${email}>`,
-      to: [odooAlias, smtpUser],
+      to: [odooAlias, smtpUser, 'alejandrosaezh@iacondo.com'],
       subject: leadSubject,
       html: `
         <div style="font-family: Arial, sans-serif; color: #0f172a;">
@@ -144,11 +144,11 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
       html: fullCustomerHtml,
     });
 
-    // C. Respaldo opcional al backend anterior sin bloquear
+    // C. Respaldo en base de datos y notificación Push al backend principal sin duplicar correo
     fetch('https://condopro-api.onrender.com/api/public/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, condominium, message }),
+      body: JSON.stringify({ name, email, condominium, message, skipEmail: true }),
     }).catch(() => {});
 
     return res.status(200).json({ ok: true, message: 'Lead registrado en Odoo CRM y correo enviado por Sofía IA.' });
