@@ -2,21 +2,11 @@ import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import nodemailer from 'nodemailer';
 
-/**
- * Vercel Serverless Function: /api/agent-inbox-worker
- * URL: https://www.iacondo.com/api/agent-inbox-worker
- *
- * Agente Autónomo 24/7 (Sofía IA con Gemini 2.5 Flash) que:
- * 1. Revisa por IMAP los correos entrantes no respondidos (UNANSWERED) en:
- *    - hola@iacondo.com (IA Condo -> Ventas, Demos y Atención a Juntas de Condominio / Administradoras)
- *    - info@profesionalcercano.com (Profesional Cercano -> Solo Soporte Técnico y Requerimientos Puntuales)
- * 2. Filtra correos internos/automáticos para evitar cualquier bucle.
- * 3. Analiza la respuesta o consulta del cliente con Gemini 2.5 Flash.
- * 4. Responde automáticamente al cliente en el mismo hilo de correo (In-Reply-To / References).
- * 5. Registra la respuesta y el grado de calificación en la Oportunidad de Odoo CRM.
- * 6. Cuando un condominio queda listo para Demo (demo_ready) o hay un caso crítico de soporte,
- *    envía una alerta "Human-in-the-Loop" a alejandrosaezh@iacondo.com.
- */
+const VENEZUELA_CITIES = [
+  'Caracas', 'Valencia', 'Maracaibo', 'Barquisimeto', 'Maracay',
+  'Lechería', 'Puerto La Cruz', 'Barcelona', 'Puerto Ordaz', 'Ciudad Guayana',
+  'Maturín', 'San Cristóbal', 'Mérida', 'Margarita', 'Porlamar', 'Cumaná', 'Los Teques', 'Guatire', 'Guarenas'
+];
 
 const IGNORED_SENDERS = [
   'hola@iacondo.com',
@@ -59,24 +49,45 @@ function shouldIgnoreMessage(fromEmail = '', subject = '') {
   return false;
 }
 
+function extractLeadEntities(text = '') {
+  const clean = (text || '').replace(/\s+/g, ' ').trim();
+  const city = VENEZUELA_CITIES.find(c => clean.toLowerCase().includes(c.toLowerCase())) || null;
+  const unitsMatch = clean.match(/(\d+)\s*(apartamentos|aptos|inmuebles|casas|unidades|propietarios)/i);
+  const units = unitsMatch ? unitsMatch[1] : null;
+  const phoneMatch = clean.match(/(\+?58\s?0?\d{3}[-\s]?\d{7}|04\d{2}[-\s]?\d{7})/);
+  const phone = phoneMatch ? phoneMatch[1] : null;
+  const condoMatch = clean.match(
+    /((?:residencias|conjunto residencial|condominio|edificio|torre|urbanizaci[oó]n|terrazas)\s+[a-záéíóúñ0-9\s]{2,35}?)(?=\s+en\s+|\s*[,.]|\s+tenemos|\s+y\s+|$)/i
+  );
+  const condo = condoMatch ? condoMatch[1].trim() : null;
+  const asksBcv = /(bcv|bol[ií]vares|pago m[oó]vil|tasa|conciliaci[oó]n)/i.test(clean);
+  const asksDemo = /(demo|demostraci[oó]n|agendar|prueba|reuni[oó]n)/i.test(clean);
+
+  const isDemoReady = Boolean((city && units) || (units && phone) || (asksDemo && (city || units || phone)));
+
+  return {
+    condo,
+    city,
+    units,
+    phone,
+    asksBcv,
+    asksDemo,
+    isDemoReady,
+  };
+}
+
 async function analyzeAndGenerateReply({ project, senderName, senderEmail, subject, bodyText, geminiKey }) {
   const isIaCondo = project === 'iacondo';
+  const entities = extractLeadEntities(bodyText);
 
   const systemInstruction = isIaCondo
     ? `Eres Sofía, la Ejecutiva Comercial Senior de IA de IA Condo (www.iacondo.com), plataforma líder en Venezuela para la gestión automatizada de juntas de condominio y administradoras.
 Un cliente o prospecto acaba de enviar o responder un correo a hola@iacondo.com.
 Conocimiento clave de IA Condo:
-- Automatiza recibos de condominio multimoneda (USD y Bs a tasa oficial BCV del día).
-- Conciliación bancaria automática con IA para Pago Móvil, transferencias nacionales y Zelle.
+- Automatiza recibos de condominio multimoneda: emite en USD referencial y permite pagar en Bolívares calculando automáticamente la tasa oficial del BCV del día del pago.
+- Conciliación bancaria automática con IA: el propietario reporta su Pago Móvil, transferencia en Bs o Zelle, y la IA valida el comprobante contra el banco y actualiza el saldo al instante.
 - Control de morosidad en tiempo real, fondos de reserva, cartelera digital y portal web/móvil para propietarios.
-- Planes adaptados al tamaño del condominio o administradora en Venezuela.
 - WhatsApp oficial de atención y Demos: +58 422-2537239.
-
-Tu tarea:
-1. Analiza lo que escribió el cliente.
-2. Redacta una respuesta cálida, ejecutiva y persuasiva en HTML limpio (solo etiquetas <p>, <ul>, <li>, <strong>).
-3. Si el cliente ya indicó Ciudad + Cantidad aproximada de inmuebles/apartamentos (o pide agendar la Demo ya), clasifícalo como stage = "demo_ready" y confírmale que nuestro director comercial Alejandro Sáez y tú le activarán su acceso de demostración de inmediato.
-4. Si aún faltan datos clave (nombre del condominio, ciudad en Venezuela, cantidad de apartamentos o su WhatsApp), respóndele sus dudas con precisión y pídele amablemente los datos faltantes (stage = "qualifying").
 
 Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura exacta:
 {
@@ -87,13 +98,12 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
   "extracted_units": "cantidad de apartamentos o null",
   "extracted_phone": "teléfono/WhatsApp si lo indicó o null",
   "executive_summary": "Resumen de 1 línea para Odoo CRM",
-  "reply_html": "<p>Respuesta completa en HTML para el cliente...</p>"
+  "reply_html": "<p>Respuesta completa en HTML limpio para el cliente...</p>"
 }`
     : `Eres Sofía, la Asistente IA de Soporte Técnico y Casos Especiales de Profesional Cercano (www.profesionalcercano.com) en Venezuela.
 Regla estricta:
 - Profesional Cercano es una App autónoma. Solo atendemos y escalamos en el CRM problemas técnicos, soporte con cuentas/verificación KYC, pagos de suscripciones (PRO/ELITE) o requerimientos puntuales/especiales.
 - NUNCA menciones ningún nombre antiguo del proyecto; usa exclusivamente "Profesional Cercano".
-- Redacta una respuesta empática, resolutiva y clara en HTML limpio (<p>, <ul>, <li>, <strong>) indicando que su caso ha sido actualizado en el sistema de soporte técnico de Profesional Cercano.
 
 Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura exacta:
 {
@@ -130,28 +140,61 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
 
     if (res.ok) {
       const data = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const rawText = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '')
+        .replace(/^```json\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim();
       const parsed = JSON.parse(rawText);
       if (parsed && parsed.reply_html) {
-        return parsed;
+        return {
+          ...parsed,
+          stage: entities.isDemoReady ? 'demo_ready' : parsed.stage || 'qualifying',
+          extracted_condo: parsed.extracted_condo || entities.condo,
+          extracted_city: parsed.extracted_city || entities.city,
+          extracted_units: parsed.extracted_units || entities.units,
+          extracted_phone: parsed.extracted_phone || entities.phone,
+        };
       }
     }
   } catch (err) {
     console.error('Error en análisis Gemini del correo entrante:', err);
   }
 
-  // Fallback estructurado si Gemini no responde JSON
+  // Respuesta inteligente contextual con entidades extraídas
+  if (isIaCondo) {
+    const condoText = entities.condo ? ` de <strong>${entities.condo}</strong>` : '';
+    const cityText = entities.city ? ` en <strong>${entities.city}</strong>` : '';
+    const unitsText = entities.units ? ` (${entities.units} apartamentos)` : '';
+    const bcvParagraph = entities.asksBcv
+      ? `<p>Sobre tu consulta de los <strong>pagos en Bolívares a tasa BCV</strong>: en <strong>IA Condo</strong> los recibos se expresan en divisas (USD) como referencia de valor, pero cada propietario puede pagar en <strong>Bolívares (Pago Móvil o transferencia bancaria)</strong> calculados automáticamente a la <strong>tasa oficial del BCV vigente el día exacto del pago</strong>. Además, nuestra IA concilia el comprobante automáticamente y emite el recibo al instante sin trabajo manual para la Junta.</p>`
+      : `<p>Con <strong>IA Condo</strong> automatizamos la emisión de recibos en USD/Bs a tasa BCV, conciliación bancaria con IA (Pago Móvil, transferencias y Zelle) y control de morosidad en tiempo real.</p>`;
+
+    const nextStepParagraph = entities.isDemoReady
+      ? `<div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 14px; border-radius: 6px; margin: 14px 0;">
+          <strong>✅ ¡Solicitud de Demo Calificada y Agendada!</strong><br/>
+          Ya registré los datos${condoText}${cityText}${unitsText} y tu WhatsApp <strong>${entities.phone || 'indicado'}</strong> en nuestro pipeline de <strong>Odoo CRM</strong>. Nuestro director comercial <strong>Alejandro Sáez</strong> y yo te contactaremos a tu WhatsApp para mostrarte la Demo personalizada en vivo.
+        </div>`
+      : `<p>Para prepararte la Demo guiada, ¿podrías confirmarme respondiendo a este correo el nombre del condominio, ciudad, cantidad aproximada de apartamentos y tu número de WhatsApp?</p>`;
+
+    return {
+      should_reply: true,
+      stage: entities.isDemoReady ? 'demo_ready' : 'qualifying',
+      extracted_condo: entities.condo,
+      extracted_city: entities.city,
+      extracted_units: entities.units,
+      extracted_phone: entities.phone,
+      executive_summary: `${entities.condo || senderName} (${entities.city || 'Venezuela'}, ${entities.units ? entities.units + ' aptos' : 'por confirmar'}) — ${entities.isDemoReady ? 'Calificado para Demo' : 'En calificación'}`,
+      reply_html: `<p>¡Hola <strong>${senderName || ''}</strong>! 👋 Qué gusto saludarte${condoText}${cityText}.</p>${bcvParagraph}${nextStepParagraph}`,
+    };
+  }
+
   return {
     should_reply: true,
-    stage: isIaCondo ? 'qualifying' : 'support_escalated',
-    extracted_condo: null,
-    extracted_city: null,
-    extracted_units: null,
-    extracted_phone: null,
-    executive_summary: `Respuesta entrante de ${senderName || senderEmail} atendida por Sofía IA.`,
-    reply_html: isIaCondo
-      ? `<p>¡Hola <strong>${senderName || ''}</strong>! 👋</p><p>Muchas gracias por tu respuesta. He actualizado la ficha de tu condominio en nuestro sistema de <strong>IA Condo</strong> y en breve te contactaremos con los detalles de tu demostración guiada. También estamos disponibles en WhatsApp al <a href="https://wa.me/584222537239">+58 422-2537239</a>.</p>`
-      : `<p>¡Hola <strong>${senderName || ''}</strong>! 👋</p><p>Hemos recibido tu mensaje en el área de soporte y requerimientos puntuales de <strong>Profesional Cercano</strong> y ya lo anexamos a tu caso para darte solución a la brevedad.</p>`,
+    stage: 'support_escalated',
+    extracted_city: entities.city,
+    extracted_phone: entities.phone,
+    executive_summary: `Caso de soporte puntual de ${senderName || senderEmail} atendido por Sofía IA.`,
+    reply_html: `<p>¡Hola <strong>${senderName || ''}</strong>! 👋</p><p>Hemos recibido tu mensaje en el área de soporte técnico y requerimientos puntuales de <strong>Profesional Cercano</strong> y ya lo anexamos a tu caso en Odoo CRM para darte solución a la brevedad.</p>`,
   };
 }
 
@@ -204,7 +247,6 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           ? parsed.references.join(' ')
           : parsed.references || '';
 
-        // Si es un correo interno/automático, marcarlo como \Answered para no volver a evaluarlo
         if (shouldIgnoreMessage(senderEmail, subject)) {
           await client.messageFlagsAdd(uid, ['\\Answered', '\\Seen'], { uid: true });
           continue;
@@ -222,7 +264,6 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           geminiKey,
         });
 
-        // Marcar como respondido en IMAP antes de enviar para garantizar idempotencia (cero duplicados)
         await client.messageFlagsAdd(uid, ['\\Answered', '\\Seen'], { uid: true });
 
         if (!aiDecision.should_reply) {
@@ -245,7 +286,6 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           </div>
         `;
 
-        // 1. Enviar respuesta automática al cliente manteniendo el hilo (In-Reply-To / References)
         await transporter.sendMail({
           from: `"Sofía | ${brandName}" <${emailUser}>`,
           replyTo: `"${brandName}" <${emailUser}>`,
@@ -256,7 +296,6 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           html: fullReplyHtml,
         });
 
-        // 2. Registrar el análisis y la respuesta de Sofía IA en Odoo CRM (mismo hilo)
         const stageBadge =
           aiDecision.stage === 'demo_ready'
             ? '🟢 LISTO PARA DEMO (CALIFICADO)'
@@ -289,13 +328,12 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           `,
         });
 
-        // 3. Si está listo para Demo o es un escalado importante, avisar a Alejandro (Human-in-the-Loop)
         if (aiDecision.stage === 'demo_ready' || aiDecision.stage === 'support_escalated') {
           await transporter.sendMail({
             from: `"🔔 Alerta Sofía IA | ${brandName}" <${emailUser}>`,
             replyTo: `"${senderName}" <${senderEmail}>`,
             to: 'alejandrosaezh@iacondo.com',
-            subject: `🔔 [Sofía IA] ${stageBadge} — ${senderName} (${brandName})`,
+            subject: `🔔 [Sofía IA] ${stageBadge} — ${aiDecision.extracted_condo || senderName} (${brandName})`,
             html: `
               <div style="font-family: Arial, sans-serif; color: #0f172a; line-height: 1.6;">
                 <h3>🔔 Hola Alejandro, Sofía IA calificó y atendió un caso prioritario en ${brandName}</h3>
@@ -320,6 +358,10 @@ async function processMailboxAccount(accountConfig, geminiKey) {
           from: senderEmail,
           subject,
           stage: aiDecision.stage,
+          condo: aiDecision.extracted_condo,
+          city: aiDecision.extracted_city,
+          units: aiDecision.extracted_units,
+          phone: aiDecision.extracted_phone,
           summary: aiDecision.executive_summary,
         });
       }
