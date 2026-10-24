@@ -88,6 +88,7 @@ Conocimiento clave de IA Condo:
 - Conciliación bancaria automática con IA: el propietario reporta su Pago Móvil, transferencia en Bs o Zelle, y la IA valida el comprobante contra el banco y actualiza el saldo al instante.
 - Control de morosidad en tiempo real, fondos de reserva, cartelera digital y portal web/móvil para propietarios.
 - WhatsApp oficial de atención y Demos: +58 422-2537239.
+- NUNCA menciones "Odoo", "CRM" ni nombres de sistemas internos en el mensaje para el cliente (reply_html).
 
 Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura exacta:
 {
@@ -97,13 +98,13 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
   "extracted_city": "ciudad en Venezuela o null",
   "extracted_units": "cantidad de apartamentos o null",
   "extracted_phone": "teléfono/WhatsApp si lo indicó o null",
-  "executive_summary": "Resumen de 1 línea para Odoo CRM",
-  "reply_html": "<p>Respuesta completa en HTML limpio para el cliente...</p>"
+  "executive_summary": "Resumen interno de 1 línea",
+  "reply_html": "<p>Respuesta completa en HTML limpio para el cliente (sin mencionar nunca Odoo ni CRM)...</p>"
 }`
     : `Eres Sofía, la Asistente IA de Soporte Técnico y Casos Especiales de Profesional Cercano (www.profesionalcercano.com) en Venezuela.
 Regla estricta:
-- Profesional Cercano es una App autónoma. Solo atendemos y escalamos en el CRM problemas técnicos, soporte con cuentas/verificación KYC, pagos de suscripciones (PRO/ELITE) o requerimientos puntuales/especiales.
-- NUNCA menciones ningún nombre antiguo del proyecto; usa exclusivamente "Profesional Cercano".
+- Profesional Cercano es una App autónoma. Solo atendemos problemas técnicos, soporte con cuentas/verificación KYC, pagos de suscripciones (PRO/ELITE) o requerimientos puntuales/especiales.
+- NUNCA menciones ningún nombre antiguo del proyecto ni menciones "Odoo" o "CRM" al usuario; usa exclusivamente "Profesional Cercano".
 
 Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura exacta:
 {
@@ -111,8 +112,8 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
   "stage": "support_escalated",
   "extracted_city": "ciudad si la menciona o null",
   "extracted_phone": "teléfono si lo menciona o null",
-  "executive_summary": "Resumen técnico de 1 línea para Odoo CRM",
-  "reply_html": "<p>Respuesta completa en HTML para el usuario...</p>"
+  "executive_summary": "Resumen técnico interno de 1 línea",
+  "reply_html": "<p>Respuesta completa en HTML para el usuario (sin mencionar Odoo ni CRM)...</p>"
 }`;
 
   try {
@@ -171,8 +172,8 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
 
     const nextStepParagraph = entities.isDemoReady
       ? `<div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 14px; border-radius: 6px; margin: 14px 0;">
-          <strong>✅ ¡Solicitud de Demo Calificada y Agendada!</strong><br/>
-          Ya registré los datos${condoText}${cityText}${unitsText} y tu WhatsApp <strong>${entities.phone || 'indicado'}</strong> en nuestro pipeline de <strong>Odoo CRM</strong>. Nuestro director comercial <strong>Alejandro Sáez</strong> y yo te contactaremos a tu WhatsApp para mostrarte la Demo personalizada en vivo.
+          <strong>✅ ¡Solicitud de Demo Recibida y Agendada!</strong><br/>
+          Ya tomé nota de los datos${condoText}${cityText}${unitsText} y de tu WhatsApp <strong>${entities.phone || 'indicado'}</strong>. Nuestro director comercial <strong>Alejandro Sáez</strong> y yo te contactaremos a tu WhatsApp para mostrarte la Demo personalizada en vivo.
         </div>`
       : `<p>Para prepararte la Demo guiada, ¿podrías confirmarme respondiendo a este correo el nombre del condominio, ciudad, cantidad aproximada de apartamentos y tu número de WhatsApp?</p>`;
 
@@ -194,7 +195,7 @@ Responde ÚNICAMENTE en JSON válido (sin bloques markdown) con esta estructura 
     extracted_city: entities.city,
     extracted_phone: entities.phone,
     executive_summary: `Caso de soporte puntual de ${senderName || senderEmail} atendido por Sofía IA.`,
-    reply_html: `<p>¡Hola <strong>${senderName || ''}</strong>! 👋</p><p>Hemos recibido tu mensaje en el área de soporte técnico y requerimientos puntuales de <strong>Profesional Cercano</strong> y ya lo anexamos a tu caso en Odoo CRM para darte solución a la brevedad.</p>`,
+    reply_html: `<p>¡Hola <strong>${senderName || ''}</strong>! 👋</p><p>Hemos recibido tu mensaje en el área de soporte técnico y requerimientos puntuales de <strong>Profesional Cercano</strong> y ya lo estamos revisando para darte solución a la brevedad.</p>`,
   };
 }
 

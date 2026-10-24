@@ -394,7 +394,7 @@ function SofiaChatWidget() {
           }}>
             <div>
               <div style={{ fontWeight: '700', color: 'white', fontSize: '0.98rem' }}>🤖 Sofía — Asesora IA Condo</div>
-              <div style={{ fontSize: '0.75rem', color: '#bae6fd' }}>En línea 24/7 · Conectada a Odoo CRM</div>
+              <div style={{ fontSize: '0.75rem', color: '#bae6fd' }}>En línea 24/7 · Atención inmediata</div>
             </div>
             <button
               onClick={() => setOpen(false)}
