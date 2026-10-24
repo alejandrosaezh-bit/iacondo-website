@@ -30,7 +30,7 @@ function App() {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <a href="#features" style={{ color: 'white', textDecoration: 'none', fontWeight: '500', display: 'none' }} className="nav-link">Características</a>
-          <a href="https://app.iacondo.com/demo" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>🎮 Probar Demo</a>
+          <a href="https://iacondo.com/demo" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>🎮 Probar Demo</a>
           <a href="https://app.iacondo.com" className="btn btn-secondary" style={{ padding: '0.5rem 1.2rem' }}>Iniciar Sesión</a>
         </div>
       </nav>
@@ -58,7 +58,7 @@ function App() {
             La plataforma definitiva para la administración transparente. Automatiza cobros, concilia pagos bancarios y mantén a toda tu comunidad conectada e informada.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://app.iacondo.com/demo" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>🎮 Probar Demo en Vivo</a>
+            <a href="https://iacondo.com/demo" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>🎮 Probar Demo en Vivo</a>
             <a href="#contacto" className="btn btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Solicitar Información</a>
           </div>
         </div>

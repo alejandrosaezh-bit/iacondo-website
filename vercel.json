@@ -4,6 +4,11 @@
       "source": "/demo",
       "destination": "https://app.iacondo.com/demo",
       "permanent": false
+    },
+    {
+      "source": "/demo/(.*)",
+      "destination": "https://app.iacondo.com/demo/$1",
+      "permanent": false
     }
   ],
   "rewrites": [
