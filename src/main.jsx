@@ -11,6 +11,7 @@ const isPanelRoute =
   host.startsWith('panel.') ||
   host.startsWith('soporte.') ||
   host.startsWith('agenda.') ||
+  host.startsWith('ventas.') ||
   path.startsWith('/panel');
 
 if (isPanelRoute && typeof document !== 'undefined') {

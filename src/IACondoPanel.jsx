@@ -10,13 +10,22 @@ const ROLE_LABELS = {
 };
 
 const CALL_STATUS_LABELS = {
-  pendiente: { label: '⏳ Pendiente por Llamar', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-  contactado: { label: '📞 Contactado / En Gestión', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  demo_realizada: { label: '🖥️ Demo Presentada', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
-  afiliado: { label: '✅ Condominio Afiliado', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
-  en_revision: { label: '🛠️ En Revisión Técnica', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  resuelto: { label: '✅ Ticket Resuelto', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
-  descartado: { label: '📁 Archivado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' }
+  pendiente: { label: '1. Nuevo / Contacto Inicial', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+  nuevo: { label: '1. Nuevo / Contacto Inicial', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+  contactado: { label: '2. Contacto / Visita o Demo', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+  visita_demo: { label: '2. Contacto / Visita o Demo', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+  demo_realizada: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
+  cotizacion: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
+  en_espera: { label: '4. En Espera (Asamblea / Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)' },
+  implementacion: { label: '5. En Implementación (Onboarding)', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
+  afiliado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
+  ganado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
+  descartado: { label: '7. Perdido / Descartado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
+  perdido: { label: '7. Perdido / Descartado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
+  diagnostico: { label: '2. En Diagnóstico Técnico', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+  en_revision: { label: '3. En Solución / Ajuste', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
+  validacion: { label: '4. Validación con Condominio', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
+  resuelto: { label: '5. Resuelto / Cerrado', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' }
 };
 
 export default function IACondoPanel() {
@@ -54,9 +63,9 @@ export default function IACondoPanel() {
   const [playbookForm, setPlaybookForm] = useState({
     agentName: 'Sofía',
     companyName: 'IA Condo',
-    roleTitle: 'Especialista de Atención y Afiliación de IA Condo',
-    customInstructions: '',
-    infoObjectives: ''
+    humanAgentCalendarEmail: 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
+    humanAgentWhatsapp: '+34651626150',
+    customInstructions: ''
   });
 
   // User Form State
@@ -66,11 +75,9 @@ export default function IACondoPanel() {
     email: '',
     password: '',
     role: 'ventas',
-    department: 'Comercial y Demos',
-    phone: '',
+    whatsappPhone: '',
     calendarEmail: '',
-    active: true,
-    receiveCalls: true
+    active: true
   });
 
   // New/Edit AI Agent Form State
@@ -78,11 +85,9 @@ export default function IACondoPanel() {
     id: '',
     name: '',
     role: '',
-    channel: 'WhatsApp / Web',
-    model: 'gemini-flash-lite-latest',
-    status: 'activo',
-    Objective: '',
-    systemPrompt: ''
+    channels: 'WhatsApp 0422-2537239, Correo',
+    description: '',
+    active: true
   });
 
   // Selected Session in Live Chat Tab
@@ -114,9 +119,9 @@ export default function IACondoPanel() {
           setPlaybookForm({
             agentName: dashData.playbook.agentName || 'Sofía',
             companyName: 'IA Condo',
-            roleTitle: dashData.playbook.roleTitle || 'Especialista de Atención y Afiliación de IA Condo',
-            customInstructions: dashData.playbook.customInstructions || '',
-            infoObjectives: dashData.playbook.infoObjectives || ''
+            humanAgentCalendarEmail: dashData.playbook.humanAgentCalendarEmail || 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
+            humanAgentWhatsapp: dashData.playbook.humanAgentWhatsapp || '+34651626150',
+            customInstructions: dashData.playbook.customInstructions || ''
           });
         }
       }
@@ -193,20 +198,11 @@ export default function IACondoPanel() {
 
   const handleSaveUser = async (e) => {
     e.preventDefault();
-    const roleDepMap = {
-      admin: 'Dirección General',
-      ventas: 'Comercial y Demos',
-      soporte: 'Departamento Técnico',
-      administracion: 'Administración y Finanzas'
-    };
     try {
       const res = await fetch(`${API_BASE}/api/iacondo-panel/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...userForm,
-          department: roleDepMap[userForm.role] || userForm.department
-        })
+        body: JSON.stringify(userForm)
       });
       const data = await res.json();
       if (data.ok) {
@@ -217,11 +213,9 @@ export default function IACondoPanel() {
           email: '',
           password: '',
           role: 'ventas',
-          department: 'Comercial y Demos',
-          phone: '',
+          whatsappPhone: '',
           calendarEmail: '',
-          active: true,
-          receiveCalls: true
+          active: true
         });
         fetchDashboard();
       }
@@ -237,7 +231,8 @@ export default function IACondoPanel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...u,
-          receiveCalls: !u.receiveCalls
+          id: u.id || u._id,
+          active: u.active === false ? true : false
         })
       });
       showToast(`✅ Estado de guardia actualizado para ${u.name}`);
@@ -247,12 +242,10 @@ export default function IACondoPanel() {
     }
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUser = async (userId) => {
     try {
-      await fetch(`${API_BASE}/api/iacondo-panel/users/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
+      await fetch(`${API_BASE}/api/iacondo-panel/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE'
       });
       showToast('🗑️ Usuario eliminado');
       fetchDashboard();
@@ -294,11 +287,9 @@ export default function IACondoPanel() {
           id: '',
           name: '',
           role: '',
-          channel: 'WhatsApp / Web',
-          model: 'gemini-flash-lite-latest',
-          status: 'activo',
-          Objective: '',
-          systemPrompt: ''
+          channels: 'WhatsApp 0422-2537239, Correo',
+          description: '',
+          active: true
         });
         fetchDashboard();
       }
@@ -554,7 +545,7 @@ export default function IACondoPanel() {
         flexWrap: 'wrap',
         gap: '1rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ fontSize: '1.4rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <span style={{ color: '#0ea5e9' }}>⌂</span>
             <span>PANEL<span style={{ color: '#0ea5e9' }}>.IACONDO.COM</span></span>
@@ -633,6 +624,30 @@ export default function IACondoPanel() {
 
       {/* MAIN CONTAINER */}
       <div style={{ maxWidth: '1380px', margin: '0 auto', padding: '1.75rem 1.5rem' }}>
+        {/* ECOSISTEMA DE SUBDOMINIOS IA CONDO */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          padding: '0.75rem 1.15rem',
+          marginBottom: '1.25rem',
+          background: 'rgba(15, 23, 42, 0.6)',
+          border: '1px solid rgba(148, 163, 184, 0.15)',
+          borderRadius: '12px',
+          fontSize: '0.78rem'
+        }}>
+          <span style={{ color: '#94a3b8', fontWeight: '600' }}>🌐 Ecosistema de Subdominios Oficiales IA Condo:</span>
+          <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap' }}>
+            <a href="https://www.iacondo.com" target="_blank" rel="noreferrer" style={{ color: '#cbd5e1', textDecoration: 'none' }}>🌍 www.iacondo.com</a>
+            <a href="https://panel.iacondo.com" style={{ color: '#38bdf8', fontWeight: '700', textDecoration: 'none' }}>🖥️ panel.iacondo.com</a>
+            <a href="https://agenda.iacondo.com" style={{ color: '#4ade80', textDecoration: 'none' }}>📅 agenda.iacondo.com</a>
+            <a href="https://soporte.iacondo.com" style={{ color: '#f59e0b', textDecoration: 'none' }}>🛠️ soporte.iacondo.com</a>
+            <a href="https://app.iacondo.com" target="_blank" rel="noreferrer" style={{ color: '#c084fc', textDecoration: 'none' }}>🏢 app.iacondo.com</a>
+          </div>
+        </div>
+
         {/* KPI SUMMARY BAR */}
         <div style={{
           display: 'grid',
@@ -667,7 +682,7 @@ export default function IACondoPanel() {
           <div style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(192, 132, 252, 0.25)', borderRadius: '14px', padding: '1.2rem' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: '600' }}>👥 EQUIPO EN GUARDIA</div>
             <div style={{ fontSize: '2rem', fontWeight: '800', color: '#c084fc', marginTop: '0.25rem' }}>
-              {users.filter(u => u.receiveCalls !== false).length} / {users.length}
+              {users.filter(u => u.active !== false).length} / {users.length}
             </div>
             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
               Recibiendo agendas .ics y alertas
@@ -727,11 +742,13 @@ export default function IACondoPanel() {
               </div>
               <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
                 {[
-                  { id: 'todos', label: 'Todas' },
-                  { id: 'pendiente', label: '⏳ Pendientes' },
-                  { id: 'contactado', label: '📞 Contactados' },
-                  { id: 'demo_realizada', label: '🖥️ Demo Presentada' },
-                  { id: 'afiliado', label: '✅ Afiliados' }
+                  { id: 'todos', label: 'Todas las Etapas' },
+                  { id: 'pendiente', label: '1. Nuevo / Contacto Inicial' },
+                  { id: 'visita_demo', label: '2. Contacto / Visita o Demo' },
+                  { id: 'cotizacion', label: '3. Cotización (% o Fijo)' },
+                  { id: 'en_espera', label: '4. En Espera (Asamblea)' },
+                  { id: 'implementacion', label: '5. En Implementación' },
+                  { id: 'ganado', label: '6. Ganado (Activo)' }
                 ].map(f => (
                   <button
                     key={f.id}
@@ -761,11 +778,17 @@ export default function IACondoPanel() {
             ) : (
               <div style={{ display: 'grid', gap: '1.25rem' }}>
                 {filteredSalesCalls.map(call => {
+                  const callId = call.id || call._id;
+                  const clientName = call.clientName || call.contactName || 'Interesado';
+                  const rawPhone = call.clientPhone || call.phone || '';
+                  const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+                  const timeLabel = call.callTimeLabel || call.callTimeDescription || 'Lo antes posible';
+                  const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en implementar IA Condo en su condominio.';
+                  const units = call.units || call.unitsCount || 'Por confirmar';
                   const st = CALL_STATUS_LABELS[call.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
-                  const cleanPhone = String(call.phone || '').replace(/[^0-9]/g, '');
-                  const startDate = call.startTimeISO ? new Date(call.startTimeISO) : null;
+
                   return (
-                    <div key={call._id} style={{
+                    <div key={callId} style={{
                       background: 'rgba(15, 23, 42, 0.9)',
                       border: '1px solid rgba(56, 189, 248, 0.25)',
                       borderRadius: '16px',
@@ -781,17 +804,17 @@ export default function IACondoPanel() {
                             {st.label}
                           </span>
                           <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '600' }}>
-                            🕒 Hora Acordada: {call.callTimeDescription || (startDate ? startDate.toLocaleString('es-VE') : 'Lo antes posible')}
+                            🕒 Hora Acordada: {timeLabel} {call.callTargetTimeCaracas ? `(${call.callTargetTimeCaracas})` : ''}
                           </span>
                         </div>
 
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.35rem 0', color: '#fff' }}>
-                          🏢 {call.condoName || 'Condominio por confirmar'} — {call.contactName || 'Interesado'}
+                          🏢 {call.condoName || 'Condominio por confirmar'} — {clientName}
                         </h3>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.75rem' }}>
                           <div>📍 <strong>Ubicación:</strong> {call.city || 'Por confirmar'}</div>
-                          <div>🏘️ <strong>Unidades:</strong> {call.unitsCount || 'Por confirmar'}</div>
+                          <div>🏘️ <strong>Unidades:</strong> {units}</div>
                           <div>📱 <strong>WhatsApp:</strong> +{cleanPhone}</div>
                           <div>✉️ <strong>Correo:</strong> {call.email || 'No indicado'}</div>
                         </div>
@@ -801,7 +824,7 @@ export default function IACondoPanel() {
                             📋 FICHA EJECUTIVA DE SOFÍA IA PARA EL AGENTE:
                           </div>
                           <div style={{ fontSize: '0.86rem', color: '#e2e8f0', lineHeight: '1.5', whiteSpace: 'pre-line' }}>
-                            {call.executiveBriefing || 'Interesado en conocer e implementar IA Condo en su junta de condominio.'}
+                            {summary}
                           </div>
                         </div>
                       </div>
@@ -810,14 +833,14 @@ export default function IACondoPanel() {
                       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0.85rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                           <div>
-                            <label htmlFor={`status-${call._id}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
+                            <label htmlFor={`status-${callId}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
                               Estado de la Gestión
                             </label>
                             <select
-                              id={`status-${call._id}`}
+                              id={`status-${callId}`}
                               name="status"
                               value={call.status || 'pendiente'}
-                              onChange={e => handleUpdateCall(call._id, { status: e.target.value })}
+                              onChange={e => handleUpdateCall(callId, { status: e.target.value })}
                               style={{
                                 width: '100%',
                                 padding: '0.55rem',
@@ -828,25 +851,54 @@ export default function IACondoPanel() {
                                 fontSize: '0.83rem'
                               }}
                             >
-                              <option value="pendiente">⏳ Pendiente por Llamar</option>
-                              <option value="contactado">📞 Contactado / En Gestión</option>
-                              <option value="demo_realizada">🖥️ Demo Presentada</option>
-                              <option value="afiliado">✅ Condominio Afiliado</option>
-                              <option value="descartado">📁 Archivado</option>
+                              <option value="pendiente">1. Nuevo / Contacto Inicial</option>
+                              <option value="visita_demo">2. Contacto / Visita o Demo</option>
+                              <option value="cotizacion">3. Cotización / Propuesta (% o Fijo)</option>
+                              <option value="en_espera">4. En Espera (Asamblea / Junta)</option>
+                              <option value="implementacion">5. En Implementación (Onboarding)</option>
+                              <option value="ganado">6. Ganado (Condominio Activo)</option>
+                              <option value="perdido">7. Perdido / Descartado</option>
                             </select>
                           </div>
 
                           <div>
-                            <label htmlFor={`agent-${call._id}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
+                            <label htmlFor={`billing-${callId}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
+                              Esquema de Facturación IA Condo
+                            </label>
+                            <select
+                              id={`billing-${callId}`}
+                              name="billingModel"
+                              value={call.billingModel || 'porcentaje_movimientos'}
+                              onChange={e => handleUpdateCall(callId, { billingModel: e.target.value })}
+                              style={{
+                                width: '100%',
+                                padding: '0.55rem',
+                                borderRadius: '8px',
+                                background: '#0f172a',
+                                color: '#4ade80',
+                                border: '1px solid rgba(74, 222, 128, 0.35)',
+                                fontSize: '0.83rem',
+                                fontWeight: '600'
+                              }}
+                            >
+                              <option value="porcentaje_movimientos">📊 % sobre Ingresos/Gastos del Condominio</option>
+                              <option value="fijo_mensual">💵 Importe Fijo Mensual ($ / Condominio)</option>
+                              <option value="hibrido">⚖️ Híbrido (Base Fija + % Movimientos)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
                               Agente Responsable
                             </label>
                             <select
-                              id={`agent-${call._id}`}
+                              id={`agent-${callId}`}
                               name="assignedAgentEmail"
                               value={call.assignedAgentEmail || 'alejandrosaezh@iacondo.com'}
                               onChange={e => {
                                 const found = users.find(u => u.email === e.target.value);
-                                handleUpdateCall(call._id, {
+                                handleUpdateCall(callId, {
+                                  assignedAgentId: found?.id || '',
                                   assignedAgentEmail: e.target.value,
                                   assignedAgentName: found ? found.name : e.target.value
                                 });
@@ -862,7 +914,7 @@ export default function IACondoPanel() {
                               }}
                             >
                               {users.map(u => (
-                                <option key={u._id} value={u.email}>
+                                <option key={u.id || u._id} value={u.email}>
                                   {u.name} ({ROLE_LABELS[u.role]?.label || u.role})
                                 </option>
                               ))}
@@ -871,17 +923,17 @@ export default function IACondoPanel() {
                         </div>
 
                         <div>
-                          <label htmlFor={`notes-${call._id}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
+                          <label htmlFor={`notes-${callId}`} style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.25rem', fontWeight: '600' }}>
                             Notas del Agente de Ventas / Acuerdos de la Llamada
                           </label>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <input
-                              id={`notes-${call._id}`}
-                              name="agentNotes"
+                              id={`notes-${callId}`}
+                              name="notes"
                               type="text"
                               placeholder="Escribe aquí el resultado de la llamada o próximos pasos..."
-                              value={callNotesDraft[call._id] !== undefined ? callNotesDraft[call._id] : (call.agentNotes || '')}
-                              onChange={e => setCallNotesDraft({ ...callNotesDraft, [call._id]: e.target.value })}
+                              value={callNotesDraft[callId] !== undefined ? callNotesDraft[callId] : (call.notes || call.agentNotes || '')}
+                              onChange={e => setCallNotesDraft({ ...callNotesDraft, [callId]: e.target.value })}
                               style={{
                                 flex: 1,
                                 padding: '0.55rem 0.75rem',
@@ -894,7 +946,7 @@ export default function IACondoPanel() {
                             />
                             <button
                               type="button"
-                              onClick={() => handleUpdateCall(call._id, { agentNotes: callNotesDraft[call._id] || '' })}
+                              onClick={() => handleUpdateCall(callId, { notes: callNotesDraft[callId] || '' })}
                               style={{
                                 padding: '0.55rem 0.9rem',
                                 borderRadius: '8px',
@@ -913,7 +965,7 @@ export default function IACondoPanel() {
 
                         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                           <a
-                            href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${call.contactName || ''}, te saluda ${currentUser.name} del equipo de IA Condo (iacondo.com) respecto a la llamada que coordinaste con Sofía para el condominio ${call.condoName || ''}.`)}`}
+                            href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo (iacondo.com) respecto a la llamada que coordinaste con Sofía para ${call.condoName || 'tu condominio'}.`)}`}
                             target="_blank"
                             rel="noreferrer"
                             style={{
@@ -977,9 +1029,10 @@ export default function IACondoPanel() {
             ) : (
               <div style={{ display: 'grid', gap: '1.25rem' }}>
                 {supportTickets.map(ticket => {
-                  const cleanPhone = String(ticket.phone || '').replace(/[^0-9]/g, '');
+                  const ticketId = ticket.id || ticket._id;
+                  const cleanPhone = String(ticket.clientPhone || ticket.phone || '').replace(/[^0-9]/g, '');
                   return (
-                    <div key={ticket._id} style={{
+                    <div key={ticketId} style={{
                       background: 'rgba(15, 23, 42, 0.9)',
                       border: '1px solid rgba(245, 158, 11, 0.3)',
                       borderRadius: '16px',
@@ -995,23 +1048,25 @@ export default function IACondoPanel() {
                       </div>
 
                       <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: '0 0 0.5rem 0' }}>
-                        {ticket.condoName || 'Condominio'} — {ticket.contactName || 'Usuario'} (+{cleanPhone})
+                        {ticket.condoName || 'Condominio'} — {ticket.clientName || ticket.contactName || 'Usuario'} (+{cleanPhone})
                       </h3>
 
                       <div style={{ padding: '0.9rem', background: 'rgba(6, 13, 24, 0.75)', borderRadius: '10px', borderLeft: '3px solid #f59e0b', marginBottom: '1rem', fontSize: '0.86rem', whiteSpace: 'pre-line' }}>
-                        {ticket.executiveBriefing}
+                        {ticket.executiveSummary || ticket.executiveBriefing}
                       </div>
 
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <select
                           aria-label="Estado del Ticket"
                           value={ticket.status || 'pendiente'}
-                          onChange={e => handleUpdateCall(ticket._id, { status: e.target.value })}
+                          onChange={e => handleUpdateCall(ticketId, { status: e.target.value })}
                           style={{ padding: '0.55rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                         >
-                          <option value="pendiente">⏳ Pendiente</option>
-                          <option value="en_revision">🛠️ En Revisión Técnica</option>
-                          <option value="resuelto">✅ Resuelto</option>
+                          <option value="pendiente">1. Ticket / Reporte Recibido</option>
+                          <option value="diagnostico">2. En Diagnóstico Técnico</option>
+                          <option value="en_revision">3. En Solución / Ajuste</option>
+                          <option value="validacion">4. Validación con Condominio</option>
+                          <option value="resuelto">5. Resuelto / Cerrado</option>
                         </select>
                         <a
                           href={`https://wa.me/${cleanPhone}`}
@@ -1044,6 +1099,7 @@ export default function IACondoPanel() {
                 {sessions.map(s => {
                   const isSelected = selectedSession?._id === s._id;
                   const p = s.profile || {};
+                  const lastHist = (s.history || []).slice(-1)[0];
                   return (
                     <button
                       key={s._id}
@@ -1060,14 +1116,14 @@ export default function IACondoPanel() {
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: '700' }}>
-                        <span>{p.name || s.pushName || `+${s._id}`}</span>
+                        <span>{s.senderName || p.name || s.pushName || s.senderPhone || s._id}</span>
                         <span style={{ color: '#38bdf8', fontSize: '0.75rem' }}>{p.condoName || 'IA Condo Chat'}</span>
                       </div>
                       <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.25rem' }}>
-                        📱 +{s._id} {p.city ? `• 📍 ${p.city}` : ''} {p.units ? `• 🏘️ ${p.units} unid.` : ''}
+                        📱 {s.senderPhone || s._id} {p.city ? `• 📍 ${p.city}` : ''} {p.units ? `• 🏘️ ${p.units} unid.` : ''}
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '0.4rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {s.lastReply || s.lastMessage || ''}
+                        {lastHist?.text || ''}
                       </div>
                     </button>
                   );
@@ -1085,14 +1141,14 @@ export default function IACondoPanel() {
                 <div>
                   <div style={{ borderBottom: '1px solid rgba(148,163,184,0.2)', paddingBottom: '0.85rem', marginBottom: '1rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '800' }}>
-                      {selectedSession.profile?.name || selectedSession.pushName || `+${selectedSession._id}`}
+                      {selectedSession.senderName || selectedSession.profile?.name || selectedSession.senderPhone || selectedSession._id}
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem', fontSize: '0.8rem', color: '#cbd5e1', marginTop: '0.6rem' }}>
                       <div>🏢 <strong>Condominio:</strong> {selectedSession.profile?.condoName || 'Pendiente'}</div>
                       <div>📍 <strong>Ubicación:</strong> {selectedSession.profile?.city || 'Pendiente'}</div>
                       <div>🏘️ <strong>Unidades:</strong> {selectedSession.profile?.units || 'Pendiente'}</div>
                       <div>✉️ <strong>Correo:</strong> {selectedSession.profile?.email || 'Pendiente'}</div>
-                      <div>🕒 <strong>Horario:</strong> {selectedSession.profile?.callTime || 'Pendiente'}</div>
+                      <div>🕒 <strong>Llamada:</strong> {selectedSession.scheduledCallInfo?.callTimeLabel || 'Pendiente'}</div>
                       <div>🎯 <strong>Área:</strong> {selectedSession.intent === 'support' ? 'Soporte Técnico' : 'Ventas / Información'}</div>
                     </div>
                   </div>
@@ -1109,7 +1165,7 @@ export default function IACondoPanel() {
                         lineHeight: '1.45'
                       }}>
                         <div style={{ fontSize: '0.72rem', fontWeight: '700', color: msg.role === 'assistant' ? '#38bdf8' : '#94a3b8', marginBottom: '0.25rem' }}>
-                          {msg.role === 'assistant' ? '🤖 Sofía IA (IA Condo)' : `👤 Cliente (+${selectedSession._id})`}
+                          {msg.role === 'assistant' ? '🤖 Sofía IA (IA Condo)' : `👤 Cliente (${selectedSession.senderPhone || selectedSession._id})`}
                         </div>
                         <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
                       </div>
@@ -1138,8 +1194,10 @@ export default function IACondoPanel() {
               <div style={{ display: 'grid', gap: '1rem' }}>
                 {users.map(u => {
                   const rb = ROLE_LABELS[u.role] || ROLE_LABELS.ventas;
+                  const userId = u.id || u._id;
+                  const isActive = u.active !== false;
                   return (
-                    <div key={u._id} style={{
+                    <div key={userId} style={{
                       background: 'rgba(15, 23, 42, 0.9)',
                       border: '1px solid rgba(148, 163, 184, 0.2)',
                       borderRadius: '14px',
@@ -1148,12 +1206,12 @@ export default function IACondoPanel() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap' }}>
                         <div>
                           <span style={{ padding: '0.22rem 0.65rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', background: rb.bg, color: rb.color }}>
-                            {rb.label}
+                            {u.roleLabel || rb.label}
                           </span>
                           <h3 style={{ fontSize: '1.08rem', fontWeight: '800', margin: '0.4rem 0 0.2rem 0' }}>{u.name}</h3>
                           <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>🔑 Login: <code>{u.email}</code></div>
                           <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>📅 Correo Agenda (.ics): <code>{u.calendarEmail || u.email}</code></div>
-                          <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>📱 WhatsApp Alertas: <code>+{u.phone || 'No asignado'}</code></div>
+                          <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>📱 WhatsApp Alertas: <code>{u.whatsappPhone || u.phone || 'Por configurar'}</code></div>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', alignItems: 'flex-end' }}>
@@ -1164,30 +1222,28 @@ export default function IACondoPanel() {
                               padding: '0.4rem 0.8rem',
                               borderRadius: '999px',
                               border: 'none',
-                              background: u.receiveCalls !== false ? 'rgba(74, 222, 128, 0.2)' : 'rgba(148, 163, 184, 0.2)',
-                              color: u.receiveCalls !== false ? '#4ade80' : '#94a3b8',
+                              background: isActive ? 'rgba(74, 222, 128, 0.2)' : 'rgba(148, 163, 184, 0.2)',
+                              color: isActive ? '#4ade80' : '#94a3b8',
                               fontWeight: '700',
                               fontSize: '0.76rem',
                               cursor: 'pointer'
                             }}
                           >
-                            {u.receiveCalls !== false ? '🟢 En Guardia (Recibe Citas)' : '⏸️ Fuera de Guardia'}
+                            {isActive ? '🟢 En Guardia (Recibe Citas)' : '⏸️ Fuera de Guardia'}
                           </button>
 
                           <div style={{ display: 'flex', gap: '0.4rem' }}>
                             <button
                               type="button"
                               onClick={() => setUserForm({
-                                id: u._id,
+                                id: userId,
                                 name: u.name || '',
                                 email: u.email || '',
-                                password: u.password || '',
+                                password: '',
                                 role: u.role || 'ventas',
-                                department: u.department || '',
-                                phone: u.phone || '',
+                                whatsappPhone: u.whatsappPhone || u.phone || '',
                                 calendarEmail: u.calendarEmail || u.email || '',
-                                active: true,
-                                receiveCalls: u.receiveCalls !== false
+                                active: isActive
                               })}
                               style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: 'none', fontSize: '0.75rem', cursor: 'pointer' }}
                             >
@@ -1196,7 +1252,7 @@ export default function IACondoPanel() {
                             {u.email !== 'alejandrosaezh@iacondo.com' && (
                               <button
                                 type="button"
-                                onClick={() => handleDeleteUser(u._id)}
+                                onClick={() => handleDeleteUser(userId)}
                                 style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', border: 'none', fontSize: '0.75rem', cursor: 'pointer' }}
                               >
                                 🗑️
@@ -1295,13 +1351,13 @@ export default function IACondoPanel() {
 
                     <div>
                       <label htmlFor="user-password" style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                        Contraseña de Acceso *
+                        Contraseña de Acceso {userForm.id ? '(Opcional)' : '*'}
                       </label>
                       <input
                         id="user-password"
                         name="password"
                         type="text"
-                        required
+                        required={!userForm.id}
                         placeholder="Clave segura"
                         value={userForm.password}
                         onChange={e => setUserForm({ ...userForm, password: e.target.value })}
@@ -1333,13 +1389,13 @@ export default function IACondoPanel() {
                       </label>
                       <input
                         id="user-phone"
-                        name="phone"
+                        name="whatsappPhone"
                         type="tel"
                         inputMode="tel"
                         required
-                        placeholder="Ej. 584141234567"
-                        value={userForm.phone}
-                        onChange={e => setUserForm({ ...userForm, phone: e.target.value })}
+                        placeholder="Ej. +584141234567"
+                        value={userForm.whatsappPhone}
+                        onChange={e => setUserForm({ ...userForm, whatsappPhone: e.target.value })}
                         style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
@@ -1400,45 +1456,45 @@ export default function IACondoPanel() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="pb-role" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                        Cargo Público del Agente
+                      <label htmlFor="pb-wa" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                        WhatsApp Principal de Respaldo
                       </label>
                       <input
-                        id="pb-role"
-                        name="roleTitle"
-                        type="text"
-                        value={playbookForm.roleTitle}
-                        onChange={e => setPlaybookForm({ ...playbookForm, roleTitle: e.target.value })}
+                        id="pb-wa"
+                        name="humanAgentWhatsapp"
+                        type="tel"
+                        value={playbookForm.humanAgentWhatsapp}
+                        onChange={e => setPlaybookForm({ ...playbookForm, humanAgentWhatsapp: e.target.value })}
                         style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="pb-objectives" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                      Objetivos de Datos a Recabar antes de Agendar Llamada
+                    <label htmlFor="pb-cal" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                      Correos de Agenda Principal (.ics Copia Ejecutiva)
                     </label>
-                    <textarea
-                      id="pb-objectives"
-                      name="infoObjectives"
-                      rows={4}
-                      value={playbookForm.infoObjectives}
-                      onChange={e => setPlaybookForm({ ...playbookForm, infoObjectives: e.target.value })}
+                    <input
+                      id="pb-cal"
+                      name="humanAgentCalendarEmail"
+                      type="text"
+                      value={playbookForm.humanAgentCalendarEmail}
+                      onChange={e => setPlaybookForm({ ...playbookForm, humanAgentCalendarEmail: e.target.value })}
                       style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem' }}
                     />
                   </div>
 
                   <div>
                     <label htmlFor="pb-instructions" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                      Directrices de Personalidad, Razonamiento y Reglas de Negocio
+                      Directrices de Personalidad, Objetivos de Datos y Reglas de Negocio
                     </label>
                     <textarea
                       id="pb-instructions"
                       name="customInstructions"
-                      rows={6}
+                      rows={10}
                       value={playbookForm.customInstructions}
                       onChange={e => setPlaybookForm({ ...playbookForm, customInstructions: e.target.value })}
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem' }}
+                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem', lineHeight: '1.5' }}
                     />
                   </div>
 
@@ -1471,15 +1527,15 @@ export default function IACondoPanel() {
 
               <div style={{ display: 'grid', gap: '0.85rem', marginBottom: '1.5rem' }}>
                 {aiAgents.map(ag => (
-                  <div key={ag._id} style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '12px', padding: '1rem' }}>
+                  <div key={ag.id || ag._id} style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '12px', padding: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <strong style={{ fontSize: '1rem', color: '#38bdf8' }}>🤖 {ag.name}</strong>
                       <span style={{ fontSize: '0.74rem', padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(74, 222, 128, 0.15)', color: '#4ade80', fontWeight: '700' }}>
-                        {ag.status || 'activo'} • {ag.channel}
+                        {ag.active !== false ? 'Activo' : 'En Pausa'} • {Array.isArray(ag.channels) ? ag.channels.join(', ') : (ag.channels || ag.channel || 'WhatsApp')}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.25rem' }}>{ag.role}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.35rem' }}>🎯 {ag.Objective}</div>
+                    <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.25rem', fontWeight: '600' }}>{ag.role}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.35rem' }}>🎯 {ag.description || ag.Objective}</div>
                   </div>
                 ))}
               </div>
@@ -1507,17 +1563,32 @@ export default function IACondoPanel() {
                       />
                     </div>
                     <div>
+                      <label htmlFor="ag-role" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                        Especialidad / Departamento *
+                      </label>
+                      <input
+                        id="ag-role"
+                        name="role"
+                        type="text"
+                        required
+                        placeholder="Ej. Administración y Cobranzas de Condominios"
+                        value={agentForm.role}
+                        onChange={e => setAgentForm({ ...agentForm, role: e.target.value })}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                      />
+                    </div>
+                    <div>
                       <label htmlFor="ag-obj" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                         Objetivo Específico e Instrucciones *
                       </label>
                       <textarea
                         id="ag-obj"
-                        name="Objective"
+                        name="description"
                         rows={3}
                         required
                         placeholder="Describe qué datos debe solicitar y cómo debe actuar..."
-                        value={agentForm.Objective}
-                        onChange={e => setAgentForm({ ...agentForm, Objective: e.target.value, role: e.target.value })}
+                        value={agentForm.description}
+                        onChange={e => setAgentForm({ ...agentForm, description: e.target.value })}
                         style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
