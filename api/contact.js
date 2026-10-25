@@ -19,9 +19,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, condominium, message } = req.body || {};
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios (name, email, message).' });
+  const { name, email, phone, condominium, units, unitType, demoUrl, message } = req.body || {};
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios (name, email).' });
   }
 
   const smtpUser = process.env.SMTP_USER || 'hola@iacondo.com';
@@ -41,7 +41,13 @@ export default async function handler(req, res) {
   });
 
   const condoLabel = condominium && condominium.trim() ? condominium.trim() : 'Condominio por confirmar';
-  const leadSubject = `[IA Condo Web] ${condoLabel} — ${name.trim()}`;
+  const cleanUnits = parseInt(units, 10) || 24;
+  const cleanType = unitType === 'Apto' ? 'Apartamentos' : 'Casas';
+  const customDemoLink =
+    demoUrl ||
+    `https://app.iacondo.com/demo?condo=${encodeURIComponent(condoLabel)}&units=${cleanUnits}&type=${unitType === 'Apto' ? 'Apto' : 'Casa'}&client=${encodeURIComponent(name.trim())}`;
+  const cleanMsg = (message && message.trim()) || `Solicitud de Demo Personalizada para ${condoLabel} (${cleanUnits} ${cleanType}).`;
+  const leadSubject = `[IA Condo Web] ${condoLabel} (${cleanUnits} ${cleanType}) — ${name.trim()}`;
 
   // 1. Generar respuesta inteligente de Sofía (Agente IA Comercial de IA Condo)
   let aiReplyHtml = null;
@@ -49,16 +55,19 @@ export default async function handler(req, res) {
   if (geminiKey) {
     try {
       const prompt = `Eres Sofía, la Ejecutiva Comercial de IA de IA Condo (www.iacondo.com), plataforma líder de gestión de condominios con Inteligencia Artificial en Venezuela.
-Un prospecto acaba de llenar el formulario en la web:
+Un prospecto acaba de solicitar su Demo Personalizada en la web:
 - Nombre: ${name}
 - Condominio: ${condoLabel}
+- Cantidad de Inmuebles: ${cleanUnits} (${cleanType})
+- Teléfono: ${phone || 'No indicado'}
 - Correo: ${email}
-- Mensaje: ${message}
+- Enlace de su Demo Personalizada ya generada: ${customDemoLink}
+- Mensaje: ${cleanMsg}
 
 Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin etiquetas <html> ni <body>), cálida, ejecutiva y persuasiva:
-1. Salúdalo por su nombre y menciona su condominio (${condoLabel}).
-2. Responde brevemente a su inquietud ("${message}") destacando cómo IA Condo automatiza la conciliación bancaria (Pago Móvil, Zelle, transferencias a tasa BCV), recibos digitales y control de morosidad.
-3. Pídele que responda a este mismo correo confirmando: cantidad aproximada de apartamentos/inmuebles, ciudad y su número de WhatsApp para activarle una demostración guiada.`;
+1. Salúdalo por su nombre y menciona que ya está lista la Demo Personalizada para ${condoLabel} configurada exactamente con ${cleanUnits} ${cleanType}.
+2. Invítalo a abrir su Demo Personalizada en: <a href="${customDemoLink}">${customDemoLink}</a> (Usuario: DEMO / Clave: DEMO) explicándole que en la barra superior podrá alternar en 1 clic entre la Visión Administración (Junta) y la Visión Vecino (Propietario).
+3. Destaca brevemente cómo IA Condo automatiza la conciliación bancaria a tasa BCV, recibos digitales, Carta Consulta LPH y apertura de portón.`;
 
       const geminiRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
@@ -83,19 +92,17 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
     aiReplyHtml = `
       <p>¡Hola <strong>${name}</strong>! 👋</p>
       <p>Te saluda <strong>Sofía</strong>, del equipo comercial de <strong>IA Condo</strong> (<a href="https://www.iacondo.com">www.iacondo.com</a>).</p>
-      <p>Hemos recibido tu consulta sobre <strong>${condoLabel}</strong>:</p>
-      <blockquote style="margin: 12px 0; padding: 10px 14px; background: #f1f5f9; border-left: 4px solid #0ea5e9; color: #334155;">
-        "${message}"
-      </blockquote>
-      <p>Con <strong>IA Condo</strong> podrás automatizar hasta el 80% del trabajo administrativo del edificio: conciliación automática de pagos en USD y Bs (tasa BCV), emisión instantánea de recibos digitales, control de morosidad y portal transparente para cada propietario.</p>
-      <div style="background: #f8fafc; border-left: 4px solid #10b981; padding: 14px; border-radius: 6px; margin: 16px 0;">
-        <strong>Para prepararte tu Demo personalizada, ¿podrías confirmarme respondiendo a este correo?:</strong>
-        <ol style="margin: 8px 0 0 0; padding-left: 20px;">
-          <li>¿En qué ciudad se encuentra ubicado <strong>${condoLabel}</strong>?</li>
-          <li>¿Cuántos apartamentos o inmuebles aproximadamente conforman el condominio?</li>
-          <li>¿Cuál es tu número de WhatsApp para coordinar el acceso de prueba?</li>
-        </ol>
+      <p>¡Ya hemos preparado tu <strong>Demostración Interactiva Personalizada</strong> para <strong>${condoLabel}</strong> configurada con <strong>${cleanUnits} ${cleanType}</strong>!</p>
+      <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px; border-radius: 8px; margin: 16px 0;">
+        <p style="margin: 0 0 8px 0;"><strong>🎮 Ingresa a tu Demo Personalizada aquí:</strong></p>
+        <p style="margin: 0 0 8px 0;"><a href="${customDemoLink}" style="color: #0284c7; font-weight: bold;">${customDemoLink}</a></p>
+        <p style="margin: 0; font-size: 13px;">🔑 <strong>Usuario:</strong> DEMO &nbsp;|&nbsp; <strong>Clave:</strong> DEMO</p>
       </div>
+      <p>Dentro de la demostración podrás alternar en la barra superior entre:</p>
+      <ul>
+        <li><strong>📊 Visión Administración (Junta):</strong> Contabilidad, conciliación bancaria a tasa BCV, control de morosidad, Carta Consulta LPH y control de portón.</li>
+        <li><strong>🏡 Visión Vecino (Propietario):</strong> Estado de cuenta, reporte de pagos, pases QR de invitados y apertura de portón.</li>
+      </ul>
       <p>Puedes responder directamente a este correo o escribirnos por WhatsApp al <a href="https://wa.me/584222537239">+58 422-2537239</a>.</p>
     `;
   }
@@ -121,16 +128,19 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
       subject: leadSubject,
       html: `
         <div style="font-family: Arial, sans-serif; color: #0f172a;">
-          <h3>📥 Nuevo Lead captado desde www.iacondo.com</h3>
+          <h3>📥 Nueva Solicitud de Demo Personalizada desde www.iacondo.com</h3>
           <ul>
             <li><strong>Nombre:</strong> ${name}</li>
             <li><strong>Correo:</strong> <a href="mailto:${email}">${email}</a></li>
+            <li><strong>Teléfono / WhatsApp:</strong> ${phone || 'No indicado'}</li>
             <li><strong>Condominio:</strong> ${condoLabel}</li>
+            <li><strong>Cantidad de Viviendas / Inmuebles:</strong> ${cleanUnits} (${cleanType})</li>
+            <li><strong>Demo Personalizada Generada:</strong> <a href="${customDemoLink}">${customDemoLink}</a></li>
           </ul>
           <p><strong>Mensaje del prospecto:</strong></p>
-          <p style="background: #f1f5f9; padding: 12px; border-radius: 6px;">${message}</p>
+          <p style="background: #f1f5f9; padding: 12px; border-radius: 6px;">${cleanMsg}</p>
           <hr/>
-          <p><em>🤖 Sofía (Agente IA) ya envió el correo inicial de bienvenida y calificación al prospecto.</em></p>
+          <p><em>🤖 Sofía (Agente IA) ya envió el correo con el enlace de su Demo Personalizada al prospecto.</em></p>
         </div>
       `,
     });
@@ -140,7 +150,7 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
       from: `"Sofía | IA Condo" <${smtpUser}>`,
       replyTo: `"IA Condo" <${smtpUser}>`,
       to: email,
-      subject: `🏢 Bienvenido a IA Condo — Solicitud de Demo (${condoLabel})`,
+      subject: `🏢 Tu Demo Personalizada de IA Condo está lista (${condoLabel})`,
       html: fullCustomerHtml,
     });
 
@@ -148,7 +158,7 @@ Redacta una respuesta en HTML limpio (solo párrafos <p> y listas <ul>/<li>, sin
     fetch('https://condopro-api.onrender.com/api/public/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, condominium, message, skipEmail: true }),
+      body: JSON.stringify({ name, email, phone, condominium: `${condoLabel} (${cleanUnits} ${cleanType})`, message: cleanMsg, skipEmail: true }),
     }).catch(() => {});
 
     return res.status(200).json({ ok: true, message: 'Lead registrado en Odoo CRM y correo enviado por Sofía IA.' });
