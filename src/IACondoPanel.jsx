@@ -944,6 +944,11 @@ export default function IACondoPanel() {
                   const timeLabel = call.callTimeLabel || call.callTimeDescription || 'Lo antes posible';
                   const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en implementar IA Condo en su condominio.';
                   const units = call.units || call.unitsCount || 'Por confirmar';
+                  const hasAccessControl = call.hasAccessControl || 'Sí (Portón / Garita)';
+                  const numericUnits = String(units).replace(/\D/g, '') || '24';
+                  const unitType = /apto|apartamento|edificio/i.test(String(units)) ? 'Apto' : 'Casa';
+                  const accessParam = hasAccessControl === 'No' ? 'no' : 'si';
+                  const personalizedDemoUrl = `${DEMO_URL}?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&access=${accessParam}&client=${encodeURIComponent(clientName)}`;
                   const st = CALL_STATUS_LABELS[call.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
                   const chainButtonText = CHAIN_ACTION_LABELS[call.status || 'pendiente'];
                   const logs = Array.isArray(call.activityLog) ? call.activityLog : [];
@@ -973,8 +978,11 @@ export default function IACondoPanel() {
                           <h3 style={{ fontSize: '1.22rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: '#fff' }}>
                             🏢 {call.condoName || 'Condominio por confirmar'} — {units} Unidades ({call.city || 'Venezuela'})
                           </h3>
-                          <div style={{ fontSize: '0.9rem', color: '#38bdf8', fontWeight: '600' }}>
-                            👤 Contacto: {clientName} • 📞 +{cleanPhone} • 🕒 Hora: {timeLabel}
+                          <div style={{ fontSize: '0.88rem', color: '#38bdf8', fontWeight: '600' }}>
+                            👤 Contacto: {clientName} • 📞 +{cleanPhone} • 🚪 Acceso: {hasAccessControl}
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: '#c084fc', marginTop: '0.2rem' }}>
+                            🔗 Demo Personalizado: <code>{personalizedDemoUrl}</code>
                           </div>
                         </div>
 
@@ -1140,7 +1148,23 @@ export default function IACondoPanel() {
                             </select>
                           </div>
 
-                          <div style={{ gridColumn: '1 / -1' }}>
+                          <div>
+                            <label htmlFor={`access-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
+                              🚪 Control de Acceso (para Demo)
+                            </label>
+                            <select
+                              id={`access-${callId}`}
+                              name="hasAccessControl"
+                              value={call.hasAccessControl || 'Sí (Portón / Garita)'}
+                              onChange={e => handleUpdateCall(callId, { hasAccessControl: e.target.value })}
+                              style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#0f172a', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.35)', fontSize: '0.8rem', fontWeight: '600' }}
+                            >
+                              <option value="Sí (Portón / Garita)">✅ Sí tiene Control de Acceso (Portón / Garita)</option>
+                              <option value="No">❌ No tiene Control de Acceso</option>
+                            </select>
+                          </div>
+
+                          <div>
                             <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
                               Responsable Asignado (Humano o Agente IA)
                             </label>
@@ -1199,7 +1223,7 @@ export default function IACondoPanel() {
                             <input
                               id={`act-text-${callId}`}
                               type="text"
-                              placeholder="Ej. Llamé a la Junta, envié demo https://iacondo.com/demo y acordamos cotización..."
+                              placeholder="Ej. Llamé a la Junta, envié demo personalizado y acordamos cotización..."
                               value={activityTextDraft[callId] || ''}
                               onChange={e => setActivityTextDraft({ ...activityTextDraft, [callId]: e.target.value })}
                               style={{ flex: 1, minWidth: '180px', padding: '0.5rem 0.7rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem' }}
@@ -1214,10 +1238,10 @@ export default function IACondoPanel() {
                           </div>
                         </div>
 
-                        {/* ACCIONES RÁPIDAS: ENVIAR DEMO OFICIAL POR WHATSAPP, CONTACTAR Y LLAMAR */}
+                        {/* ACCIONES RÁPIDAS: ENVIAR DEMO PERSONALIZADO VS DEMO GENERAL POR WHATSAPP, CONTACTAR Y LLAMAR */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
                           <a
-                            href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Aquí tienes el acceso directo a nuestro Demo Interactivo para ${call.condoName || 'tu condominio'}: ${DEMO_URL}`)}`}
+                            href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: DEMO`)}`}
                             target="_blank"
                             rel="noreferrer"
                             onClick={() => {
@@ -1225,24 +1249,51 @@ export default function IACondoPanel() {
                                 newActivity: {
                                   type: 'demo',
                                   actor: currentUser.name,
-                                  text: `Enlace oficial del Demo (${DEMO_URL}) enviado por WhatsApp a ${clientName}.`
+                                  text: `✨ Demo Personalizado (${call.condoName}, ${numericUnits} viv., Acceso: ${hasAccessControl}) enviado por WhatsApp a ${clientName}.`
                                 }
                               });
                             }}
                             style={{
-                              gridColumn: '1 / -1',
                               textAlign: 'center',
-                              padding: '0.6rem 0.9rem',
+                              padding: '0.6rem 0.75rem',
                               borderRadius: '8px',
-                              background: 'rgba(192, 132, 252, 0.2)',
+                              background: 'rgba(192, 132, 252, 0.22)',
                               color: '#e9d5ff',
-                              border: '1px solid rgba(192, 132, 252, 0.45)',
+                              border: '1px solid rgba(192, 132, 252, 0.5)',
                               textDecoration: 'none',
-                              fontWeight: '700',
-                              fontSize: '0.82rem'
+                              fontWeight: '800',
+                              fontSize: '0.78rem'
                             }}
                           >
-                            🎮 Enviar Enlace del Demo ({DEMO_URL}) por WhatsApp
+                            ✨ Enviar Demo Personalizado ({call.condoName || 'Condo'})
+                          </a>
+
+                          <a
+                            href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Aquí tienes nuestro Demo General para que puedas explorar todas las funciones en vivo:\n\n🔗 ${DEMO_URL}\n🔑 Usuario: DEMO | Clave: DEMO`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => {
+                              handleUpdateCall(callId, {
+                                newActivity: {
+                                  type: 'demo',
+                                  actor: currentUser.name,
+                                  text: `👀 Demo General (${DEMO_URL}) enviado por WhatsApp a ${clientName}.`
+                                }
+                              });
+                            }}
+                            style={{
+                              textAlign: 'center',
+                              padding: '0.6rem 0.75rem',
+                              borderRadius: '8px',
+                              background: 'rgba(148, 163, 184, 0.16)',
+                              color: '#cbd5e1',
+                              border: '1px solid rgba(148, 163, 184, 0.35)',
+                              textDecoration: 'none',
+                              fontWeight: '700',
+                              fontSize: '0.78rem'
+                            }}
+                          >
+                            👀 Enviar Demo General (Sin datos)
                           </a>
 
                           <a

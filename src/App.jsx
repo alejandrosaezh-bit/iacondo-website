@@ -30,7 +30,7 @@ function App() {
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <a href="#features" style={{ color: 'white', textDecoration: 'none', fontWeight: '500', display: 'none' }} className="nav-link">Características</a>
-          <a href="https://iacondo.com/demo" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>🎮 Probar Demo</a>
+          <a href="#contacto" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>🎮 Probar Demo</a>
           <a href="https://app.iacondo.com" className="btn btn-secondary" style={{ padding: '0.5rem 1.2rem' }}>Iniciar Sesión</a>
         </div>
       </nav>
@@ -58,8 +58,8 @@ function App() {
             La plataforma definitiva para la administración transparente. Automatiza cobros, concilia pagos bancarios y mantén a toda tu comunidad conectada e informada.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://iacondo.com/demo" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>🎮 Probar Demo en Vivo</a>
-            <a href="#contacto" className="btn btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>Solicitar Información</a>
+            <a href="#contacto" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>🎮 Crear Mi Demo Personalizado</a>
+            <a href="https://iacondo.com/demo" className="btn btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>👀 Ver Demo General</a>
           </div>
         </div>
       </section>
@@ -194,6 +194,7 @@ function ContactForm() {
     condominium: '',
     units: '24',
     unitType: 'Casa',
+    hasAccessControl: true,
     message: ''
   });
   const [submittedData, setSubmittedData] = useState(null);
@@ -205,6 +206,7 @@ function ContactForm() {
     params.set('condo', (d.condominium || 'Residencias El Mirador').trim());
     params.set('units', String(parseInt(d.units, 10) || 24));
     params.set('type', d.unitType === 'Apto' ? 'Apto' : 'Casa');
+    params.set('access', d.hasAccessControl === false ? 'no' : 'si');
     if (d.name && d.name.trim()) params.set('client', d.name.trim());
     params.set('view', view);
     return `https://app.iacondo.com/demo?${params.toString()}`;
@@ -213,9 +215,10 @@ function ContactForm() {
   const getWhatsAppLink = (data) => {
     const d = data || formData;
     const unitLabel = d.unitType === 'Apto' ? 'apartamentos' : 'casas/viviendas';
+    const accessLabel = d.hasAccessControl === false ? 'sin control de acceso' : 'con control de acceso';
     const demoUrl = buildPersonalizedDemoUrl(d, 'admin');
     const text =
-      `Hola, mi nombre es *${d.name || ''}* del condominio *${d.condominium || 'Por confirmar'}* (${d.units || '24'} ${unitLabel}).\n` +
+      `Hola, mi nombre es *${d.name || ''}* del condominio *${d.condominium || 'Por confirmar'}* (${d.units || '24'} ${unitLabel}, ${accessLabel}).\n` +
       `Correo: ${d.email || ''}${d.phone ? `\nTeléfono: ${d.phone}` : ''}\n` +
       `Demo generada: ${demoUrl}\n\n` +
       `*Mensaje:* ${d.message || 'Quiero conocer más de IACondo y probar la demo personalizada.'}`;
@@ -473,6 +476,66 @@ function ContactForm() {
         </div>
       </fieldset>
 
+      <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+        <legend style={{ display: 'block', marginBottom: '0.45rem', color: 'white', fontWeight: '700', fontSize: '0.92rem', padding: 0 }}>
+          🚪 ¿Tu Condominio cuenta con Control de Acceso (Portón / Garita)? *
+        </legend>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <label
+            htmlFor="contact-access-yes"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: formData.hasAccessControl !== false ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
+              background: formData.hasAccessControl !== false ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '0.88rem',
+              cursor: 'pointer'
+            }}
+          >
+            <input
+              id="contact-access-yes"
+              type="radio"
+              name="hasAccessControl"
+              checked={formData.hasAccessControl !== false}
+              onChange={() => setFormData({ ...formData, hasAccessControl: true })}
+            />
+            <span>✅ Sí tiene (Portón / Garita)</span>
+          </label>
+          <label
+            htmlFor="contact-access-no"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: formData.hasAccessControl === false ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
+              background: formData.hasAccessControl === false ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '0.88rem',
+              cursor: 'pointer'
+            }}
+          >
+            <input
+              id="contact-access-no"
+              type="radio"
+              name="hasAccessControl"
+              checked={formData.hasAccessControl === false}
+              onChange={() => setFormData({ ...formData, hasAccessControl: false })}
+            />
+            <span>❌ No tiene control de acceso</span>
+          </label>
+        </div>
+      </fieldset>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
         <div>
           <label htmlFor="contact-name" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Tu Nombre Completo *</label>
@@ -536,6 +599,25 @@ function ContactForm() {
       <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.08rem', marginTop: '0.5rem', fontWeight: '800' }}>
         {status === 'loading' ? 'Generando tu Demo Personalizada...' : '🚀 Generar y Abrir mi Demo Personalizada'}
       </button>
+
+      <div style={{ textAlign: 'center', marginTop: '0.35rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+        <a
+          href="https://iacondo.com/demo"
+          style={{
+            display: 'inline-block',
+            color: '#94a3b8',
+            fontSize: '0.88rem',
+            fontWeight: '600',
+            textDecoration: 'none',
+            padding: '0.4rem 0.85rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(148, 163, 184, 0.25)',
+            background: 'rgba(15, 23, 42, 0.5)'
+          }}
+        >
+          👀 ¿Prefieres no ingresar datos? Ver Demo General de IA Condo →
+        </a>
+      </div>
     </form>
   );
 }

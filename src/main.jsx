@@ -8,7 +8,7 @@ const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCas
 const path = typeof window !== 'undefined' ? window.location.pathname.toLowerCase() : '';
 
 if (typeof window !== 'undefined' && (path === '/demo' || path.startsWith('/demo/') || host.startsWith('demo.'))) {
-  window.location.replace('https://app.iacondo.com/demo');
+  window.location.replace('https://app.iacondo.com/demo' + (window.location.search || ''));
 }
 
 const isPanelRoute =
