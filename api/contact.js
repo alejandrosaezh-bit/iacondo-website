@@ -68,33 +68,25 @@ export default async function handler(req, res) {
     },
   });
 
-  const condoLabel = condominium && condominium.trim() ? condominium.trim() : 'Condominio por confirmar';
-  const cleanUnits = parseInt(units, 10) || 24;
-  const cleanType = unitType === 'Apto' ? 'Apartamentos' : 'Casas';
-  const cleanAccess = hasAccessControl === 'no' ? 'no' : 'si';
-  const customDemoLink =
-    demoUrl ||
-    `https://iacondo.com/demo?condo=${encodeURIComponent(condoLabel)}&units=${cleanUnits}&type=${unitType === 'Apto' ? 'Apto' : 'Casa'}&access=${cleanAccess}&client=${encodeURIComponent(name.trim())}`;
+  const condoLabel = condominium && condominium.trim() ? condominium.trim() : 'Por confirmar';
   const cleanMsg =
     (message && message.trim()) ||
-    `Solicitud de Demo Personalizada para ${condoLabel} (${cleanUnits} ${cleanType}, control de acceso: ${cleanAccess === 'si' ? 'Sí' : 'No'}).`;
-  const leadSubject = `${condoLabel} — ${cleanUnits} ${cleanType} · ${name.trim()}`;
+    `Solicitud de información y demostración desde www.iacondo.com.`;
+  const leadSubject = `${condoLabel} · ${name.trim()}`;
 
   const aiReplyHtml = `
     <p>¡Hola <strong>${name}</strong>! 👋</p>
-    <p>Te saluda <strong>Sofía</strong>, del equipo comercial de <strong>IA Condo</strong> (<a href="https://www.iacondo.com">www.iacondo.com</a>).</p>
-    <p>¡Ya hemos preparado tu <strong>Demostración Interactiva Personalizada</strong> para <strong>${condoLabel}</strong> configurada con <strong>${cleanUnits} ${cleanType}</strong> y control de acceso <strong>${cleanAccess === 'si' ? 'Activo' : 'No incluido'}</strong>!</p>
-    <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px; border-radius: 8px; margin: 16px 0;">
-      <p style="margin: 0 0 8px 0;"><strong>🎮 Ingresa a tu Demo Personalizada aquí:</strong></p>
-      <p style="margin: 0 0 8px 0;"><a href="${customDemoLink}" style="color: #0284c7; font-weight: bold;">${customDemoLink}</a></p>
-      <p style="margin: 0; font-size: 13px;">🔑 <strong>Usuario:</strong> DEMO &nbsp;|&nbsp; <strong>Clave:</strong> DEMO</p>
+    <p>Te saluda <strong>Sofía</strong>, del equipo comercial de <strong>IA Condo</strong> (<a href="https://www.iacondo.com">www.iacondo.com</a>). Gracias por ponerte en contacto con nosotros.</p>
+    <p>Para prepararte y enviarte de inmediato el enlace de tu <strong>Demostración Interactiva Personalizada</strong> (donde podrás probar tanto la <strong>Visión de Junta de Condominio</strong> como la <strong>Visión del Vecino</strong>), por favor respóndeme a este correo o por WhatsApp con estos 3 datos de tu conjunto:</p>
+    <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px 18px; border-radius: 8px; margin: 16px 0;">
+      <ol style="margin: 0; padding-left: 20px; color: #0f172a;">
+        <li style="margin-bottom: 6px;"><strong>Nombre del Condominio o Conjunto Residencial</strong>${condominium && condominium.trim() ? ` <em>(recibimos: ${condominium.trim()})</em>` : ''}</li>
+        <li style="margin-bottom: 6px;"><strong>Cantidad de viviendas</strong> (y si son Casas/Townhouses o Apartamentos)</li>
+        <li><strong>¿Cuentan con control de acceso o portón eléctrico / garita?</strong> (Sí / No)</li>
+      </ol>
     </div>
-    <p>Dentro de la demostración podrás alternar en la barra superior entre:</p>
-    <ul>
-      <li><strong>📊 Visión Administración (Junta):</strong> Contabilidad multimoneda, conciliación bancaria con IA a tasa BCV del día del pago, control de morosidad, Carta Consulta LPH y control de portón.</li>
-      <li><strong>🏡 Visión Vecino (Propietario):</strong> Estado de cuenta, reporte de pagos, pases QR de invitados y apertura de portón.</li>
-    </ul>
-    <p>Puedes responder directamente a este correo o escribirnos por WhatsApp al <a href="https://wa.me/584222537239">+58 422-2537239</a>.</p>
+    <p>Apenas me confirmes estos datos, te generaré tu entorno de prueba exclusivo a la medida de tu condominio.</p>
+    <p>También puedes escribirme directamente por WhatsApp haciendo clic aquí: <a href="https://wa.me/584222537239" style="color: #0284c7; font-weight: bold;">+58 422-2537239</a>.</p>
   `;
 
   const fullCustomerHtml = `
@@ -117,15 +109,12 @@ export default async function handler(req, res) {
       subject: leadSubject,
       html: `
         <div style="font-family: Arial, sans-serif; color: #0f172a;">
-          <h3>📥 Nueva Solicitud de Demo Personalizada desde www.iacondo.com</h3>
+          <h3>📥 Nuevo Lead captado en www.iacondo.com (Atendido por Sofía IA)</h3>
           <ul>
             <li><strong>Nombre:</strong> ${name}</li>
             <li><strong>Correo:</strong> <a href="mailto:${email}">${email}</a></li>
             <li><strong>Teléfono / WhatsApp:</strong> ${phone || 'No indicado'}</li>
             <li><strong>Condominio:</strong> ${condoLabel}</li>
-            <li><strong>Cantidad de Viviendas:</strong> ${cleanUnits} (${cleanType})</li>
-            <li><strong>Control de Acceso:</strong> ${cleanAccess === 'si' ? 'Sí' : 'No'}</li>
-            <li><strong>Demo Personalizada Generada:</strong> <a href="${customDemoLink}">${customDemoLink}</a></li>
           </ul>
           <p><strong>Mensaje del prospecto:</strong></p>
           <p style="background: #f1f5f9; padding: 12px; border-radius: 6px;">${cleanMsg}</p>
@@ -135,9 +124,9 @@ export default async function handler(req, res) {
 
     await transporter.sendMail({
       from: `"Sofía | IA Condo" <${smtpUser}>`,
-      replyTo: `"IA Condo" <${smtpUser}>`,
+      replyTo: `"Sofía | IA Condo" <${smtpUser}>`,
       to: email,
-      subject: `🏢 Tu Demo Personalizada de IA Condo está lista (${condoLabel})`,
+      subject: `👋 ¡Hola ${name.trim().split(' ')[0]}! Datos para preparar la Demo de tu Condominio — IA Condo`,
       html: fullCustomerHtml,
     });
 
@@ -149,13 +138,13 @@ export default async function handler(req, res) {
         project: 'iacondo',
         senderName: name,
         senderEmail: email,
-        subject: `Solicitud Demo Web: ${condoLabel}`,
-        bodyText: `Condominio ${condoLabel}, tenemos ${cleanUnits} ${cleanType}, ${cleanAccess === 'si' ? 'con control de acceso' : 'sin control de acceso'}. Teléfono: ${phone || 'No indicado'}. ${cleanMsg}`,
+        subject: `Solicitud Web: ${condoLabel}`,
+        bodyText: `Hola Sofía, soy ${name} (${email}, Tel/WhatsApp: ${phone || 'No indicado'}). Condominio: ${condoLabel}. ${cleanMsg}`,
         source: 'web_form',
       }),
     }).catch(() => {});
 
-    return res.status(200).json({ ok: true, message: 'Lead registrado y Demo Personalizada enviada por Sofía IA.' });
+    return res.status(200).json({ ok: true, message: 'Lead registrado y atendido por Sofía IA.' });
   } catch (error) {
     console.error('Error en /api/contact:', error);
     return res.status(500).json({ error: 'Error procesando solicitud', details: String(error) });

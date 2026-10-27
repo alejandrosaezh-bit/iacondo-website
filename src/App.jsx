@@ -24,13 +24,13 @@ function App() {
         borderBottom: scrolled ? '1px solid var(--border-light)' : '1px solid transparent',
         transition: 'all 0.3s ease'
       }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ color: 'var(--accent-primary)' }}>⌂</span>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
           <span>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <a href="#features" style={{ color: 'white', textDecoration: 'none', fontWeight: '500', display: 'none' }} className="nav-link">Características</a>
-          <a href="#contacto" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>🎮 Probar Demo</a>
+          <a href="#contacto" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Solicitar Demo</a>
           <a href="https://app.iacondo.com" className="btn btn-secondary" style={{ padding: '0.5rem 1.2rem' }}>Iniciar Sesión</a>
         </div>
       </nav>
@@ -58,8 +58,7 @@ function App() {
             La plataforma definitiva para la administración transparente. Automatiza cobros, concilia pagos bancarios y mantén a toda tu comunidad conectada e informada.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="#contacto" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>🎮 Crear Mi Demo Personalizado</a>
-            <a href="https://iacondo.com/demo" className="btn btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>👀 Ver Demo General</a>
+            <a href="#contacto" className="btn btn-primary" style={{ padding: '1rem 2.2rem', fontSize: '1.1rem', fontWeight: '700' }}>Solicitar Información / Demo</a>
           </div>
         </div>
       </section>
@@ -132,14 +131,11 @@ function App() {
 
       {/* CTA SECTION */}
       <section id="contacto" style={{ padding: '6rem 5%', borderTop: '1px solid var(--border-light)' }}>
-        <div style={{ maxInlineSize: '640px', marginInline: 'auto' }}>
+        <div style={{ maxInlineSize: '600px', marginInline: 'auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <span style={{ display: 'inline-block', padding: '0.35rem 0.9rem', background: 'rgba(16, 185, 129, 0.12)', color: '#10b981', borderRadius: '999px', fontWeight: '800', fontSize: '0.82rem', marginBottom: '0.85rem', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
-              🎮 VISIÓN JUNTA + VISIÓN VECINO EN TIEMPO REAL
-            </span>
-            <h2 style={{ fontSize: '2.4rem', marginBottom: '0.85rem' }}>Crea tu Demo Personalizada</h2>
+            <h2 style={{ fontSize: '2.4rem', marginBottom: '0.85rem' }}>Solicita tu Demostración</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.6 }}>
-              Indícanos el nombre de tu condominio y cuántas viviendas tiene. Generaremos al instante un entorno de demostración con tus datos para que explores tanto la <strong>Visión de la Administración</strong> como la <strong>Visión del Vecino</strong>.
+              Déjanos tus datos de contacto y <strong>Sofía IA</strong> te atenderá de inmediato por correo o WhatsApp para configurar una demostración personalizada a la medida de tu condominio.
             </p>
           </div>
           <ContactForm />
@@ -148,8 +144,8 @@ function App() {
 
       {/* FOOTER */}
       <footer style={{ background: '#030712', padding: '3rem 5%', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-          <span style={{ color: 'var(--accent-primary)' }}>⌂</span>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', marginBottom: '1.5rem' }}>
+          <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
           <span style={{ color: 'white' }}>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <p style={{ marginBottom: '1rem' }}>© {new Date().getFullYear()} IACondo.com. Todos los derechos reservados.</p>
@@ -192,48 +188,27 @@ function ContactForm() {
     email: '',
     phone: '',
     condominium: '',
-    units: '24',
-    unitType: 'Casa',
-    hasAccessControl: true,
     message: ''
   });
   const [submittedData, setSubmittedData] = useState(null);
   const [status, setStatus] = useState('idle');
 
-  const buildPersonalizedDemoUrl = (data, view = 'owner') => {
-    const d = data || formData;
-    const params = new URLSearchParams();
-    params.set('condo', (d.condominium || 'Residencias El Mirador').trim());
-    params.set('units', String(parseInt(d.units, 10) || 24));
-    params.set('type', d.unitType === 'Apto' ? 'Apto' : 'Casa');
-    params.set('access', d.hasAccessControl === false ? 'no' : 'si');
-    if (d.name && d.name.trim()) params.set('client', d.name.trim());
-    params.set('view', view);
-    return `https://app.iacondo.com/demo?${params.toString()}`;
-  };
-
   const getWhatsAppLink = (data) => {
     const d = data || formData;
-    const unitLabel = d.unitType === 'Apto' ? 'apartamentos' : 'casas/viviendas';
-    const accessLabel = d.hasAccessControl === false ? 'sin control de acceso' : 'con control de acceso';
-    const demoUrl = buildPersonalizedDemoUrl(d, 'admin');
     const text =
-      `Hola, mi nombre es *${d.name || ''}* del condominio *${d.condominium || 'Por confirmar'}* (${d.units || '24'} ${unitLabel}, ${accessLabel}).\n` +
-      `Correo: ${d.email || ''}${d.phone ? `\nTeléfono: ${d.phone}` : ''}\n` +
-      `Demo generada: ${demoUrl}\n\n` +
-      `*Mensaje:* ${d.message || 'Quiero conocer más de IACondo y probar la demo personalizada.'}`;
+      `Hola Sofía, mi nombre es *${d.name || ''}*${d.condominium ? ` del condominio *${d.condominium}*` : ''}.\n` +
+      `Correo: ${d.email || ''}${d.phone ? `\nTeléfono: ${d.phone}` : ''}\n\n` +
+      `${d.message ? `*Mensaje:* ${d.message}\n\n` : ''}` +
+      `Me gustaría solicitar información y que me generes una demostración personalizada para nuestro condominio.`;
     return `https://wa.me/584222537239?text=${encodeURIComponent(text)}`;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
-    const cleanUnits = Math.min(Math.max(parseInt(formData.units, 10) || 24, 2), 300);
     const payload = {
       ...formData,
-      units: String(cleanUnits),
-      demoUrl: buildPersonalizedDemoUrl({ ...formData, units: String(cleanUnits) }, 'admin'),
-      message: (formData.message || '').trim() || `Solicitud de Demo Personalizada para ${formData.condominium || 'nuestro condominio'} (${cleanUnits} ${formData.unitType === 'Apto' ? 'apartamentos' : 'casas'}).`
+      message: (formData.message || '').trim() || `Solicitud de información y demostración para ${formData.condominium || 'mi condominio'}.`
     };
     setSubmittedData(payload);
 
@@ -251,6 +226,7 @@ function ContactForm() {
 
       if (response.ok) {
         setStatus('success');
+        setFormData({ name: '', email: '', phone: '', condominium: '', message: '' });
       } else {
         const fallbackRes = await fetch('https://condopro-api.onrender.com/api/public/contact', {
           method: 'POST',
@@ -259,116 +235,62 @@ function ContactForm() {
         });
         if (fallbackRes.ok) {
           setStatus('success');
+          setFormData({ name: '', email: '', phone: '', condominium: '', message: '' });
         } else {
-          // Aun si el correo tarda, permitimos abrir su Demo personalizada de inmediato
-          setStatus('success');
+          setStatus('error');
         }
       }
     } catch (error) {
       console.error('Error enviando formulario:', error);
-      // Permitir abrir la Demo personalizada aunque haya intermitencia de red
-      setStatus('success');
+      setStatus('error');
     }
   };
 
   if (status === 'success') {
     const activeData = submittedData || formData;
-    const adminDemoUrl = buildPersonalizedDemoUrl(activeData, 'admin');
-    const ownerDemoUrl = buildPersonalizedDemoUrl(activeData, 'owner');
-    const unitLabel = activeData.unitType === 'Apto' ? 'Apartamentos' : 'Casas';
-
     return (
       <div className="glass-panel" style={{ textAlign: 'center', padding: '2.5rem 1.75rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🎉</div>
+        <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🤖✨</div>
         <h3 style={{ fontSize: '1.5rem', marginBottom: '0.6rem', color: 'white' }}>
-          ¡Demo Personalizada Lista para {activeData.condominium || 'tu Condominio'}!
+          ¡Solicitud Recibida! Sofía ya te está atendiendo
         </h3>
-        <p style={{ color: 'var(--text-secondary)', maxInlineSize: '520px', margin: '0 auto 1.25rem auto', lineHeight: 1.55, fontSize: '0.96rem' }}>
-          Hemos configurado un entorno interactivo exclusivo con <strong>{activeData.units || 24} {unitLabel}</strong> y alícuotas calculadas automáticamente. Dentro de la Demo podrás cambiar en cualquier momento entre la <strong>Visión de Administración (Junta)</strong> y la <strong>Visión del Vecino</strong>.
+        <p style={{ color: 'var(--text-secondary)', maxInlineSize: '520px', margin: '0 auto 1.35rem auto', lineHeight: 1.6, fontSize: '0.96rem' }}>
+          Hemos registrado tus datos de contacto y <strong>Sofía IA</strong> te ha enviado un correo a <strong>{activeData.email}</strong> para conocer los detalles de tu conjunto (nombre del condominio, cantidad de viviendas y si cuentan con portón/vigilancia) y generarte tu <strong>Demo Personalizada</strong> con Visión Administración y Visión Vecino.
         </p>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '0.85rem',
-          marginBottom: '1.25rem'
-        }}>
-          <a
-            href={adminDemoUrl}
-            style={{
-              background: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
-              color: 'white',
-              textDecoration: 'none',
-              padding: '1rem',
-              borderRadius: '12px',
-              fontWeight: '800',
-              fontSize: '0.95rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 8px 20px rgba(14, 165, 233, 0.35)'
-            }}
-          >
-            <span style={{ fontSize: '1.4rem' }}>📊</span>
-            <span>Abrir Visión Administración</span>
-            <span style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: '600' }}>Junta, Contabilidad y Morosidad</span>
-          </a>
-
-          <a
-            href={ownerDemoUrl}
-            style={{
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              color: 'white',
-              textDecoration: 'none',
-              padding: '1rem',
-              borderRadius: '12px',
-              fontWeight: '800',
-              fontSize: '0.95rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 8px 20px rgba(16, 185, 129, 0.35)'
-            }}
-          >
-            <span style={{ fontSize: '1.4rem' }}>🏡</span>
-            <span>Abrir Visión Vecino</span>
-            <span style={{ fontSize: '0.75rem', opacity: 0.9, fontWeight: '600' }}>Recibos, Pagos, Portón y Pases QR</span>
-          </a>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', alignItems: 'center' }}>
           <a 
             href={getWhatsAppLink(activeData)} 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn btn-primary"
             style={{ 
-              background: 'rgba(37, 211, 102, 0.16)', 
-              border: '1px solid rgba(37, 211, 102, 0.45)', 
+              background: '#25D366', 
+              borderColor: '#25D366', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '0.5rem', 
-              padding: '0.75rem 1.4rem',
-              color: '#34d399',
+              gap: '0.6rem', 
+              padding: '0.9rem 1.6rem',
+              color: 'white',
               textDecoration: 'none',
-              fontWeight: 'bold',
-              borderRadius: '8px',
-              fontSize: '0.9rem'
+              fontWeight: '800',
+              borderRadius: '10px',
+              fontSize: '0.98rem',
+              boxShadow: '0 8px 20px rgba(37, 211, 102, 0.3)'
             }}
           >
-            <span>💬</span> ¿Deseas asesoría en vivo por WhatsApp? Escríbenos
+            <span>💬</span> Continuar con Sofía por WhatsApp Ahora
           </a>
           <button 
             type="button"
             onClick={() => {
+              setSubmittedData(null);
               setStatus('idle');
             }} 
             className="btn btn-secondary" 
             style={{ marginTop: '0.25rem', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
           >
-            Modificar datos del condominio
+            Enviar otra consulta
           </button>
         </div>
       </div>
@@ -377,168 +299,23 @@ function ContactForm() {
 
   return (
     <form className="glass-panel" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-        <div>
-          <label htmlFor="contact-condominium" style={{ display: 'block', marginBottom: '0.45rem', color: 'white', fontWeight: '700', fontSize: '0.92rem' }}>
-            🏢 Nombre del Condominio o Conjunto *
-          </label>
-          <input 
-            id="contact-condominium"
-            name="condominium"
-            type="text"
-            autoComplete="organization"
-            required
-            placeholder="Ej: Conjunto Residencial Los Naranjos"
-            value={formData.condominium}
-            onChange={e => setFormData({...formData, condominium: e.target.value})}
-            style={{ inlineSize: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-light)', color: 'white', fontSize: '0.95rem' }} 
-          />
-        </div>
-
-        <div>
-          <label htmlFor="contact-units" style={{ display: 'block', marginBottom: '0.45rem', color: 'white', fontWeight: '700', fontSize: '0.92rem' }}>
-            🔢 Cantidad de Viviendas / Inmuebles *
-          </label>
-          <input 
-            id="contact-units"
-            name="units"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            required
-            placeholder="Ej: 24"
-            value={formData.units}
-            onChange={e => setFormData({...formData, units: e.target.value.replace(/\D/g, '').slice(0, 3)})}
-            style={{ inlineSize: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-light)', color: 'white', fontSize: '1rem', fontWeight: '800' }} 
-          />
-        </div>
-      </div>
-
-      <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-        <legend style={{ display: 'block', marginBottom: '0.45rem', color: 'white', fontWeight: '700', fontSize: '0.92rem', padding: 0 }}>
-          🏘️ Tipo de Inmuebles en tu Conjunto *
-        </legend>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          <label
-            htmlFor="contact-type-casa"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: formData.unitType === 'Casa' ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
-              background: formData.unitType === 'Casa' ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
-              color: 'white',
-              fontWeight: '700',
-              fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
+      {status === 'error' && (
+        <div role="alert" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center', textAlign: 'center' }}>
+          <span>Hubo un inconveniente temporal con el servidor de correo. Puedes continuar directamente con Sofía por WhatsApp con tus datos ya cargados:</span>
+          <a 
+            href={getWhatsAppLink(formData)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ background: '#25D366', color: 'white', padding: '0.6rem 1.2rem', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <input
-              id="contact-type-casa"
-              type="radio"
-              name="unitType"
-              value="Casa"
-              checked={formData.unitType === 'Casa'}
-              onChange={() => setFormData({ ...formData, unitType: 'Casa' })}
-            />
-            <span>🏡 Casas / Townhouses</span>
-          </label>
-          <label
-            htmlFor="contact-type-apto"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: formData.unitType === 'Apto' ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
-              background: formData.unitType === 'Apto' ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
-              color: 'white',
-              fontWeight: '700',
-              fontSize: '0.9rem',
-              cursor: 'pointer'
-            }}
-          >
-            <input
-              id="contact-type-apto"
-              type="radio"
-              name="unitType"
-              value="Apto"
-              checked={formData.unitType === 'Apto'}
-              onChange={() => setFormData({ ...formData, unitType: 'Apto' })}
-            />
-            <span>🏢 Apartamentos</span>
-          </label>
+            <span>💬</span> Hablar con Sofía por WhatsApp
+          </a>
         </div>
-      </fieldset>
-
-      <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-        <legend style={{ display: 'block', marginBottom: '0.45rem', color: 'white', fontWeight: '700', fontSize: '0.92rem', padding: 0 }}>
-          🚪 ¿Tu Condominio cuenta con Control de Acceso (Portón / Garita)? *
-        </legend>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-          <label
-            htmlFor="contact-access-yes"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: formData.hasAccessControl !== false ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
-              background: formData.hasAccessControl !== false ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
-              color: 'white',
-              fontWeight: '700',
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-          >
-            <input
-              id="contact-access-yes"
-              type="radio"
-              name="hasAccessControl"
-              checked={formData.hasAccessControl !== false}
-              onChange={() => setFormData({ ...formData, hasAccessControl: true })}
-            />
-            <span>✅ Sí tiene (Portón / Garita)</span>
-          </label>
-          <label
-            htmlFor="contact-access-no"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              border: formData.hasAccessControl === false ? '2px solid var(--accent-primary)' : '1px solid var(--border-light)',
-              background: formData.hasAccessControl === false ? 'rgba(14, 165, 233, 0.16)' : 'rgba(255,255,255,0.04)',
-              color: 'white',
-              fontWeight: '700',
-              fontSize: '0.88rem',
-              cursor: 'pointer'
-            }}
-          >
-            <input
-              id="contact-access-no"
-              type="radio"
-              name="hasAccessControl"
-              checked={formData.hasAccessControl === false}
-              onChange={() => setFormData({ ...formData, hasAccessControl: false })}
-            />
-            <span>❌ No tiene control de acceso</span>
-          </label>
-        </div>
-      </fieldset>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
         <div>
-          <label htmlFor="contact-name" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Tu Nombre Completo *</label>
+          <label htmlFor="contact-name" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Nombre Completo *</label>
           <input 
             id="contact-name"
             name="name"
@@ -569,13 +346,14 @@ function ContactForm() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
         <div>
-          <label htmlFor="contact-phone" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Teléfono / WhatsApp (Opcional)</label>
+          <label htmlFor="contact-phone" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Teléfono / WhatsApp *</label>
           <input 
             id="contact-phone"
             name="phone"
             type="tel"
             inputMode="tel"
             autoComplete="tel"
+            required
             placeholder="Ej: 0414-1234567"
             value={formData.phone}
             onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -583,41 +361,36 @@ function ContactForm() {
           />
         </div>
         <div>
-          <label htmlFor="contact-message" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Comentario Adicional (Opcional)</label>
+          <label htmlFor="contact-condominium" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Nombre del Condominio (Opcional)</label>
           <input 
-            id="contact-message"
-            name="message"
+            id="contact-condominium"
+            name="condominium"
             type="text"
-            placeholder="Ej: Queremos automatizar cobros y portón"
-            value={formData.message}
-            onChange={e => setFormData({...formData, message: e.target.value})}
+            autoComplete="organization"
+            placeholder="Ej: Conjunto Residencial Los Naranjos"
+            value={formData.condominium}
+            onChange={e => setFormData({...formData, condominium: e.target.value})}
             style={{ inlineSize: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', fontSize: '0.95rem' }} 
           />
         </div>
       </div>
 
-      <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.08rem', marginTop: '0.5rem', fontWeight: '800' }}>
-        {status === 'loading' ? 'Generando tu Demo Personalizada...' : '🚀 Generar y Abrir mi Demo Personalizada'}
-      </button>
-
-      <div style={{ textAlign: 'center', marginTop: '0.35rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <a
-          href="https://iacondo.com/demo"
-          style={{
-            display: 'inline-block',
-            color: '#94a3b8',
-            fontSize: '0.88rem',
-            fontWeight: '600',
-            textDecoration: 'none',
-            padding: '0.4rem 0.85rem',
-            borderRadius: '8px',
-            border: '1px solid rgba(148, 163, 184, 0.25)',
-            background: 'rgba(15, 23, 42, 0.5)'
-          }}
-        >
-          👀 ¿Prefieres no ingresar datos? Ver Demo General de IA Condo →
-        </a>
+      <div>
+        <label htmlFor="contact-message" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Mensaje o Consulta (Opcional)</label>
+        <textarea 
+          id="contact-message"
+          name="message"
+          rows="3"
+          placeholder="Cuéntanos sobre tu condominio (cantidad aproximada de viviendas, si tienen portón eléctrico, etc.)..."
+          value={formData.message}
+          onChange={e => setFormData({...formData, message: e.target.value})}
+          style={{ inlineSize: '100%', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-light)', color: 'white', fontFamily: 'inherit', fontSize: '0.95rem' }} 
+        ></textarea>
       </div>
+
+      <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.08rem', marginTop: '0.4rem', fontWeight: '800' }}>
+        {status === 'loading' ? 'Conectando con Sofía IA...' : 'Solicitar Atención y Demo con Sofía IA'}
+      </button>
     </form>
   );
 }
