@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 const API_BASE = 'https://condopro-api.onrender.com';
-const DEMO_URL = 'https://iacondo.com/demo';
+const DEMO_URL = 'https://app.iacondo.com/demo';
 
 const VENEZUELA_ZONES = [
   { id: 'gran_caracas', label: '📍 Gran Caracas (Distrito Capital, Miranda, La Guaira)' },
@@ -1657,8 +1657,11 @@ export default function IACondoPanel() {
                       background: 'rgba(15, 23, 42, 0.96)',
                       border: '2px solid #0ea5e9',
                       borderRadius: '16px',
-                      padding: '1.5rem',
-                      boxShadow: '0 20px 40px -15px rgba(14, 165, 233, 0.35)'
+                      padding: '1.15rem',
+                      boxShadow: '0 20px 40px -15px rgba(14, 165, 233, 0.35)',
+                      maxInlineSize: '100%',
+                      overflow: 'hidden',
+                      boxSizing: 'border-box'
                     }}>
                       {/* Barra superior del expediente seleccionado con botón para cerrar */}
                       <div style={{
@@ -1702,26 +1705,38 @@ export default function IACondoPanel() {
 
                       <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-                        gap: '1.5rem'
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                        gap: '1.25rem',
+                        maxInlineSize: '100%'
                       }}>
                         {/* Columna Izquierda: Datos del Condominio, Zona, Próxima Tarea, Transcripciones y Bitácora */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                          <div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', minInlineSize: 0 }}>
+                          <div style={{ minInlineSize: 0 }}>
                             <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '700', marginBottom: '0.2rem' }}>
                               👤 Agente Asignado: {call.assignedAgentName || 'Alejandro Sáez'}
                             </div>
-                            <h3 style={{ fontSize: '1.22rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: '#fff' }}>
+                            <h3 style={{ fontSize: '1.18rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: '#fff', overflowWrap: 'anywhere' }}>
                               🏢 {call.condoName || 'Condominio por confirmar'} — {formattedUnitsHeader} ({call.city || 'Venezuela'})
                             </h3>
-                            <div style={{ fontSize: '0.88rem', color: '#38bdf8', fontWeight: '600' }}>
+                            <div style={{ fontSize: '0.86rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
                               👤 Contacto: {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} {call.email ? `• ✉️ ${call.email}` : ''} • 🚪 Acceso: {hasAccessControl}
                             </div>
                             <div style={{ fontSize: '0.8rem', color: '#fbbf24', marginTop: '0.25rem', fontWeight: '700' }}>
                               ⏰ Horario Concertado / Próximo Contacto: {timeLabel}
                             </div>
-                            <div style={{ fontSize: '0.78rem', color: '#c084fc', marginTop: '0.2rem' }}>
-                              🔗 Demo Personalizado: <code>{personalizedDemoUrl}</code>
+                            <div style={{ fontSize: '0.78rem', color: '#c084fc', marginTop: '0.3rem', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                              🔗 Demo Personalizado:{' '}
+                              <a
+                                href={personalizedDemoUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ color: '#e9d5ff', fontWeight: '800', textDecoration: 'underline' }}
+                              >
+                                Abrir Demo — {call.condoName || 'Condominio'} ↗
+                              </a>
+                              <span style={{ color: '#94a3b8', marginLeft: '0.4rem', fontSize: '0.73rem' }}>
+                                (Usuario: <code>DEMO</code> | Clave: <code>IACondo*2026!</code>)
+                              </span>
                             </div>
                           </div>
 
@@ -1843,7 +1858,7 @@ export default function IACondoPanel() {
                         </div>
 
                         {/* Columna Derecha: Botones Paso 5 y 6 (Llamar/Escribir + Transcribir + Resultado + Re-Agendar), Etapa y Demo */}
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0.85rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0.85rem', minInlineSize: 0 }}>
                           {/* PASO 5 Y PASO 6: PANEL DE CONTACTO DIRECTO, TRANSCRIPCIÓN IA Y RE-AGENDAMIENTO */}
                           <div style={{
                             padding: '1rem',
@@ -2085,7 +2100,7 @@ export default function IACondoPanel() {
                           {/* ACCIONES RÁPIDAS: ENVIAR DEMO PERSONALIZADO VS DEMO GENERAL POR WHATSAPP */}
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
                             <a
-                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo#Demo2026!`)}`}
+                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
                               target="_blank"
                               rel="noreferrer"
                               onClick={() => {
@@ -2113,7 +2128,7 @@ export default function IACondoPanel() {
                             </a>
 
                             <a
-                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Aquí tienes nuestro Demo General para que puedas explorar todas las funciones en vivo:\n\n🔗 ${DEMO_URL}\n🔑 Usuario: DEMO | Clave: IACondo#Demo2026!`)}`}
+                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Aquí tienes nuestro Demo General para que puedas explorar todas las funciones en vivo:\n\n🔗 ${DEMO_URL}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
                               target="_blank"
                               rel="noreferrer"
                               onClick={() => {
