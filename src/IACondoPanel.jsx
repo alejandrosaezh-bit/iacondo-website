@@ -336,6 +336,51 @@ export default function IACondoPanel() {
     }
   };
 
+  const handleDeleteCall = async (callId) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/iacondo-panel/calls/${encodeURIComponent(callId)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCalls(data.calls || []);
+        showToast('🗑️ Registro eliminado del panel');
+      }
+    } catch {
+      showToast('⚠️ Error eliminando el registro');
+    }
+  };
+
+  const handleCheckEmailsNow = async () => {
+    setLoading(true);
+    try {
+      showToast('📬 Revisando bandejas de correo (hola@iacondo.com) con Sofía IA...');
+      const res = await fetch(`${API_BASE}/api/iacondo-panel/check-emails-now`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lookbackDays: 7 })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.calls) setCalls(data.calls);
+        if (data.sessions) setSessions(data.sessions);
+        const processedCount = (data.inboxLastResult?.results || []).reduce(
+          (acc, r) => acc + ((r.processed && r.processed.length) || 0),
+          0
+        );
+        showToast(
+          processedCount > 0
+            ? `✅ Sofía IA revisó y respondió ${processedCount} correo(s) nuevo(s)`
+            : '📬 Bandeja al día: No hay correos nuevos pendientes de respuesta'
+        );
+      }
+    } catch {
+      showToast('⚠️ Error al revisar correos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSavePlaybook = async (e) => {
     e.preventDefault();
     try {
@@ -666,6 +711,23 @@ export default function IACondoPanel() {
               {sim.roleLabel}
             </button>
           ))}
+
+          <button
+            type="button"
+            onClick={handleCheckEmailsNow}
+            style={{
+              padding: '0.38rem 0.75rem',
+              borderRadius: '8px',
+              background: 'rgba(16, 185, 129, 0.16)',
+              color: '#34d399',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              cursor: 'pointer',
+              fontSize: '0.76rem',
+              fontWeight: '700'
+            }}
+          >
+            {loading ? '⏳ Revisando...' : '📬 Revisar Emails Ahora'}
+          </button>
 
           <button
             type="button"
@@ -1331,6 +1393,25 @@ export default function IACondoPanel() {
                           >
                             📞 Llamar Ahora
                           </a>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCall(callId)}
+                            style={{
+                              gridColumn: '1 / -1',
+                              textAlign: 'center',
+                              padding: '0.45rem 0.8rem',
+                              borderRadius: '8px',
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              color: '#fca5a5',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              fontWeight: '700',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            🗑️ Eliminar Registro del Panel
+                          </button>
                         </div>
                       </div>
                     </div>
