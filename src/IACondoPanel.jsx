@@ -2781,6 +2781,510 @@ export default function IACondoPanel() {
           </div>
         )}
       </div>
+
+      {/* =====================================================================
+          MODAL 1 (PASO 1): REGISTRAR NUEVO LEAD MANUALMENTE DESDE EL PANEL
+          ===================================================================== */}
+      <dialog ref={newLeadDialogRef} aria-labelledby="new-lead-dialog-title">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid rgba(148,163,184,0.2)', paddingBottom: '0.75rem' }}>
+          <div>
+            <h2 id="new-lead-dialog-title" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#38bdf8' }}>
+              ➕ Registrar Nuevo Lead en el CRM de IA Condo (Paso 1)
+            </h2>
+            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+              El sistema detectará la zona geográfica, lo asignará al agente comercial correspondiente y enviará alerta al celular y calendario (.ics).
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => newLeadDialogRef.current?.close()}
+            style={{ background: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '8px', padding: '0.35rem 0.7rem', cursor: 'pointer', fontWeight: '700' }}
+          >
+            ✕ Cerrar
+          </button>
+        </div>
+
+        <form onSubmit={handleCreateManualLead} style={{ display: 'grid', gap: '0.9rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label htmlFor="nl-condo" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                1. Nombre del Condominio o Conjunto *
+              </label>
+              <input
+                id="nl-condo"
+                type="text"
+                required
+                placeholder="Ej. Residencias Altamira Suites"
+                value={newLeadForm.condoName}
+                onChange={e => setNewLeadForm({ ...newLeadForm, condoName: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nl-units" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                2. Cantidad de Viviendas (Apto/Casas) *
+              </label>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <input
+                  id="nl-units"
+                  type="text"
+                  required
+                  placeholder="Ej. 64"
+                  value={newLeadForm.units}
+                  onChange={e => setNewLeadForm({ ...newLeadForm, units: e.target.value })}
+                  style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                />
+                <select
+                  aria-label="Tipo de vivienda"
+                  value={newLeadForm.unitType}
+                  onChange={e => setNewLeadForm({ ...newLeadForm, unitType: e.target.value })}
+                  style={{ padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                >
+                  <option value="Apartamentos">Apartamentos</option>
+                  <option value="Casas">Casas / Townhouses</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label htmlFor="nl-access" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                3. ¿Tiene Control de Acceso? (Para Demo Personalizado) *
+              </label>
+              <select
+                id="nl-access"
+                value={newLeadForm.hasAccessControl}
+                onChange={e => setNewLeadForm({ ...newLeadForm, hasAccessControl: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)', fontWeight: '600' }}
+              >
+                <option value="Sí (Portón / Garita)">✅ Sí tiene Control de Acceso (Portón / Garita)</option>
+                <option value="No">❌ No tiene Control de Acceso</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="nl-zone" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                Ciudad y Zona Geográfica (Paso 3) *
+              </label>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <input
+                  id="nl-zone"
+                  type="text"
+                  required
+                  placeholder="Ej. Caracas, Valencia..."
+                  value={newLeadForm.city}
+                  onChange={e => setNewLeadForm({ ...newLeadForm, city: e.target.value })}
+                  style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                />
+                <select
+                  aria-label="Zona de Venezuela"
+                  value={newLeadForm.zone}
+                  onChange={e => setNewLeadForm({ ...newLeadForm, zone: e.target.value })}
+                  style={{ maxWidth: '175px', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.35)', fontSize: '0.78rem' }}
+                >
+                  <option value="">Auto-detectar por ciudad</option>
+                  {VENEZUELA_ZONES.map(z => (
+                    <option key={z.id} value={z.id}>{z.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label htmlFor="nl-client" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                Persona de Contacto *
+              </label>
+              <input
+                id="nl-client"
+                type="text"
+                required
+                placeholder="Nombre y Apellido"
+                value={newLeadForm.clientName}
+                onChange={e => setNewLeadForm({ ...newLeadForm, clientName: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nl-phone" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                Teléfono / WhatsApp *
+              </label>
+              <input
+                id="nl-phone"
+                type="tel"
+                inputMode="tel"
+                required
+                placeholder="Ej. +584141234567"
+                value={newLeadForm.clientPhone}
+                onChange={e => setNewLeadForm({ ...newLeadForm, clientPhone: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nl-email" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                Correo Electrónico
+              </label>
+              <input
+                id="nl-email"
+                type="email"
+                placeholder="contacto@condominio.com"
+                value={newLeadForm.email}
+                onChange={e => setNewLeadForm({ ...newLeadForm, email: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', padding: '0.75rem', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+            <div>
+              <label htmlFor="nl-date" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                📅 Fecha para Llamar / Contactar
+              </label>
+              <input
+                id="nl-date"
+                type="date"
+                value={newLeadForm.contactDate}
+                onChange={e => setNewLeadForm({ ...newLeadForm, contactDate: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nl-time" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                ⏰ Hora del Contacto
+              </label>
+              <input
+                id="nl-time"
+                type="time"
+                value={newLeadForm.contactTime}
+                onChange={e => setNewLeadForm({ ...newLeadForm, contactTime: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="nl-channel" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                📱 Vía de Contacto Concertada
+              </label>
+              <select
+                id="nl-channel"
+                value={newLeadForm.contactChannel}
+                onChange={e => setNewLeadForm({ ...newLeadForm, contactChannel: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              >
+                <option value="llamada">📞 Llamada Telefónica</option>
+                <option value="whatsapp">💬 Mensaje de WhatsApp</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="nl-notes" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+              Notas o Requerimientos del Condominio
+            </label>
+            <textarea
+              id="nl-notes"
+              rows={2}
+              placeholder="Ej. Junta de condominio interesada en automatizar recibos y conciliación bancaria..."
+              value={newLeadForm.notes}
+              onChange={e => setNewLeadForm({ ...newLeadForm, notes: e.target.value })}
+              style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '0.25rem' }}>
+            <button
+              type="button"
+              onClick={() => newLeadDialogRef.current?.close()}
+              style={{ padding: '0.7rem 1.2rem', borderRadius: '8px', background: 'rgba(148,163,184,0.15)', color: '#cbd5e1', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              style={{ padding: '0.7rem 1.4rem', borderRadius: '8px', background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', color: '#fff', border: 'none', fontWeight: '800', cursor: 'pointer' }}
+            >
+              🚀 Crear Lead, Asignar por Zona y Enviar Alerta al Celular
+            </button>
+          </div>
+        </form>
+      </dialog>
+
+      {/* =====================================================================
+          MODAL 2 (PASOS 5 Y 6): LLAMADA + TRANSCRIPCIÓN EN VIVO CON IA +
+          RESULTADO DEL CONTACTO Y RE-AGENDAMIENTO EN EL CALENDARIO DEL AGENTE
+          ===================================================================== */}
+      <dialog ref={outcomeDialogRef} aria-labelledby="outcome-dialog-title">
+        {activeOutcomeCall && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem', borderBottom: '1px solid rgba(148,163,184,0.2)', paddingBottom: '0.75rem' }}>
+              <div>
+                <h2 id="outcome-dialog-title" style={{ margin: 0, fontSize: '1.18rem', fontWeight: '800', color: '#38bdf8' }}>
+                  📞 Contacto Comercial, Transcripción IA y Resultado — {activeOutcomeCall.condoName || 'Condominio'}
+                </h2>
+                <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.25rem' }}>
+                  👤 Contacto: <strong>{activeOutcomeCall.clientName || 'Interesado'}</strong> • 📱 Teléfono: <strong>+{String(activeOutcomeCall.clientPhone || activeOutcomeCall.phone || '').replace(/[^0-9]/g, '')}</strong> • 🏘️ {activeOutcomeCall.units || 'Por confirmar'} unid.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isRecordingSpeech && speechRecRef.current) {
+                    try { speechRecRef.current.stop(); } catch { /* ignore */ }
+                    setIsRecordingSpeech(false);
+                  }
+                  outcomeDialogRef.current?.close();
+                }}
+                style={{ background: 'rgba(239,68,68,0.15)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '8px', padding: '0.35rem 0.7rem', cursor: 'pointer', fontWeight: '700' }}
+              >
+                ✕ Cerrar
+              </button>
+            </div>
+
+            {/* SECCIÓN SUPERIOR (PASO 6): TRANSCRIPCIÓN DE LA LLAMADA EN VIVO O SUBIDA DE AUDIO + RESUMEN IA */}
+            <div style={{
+              padding: '1rem',
+              borderRadius: '12px',
+              background: 'rgba(88, 28, 135, 0.18)',
+              border: '1px solid rgba(192, 132, 252, 0.4)',
+              marginBottom: '1.1rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#e9d5ff' }}>
+                  🎙️ PASO 6: TRANSCRIPCIÓN DE LA LLAMADA Y EXTRACCIÓN DE RESUMEN CON IA (GEMINI FLASH)
+                </div>
+                <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={handleToggleLiveTranscription}
+                    style={{
+                      padding: '0.45rem 0.85rem',
+                      borderRadius: '8px',
+                      border: 'none',
+                      background: isRecordingSpeech ? '#ef4444' : '#9333ea',
+                      color: '#fff',
+                      fontWeight: '800',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isRecordingSpeech ? '🛑 Detener Transcripción en Vivo (Grabando...)' : '🎙️ Iniciar Transcripción por Micrófono'}
+                  </button>
+
+                  <label style={{
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '8px',
+                    background: 'rgba(56, 189, 248, 0.2)',
+                    border: '1px solid rgba(56, 189, 248, 0.45)',
+                    color: '#38bdf8',
+                    fontWeight: '700',
+                    fontSize: '0.76rem',
+                    cursor: 'pointer'
+                  }}>
+                    🎧 Subir Grabación de Audio
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleAudioUploadForAi}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    disabled={aiTranscribing}
+                    onClick={handleGenerateAiSummary}
+                    style={{
+                      padding: '0.45rem 0.85rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(74, 222, 128, 0.5)',
+                      background: 'rgba(22, 163, 74, 0.25)',
+                      color: '#4ade80',
+                      fontWeight: '800',
+                      fontSize: '0.78rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {aiTranscribing ? '⏳ Procesando con Gemini IA...' : '🧠 Extraer Resumen Ejecutivo con IA'}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label htmlFor="oc-transcript" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                    Transcripción completa de la conversación (o dicta / pega aquí):
+                  </label>
+                  <textarea
+                    id="oc-transcript"
+                    rows={4}
+                    placeholder="Pulsa 'Iniciar Transcripción por Micrófono' durante la llamada en altavoz o escribe aquí lo conversado con el cliente..."
+                    value={outcomeForm.rawTranscript}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, rawTranscript: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="oc-aisummary" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#e9d5ff', marginBottom: '0.25rem' }}>
+                    🧠 Resumen Ejecutivo extraído por IA (Acuerdos, Dudas y Compromisos):
+                  </label>
+                  <textarea
+                    id="oc-aisummary"
+                    rows={4}
+                    placeholder="Al pulsar 'Extraer Resumen Ejecutivo con IA', Gemini Flash resumirá aquí todos los puntos clave de la llamada..."
+                    value={outcomeForm.aiSummary}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, aiSummary: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#f3e8ff', border: '1px solid rgba(192,132,252,0.4)', fontSize: '0.78rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SECCIÓN INFERIOR (PASO 5): RESULTADO DEL CONTACTO Y RE-AGENDAMIENTO AUTOMÁTICO */}
+            <form onSubmit={handleSubmitContactOutcome} style={{ display: 'grid', gap: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
+                <div>
+                  <label htmlFor="oc-method" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                    Vía del Contacto Realizado
+                  </label>
+                  <select
+                    id="oc-method"
+                    value={outcomeForm.contactMethod}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, contactMethod: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                  >
+                    <option value="llamada">📞 Llamada Telefónica</option>
+                    <option value="whatsapp">💬 Conversación por WhatsApp</option>
+                    <option value="videollamada">💻 Videollamada / Demo en Vivo</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="oc-outcome" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#4ade80', marginBottom: '0.25rem' }}>
+                    ¿Cuál fue el Resultado de este Contacto? (Paso 5 y Actualización del Túnel Paso 7) *
+                  </label>
+                  <select
+                    id="oc-outcome"
+                    value={outcomeForm.outcome}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, outcome: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.45)', fontWeight: '700' }}
+                  >
+                    {CONTACT_OUTCOME_OPTIONS.map(opt => (
+                      <option key={opt.id} value={opt.id}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* RE-AGENDAMIENTO EN LA AGENDA DEL AGENTE */}
+              <div style={{
+                padding: '0.85rem',
+                borderRadius: '10px',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.4)'
+              }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.45rem' }}>
+                  📅 ¿Requiere volver a contactar o agendar el Demo / Seguimiento? (Genera alarma .ics y notificación al celular):
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                  <div>
+                    <label htmlFor="oc-nextdate" style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
+                      Fecha del Próximo Contacto
+                    </label>
+                    <input
+                      id="oc-nextdate"
+                      type="date"
+                      value={outcomeForm.nextContactDate}
+                      onChange={e => setOutcomeForm({ ...outcomeForm, nextContactDate: e.target.value })}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="oc-nexttime" style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
+                      Hora del Próximo Contacto
+                    </label>
+                    <input
+                      id="oc-nexttime"
+                      type="time"
+                      value={outcomeForm.nextContactTime}
+                      onChange={e => setOutcomeForm({ ...outcomeForm, nextContactTime: e.target.value })}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="oc-nextchan" style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
+                      Medio para el Próximo Contacto
+                    </label>
+                    <select
+                      id="oc-nextchan"
+                      value={outcomeForm.nextContactChannel}
+                      onChange={e => setOutcomeForm({ ...outcomeForm, nextContactChannel: e.target.value })}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                    >
+                      <option value="llamada">📞 Llamar por Teléfono</option>
+                      <option value="whatsapp">💬 Escribir por WhatsApp</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label htmlFor="oc-notes" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                    Observaciones adicionales del Agente Comercial
+                  </label>
+                  <input
+                    id="oc-notes"
+                    type="text"
+                    placeholder="Ej. Solicitaron propuesta formal para presentar el jueves..."
+                    value={outcomeForm.notes}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, notes: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="oc-nexttask" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                    Próxima Tarea Obligatoria (Se actualiza automáticamente o personalízala)
+                  </label>
+                  <input
+                    id="oc-nexttask"
+                    type="text"
+                    placeholder="Se generará automáticamente según el resultado si lo dejas en blanco"
+                    value={outcomeForm.nextTask}
+                    onChange={e => setOutcomeForm({ ...outcomeForm, nextTask: e.target.value })}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '0.35rem' }}>
+                <button
+                  type="button"
+                  onClick={() => outcomeDialogRef.current?.close()}
+                  style={{ padding: '0.7rem 1.2rem', borderRadius: '8px', background: 'rgba(148,163,184,0.15)', color: '#cbd5e1', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: '0.7rem 1.5rem', borderRadius: '8px', background: 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)', color: '#fff', border: 'none', fontWeight: '800', cursor: 'pointer' }}
+                >
+                  ✅ Guardar Resultado, Transcripción IA y Actualizar Túnel CRM / Agenda
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </dialog>
     </div>
   );
 }
