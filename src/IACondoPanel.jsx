@@ -1279,43 +1279,7 @@ export default function IACondoPanel() {
       )}
 
       {/* MAIN CONTAINER */}
-      <div style={{ maxWidth: '1420px', margin: '0 auto', padding: '1.5rem 1.5rem' }}>
-        {/* PROCESO COMERCIAL DE 8 PASOS IA CONDO */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.75))',
-          border: '1px solid rgba(56, 189, 248, 0.28)',
-          borderRadius: '14px',
-          padding: '1rem 1.25rem',
-          marginBottom: '1.25rem'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#38bdf8' }}>
-              ⚡ FLUJO COMERCIAL Y OPERATIVO DE 8 PASOS — IA CONDO:
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-              Captación Omnicanal → Sofía IA → Asignación por Zonas → Alerta al Celular → Llamada + Transcripción IA → Túnel CRM → Control CEO y Director Comercial
-            </span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(215px, 1fr))', gap: '0.55rem', fontSize: '0.74rem' }}>
-            <div style={{ padding: '0.5rem 0.7rem', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-              <strong style={{ color: '#fbbf24' }}>Pasos 1 y 2: Captación + Sofía IA</strong>
-              <div style={{ color: '#cbd5e1', marginTop: '0.12rem' }}>Recibe Lead por Email, WhatsApp, Web o Manual; pide los 3 datos del Demo Personalizado y concierta llamada.</div>
-            </div>
-            <div style={{ padding: '0.5rem 0.7rem', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-              <strong style={{ color: '#38bdf8' }}>Pasos 3 y 4: Zonas + Alerta Móvil</strong>
-              <div style={{ color: '#cbd5e1', marginTop: '0.12rem' }}>Asigna según la Zona del país configurada por el CEO y avisa al celular del agente (WhatsApp + Alarma .ics).</div>
-            </div>
-            <div style={{ padding: '0.5rem 0.7rem', borderRadius: '10px', background: 'rgba(74, 222, 128, 0.12)', border: '1px solid rgba(74, 222, 128, 0.3)' }}>
-              <strong style={{ color: '#4ade80' }}>Pasos 5 y 6: Llamada + Resumen IA</strong>
-              <div style={{ color: '#cbd5e1', marginTop: '0.12rem' }}>El agente llama/escribe desde el panel, transcribe la llamada con IA, registra resultado y re-agenda.</div>
-            </div>
-            <div style={{ padding: '0.5rem 0.7rem', borderRadius: '10px', background: 'rgba(192, 132, 252, 0.12)', border: '1px solid rgba(192, 132, 252, 0.3)' }}>
-              <strong style={{ color: '#c084fc' }}>Pasos 7 y 8: Túnel CRM + Control CEO</strong>
-              <div style={{ color: '#cbd5e1', marginTop: '0.12rem' }}>Actualiza la etapa en el Túnel CRM Kanban con visibilidad total para el CEO y Director Comercial.</div>
-            </div>
-          </div>
-        </div>
-
+      <div style={{ maxWidth: '1420px', margin: '0 auto', padding: '1.25rem 1.25rem' }}>
         {/* NAVIGATION TABS */}
         <div style={{
           display: 'flex',
