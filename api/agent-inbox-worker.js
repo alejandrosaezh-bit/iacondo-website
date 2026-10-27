@@ -89,8 +89,12 @@ function extractLeadEntities(text = '') {
   const unitType = unitsMatch && /casa/i.test(unitsMatch[2]) ? 'Casa' : 'Apto';
   const phoneMatch = clean.match(/(\+?58\s?0?\d{3}[-\s]?\d{7}|04\d{2}[-\s]?\d{7}|\+34\s?\d[\d\s]{7,12})/);
   const phone = phoneMatch ? phoneMatch[1].trim() : null;
-  const condoMatch = clean.match(
-    /((?:residencias|conjunto residencial|condominio|edificio|torre|urbanizaci[oó]n|terrazas|calle|villas)\s+[a-záéíóúñ0-9\s]{2,35}?)(?=\s+en\s+|\s*[,.]|\s+tenemos|\s+con\s+|\s+y\s+|$)/i
+  const strippedForCondo = clean
+    .replace(/\b\d{1,4}\s*(?:apartamentos?|aptos?|inmuebles?|casas?|viviendas?|unidades?|propietarios?|quintas?)\b.*$/i, '')
+    .replace(/\b(?:con|sin|tenemos|tiene)?\s*(?:control\s+de\s+acceso|garita(?:\s+de\s+vigilancia)?|port[oó]n(?:\s+el[eé]ctrico)?|vigilancia)\b.*$/i, '')
+    .trim();
+  const condoMatch = strippedForCondo.match(
+    /((?:conjunto\s+residencial\s+calle|conjunto\s+residencial|conjunto|residencias|residencia|condominio|edificio|torre|urbanizaci[oó]n|terrazas|calle|villas)\s+[a-záéíóúñ0-9\s]{2,55}?)(?=\s+en\s+|\s*[,.]|\s+tenemos|\s+con\s+|\s+y\s+|$)/i
   );
   const condo = condoMatch ? condoMatch[1].trim() : null;
 
@@ -102,7 +106,7 @@ function extractLeadEntities(text = '') {
   ) {
     hasAccessControl = 'no';
   } else if (
-    /(con\s+control\s+de\s+acceso|s[ií]\s+tenemos\s+control\s+de\s+acceso|s[ií]\s+tiene\s+control\s+de\s+acceso|tenemos\s+port[oó]n|port[oó]n\s+el[eé]ctrico|garita|control\s+de\s+acceso\s*:\s*s[ií])/i.test(
+    /(con\s+control\s+de\s+acceso|s[ií]\s+tenemos\s+control\s+de\s+acceso|s[ií]\s+tiene\s+control\s+de\s+acceso|tenemos\s+port[oó]n|port[oó]n\s+el[eé]ctrico|garita(?:\s+de\s+vigilancia)?|control\s+de\s+acceso\s*:\s*s[ií])/i.test(
       clean
     )
   ) {
