@@ -147,7 +147,14 @@ export default function IACondoPanel() {
 
   // Selected Session in Live Chat Tab & Selected Lead in CRM Tunnel
   const [selectedSession, setSelectedSession] = useState(null);
-  const [selectedLeadId, setSelectedLeadId] = useState(null);
+  const [selectedLeadId, setSelectedLeadId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('lead') || null;
+    }
+    return null;
+  });
+  const deepLinkHandledRef = useRef(false);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedLeadSectionRef = useRef(null);
   const [callFilter, setCallFilter] = useState('todos');
@@ -251,6 +258,37 @@ export default function IACondoPanel() {
       return () => clearInterval(interval);
     }
   }, [currentUser, fetchDashboard]);
+
+  // Abrir directamente el expediente del Lead cuando el agente entra desde el link de WhatsApp (?lead=...&phone=...)
+  useEffect(() => {
+    if (deepLinkHandledRef.current || !calls.length || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const urlLeadId = params.get('lead');
+    const urlPhone = (params.get('phone') || '').replace(/\D/g, '').slice(-10);
+    if (!urlLeadId && !urlPhone) return;
+
+    const matched = calls.find((c) => {
+      const cId = String(c.id || c._id || '');
+      const cPhone = String(c.clientPhone || c.phone || '').replace(/\D/g, '');
+      if (urlLeadId && cId === urlLeadId) return true;
+      if (urlPhone && urlPhone.length >= 8 && cPhone.includes(urlPhone)) return true;
+      return false;
+    });
+
+    if (matched) {
+      deepLinkHandledRef.current = true;
+      setActiveTab('agenda');
+      setCallFilter('todos');
+      setAgentFilter('todos');
+      setZoneFilter('todas');
+      setSelectedLeadId(matched.id || matched._id);
+      setTimeout(() => {
+        if (selectedLeadSectionRef.current) {
+          selectedLeadSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 250);
+    }
+  }, [calls]);
 
   const handleLogin = async (e, quickEmail, quickPass) => {
     if (e) e.preventDefault();
