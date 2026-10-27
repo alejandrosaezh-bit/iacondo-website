@@ -1086,176 +1086,102 @@ export default function IACondoPanel() {
   // ============================================================================
   return (
     <div style={{
-      minHeight: '100vh',
+      minBlockSize: '100dvh',
+      maxInlineSize: '100dvw',
+      overflowX: 'hidden',
+      boxSizing: 'border-box',
       background: '#060d18',
       color: '#f8fafc',
       fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-      paddingBottom: '4rem'
+      paddingBlockEnd: '3rem'
     }}>
-      {/* TOP HEADER */}
+      {/* TOP HEADER COMPACTO */}
       <header style={{
         background: 'rgba(15, 23, 42, 0.95)',
         backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
-        padding: '0.9rem 1.75rem',
+        borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
+        padding: '0.65rem 1rem',
         position: 'sticky',
-        top: 0,
+        insetBlockStart: 0,
         zIndex: 100,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '1rem'
+        gap: '0.6rem',
+        maxInlineSize: '100%',
+        boxSizing: 'border-box'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
-          <div style={{ fontSize: '1.35rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
-            <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
-            <span>PANEL<span style={{ color: '#0ea5e9' }}>.IACONDO.COM</span></span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap', minInlineSize: 0 }}>
+          <div style={{ fontSize: '1.05rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ inlineSize: '26px', blockSize: '26px', objectFit: 'contain' }} />
+            <span>PANEL<span style={{ color: '#0ea5e9' }}>.IACONDO</span></span>
           </div>
           <span style={{
-            padding: '0.28rem 0.7rem',
+            padding: '0.2rem 0.55rem',
             borderRadius: '999px',
-            fontSize: '0.74rem',
+            fontSize: '0.7rem',
             fontWeight: '700',
             background: waStatus?.whatsapp_status === 'connected' ? 'rgba(74, 222, 128, 0.15)' : 'rgba(245, 158, 11, 0.15)',
             color: waStatus?.whatsapp_status === 'connected' ? '#4ade80' : '#f59e0b',
             border: '1px solid rgba(74, 222, 128, 0.3)'
           }}>
-            {waStatus?.whatsapp_status === 'connected'
-              ? '🟢 WhatsApp 0422-2537239 + Web Chat Gemini Activos'
-              : '⏳ Sincronizando línea WhatsApp...'}
+            {waStatus?.whatsapp_status === 'connected' ? '🟢 IA Activa' : '⏳ Sincronizando'}
           </span>
-          <a
-            href={DEMO_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              padding: '0.28rem 0.75rem',
-              borderRadius: '999px',
-              fontSize: '0.74rem',
-              fontWeight: '700',
-              background: 'rgba(192, 132, 252, 0.18)',
-              color: '#e9d5ff',
-              border: '1px solid rgba(192, 132, 252, 0.4)',
-              textDecoration: 'none'
-            }}
-          >
-            🎮 Demo Oficial: iacondo.com/demo ↗
-          </a>
         </div>
 
-        {/* SELECTOR DINÁMICO DE INTEGRANTES REALES REGISTRADOS */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-          {users.length > 1 && (
-            <>
-              <span style={{ fontSize: '0.73rem', color: '#94a3b8', fontWeight: '600' }}>Ver como:</span>
-              {users.map(u => (
-                <button
-                  key={u.id || u.email}
-                  type="button"
-                  onClick={() => handleQuickSwitchRole(u)}
-                  style={{
-                    padding: '0.32rem 0.65rem',
-                    borderRadius: '8px',
-                    border: currentUser.email === u.email ? '1px solid #38bdf8' : '1px solid rgba(148,163,184,0.25)',
-                    background: currentUser.email === u.email ? 'rgba(56, 189, 248, 0.22)' : 'rgba(30, 41, 59, 0.6)',
-                    color: currentUser.email === u.email ? '#fff' : '#cbd5e1',
-                    fontSize: '0.73rem',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {u.name}
-                </button>
-              ))}
-            </>
-          )}
-
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', minInlineSize: 0 }}>
           <button
             type="button"
             onClick={() => newLeadDialogRef.current?.showModal()}
             style={{
-              padding: '0.38rem 0.8rem',
+              padding: '0.36rem 0.7rem',
               borderRadius: '8px',
               background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
               color: '#fff',
               border: '1px solid rgba(56, 189, 248, 0.5)',
               cursor: 'pointer',
-              fontSize: '0.76rem',
-              fontWeight: '800',
-              boxShadow: '0 4px 12px rgba(14, 165, 233, 0.35)'
+              fontSize: '0.74rem',
+              fontWeight: '800'
             }}
           >
-            ➕ Registrar Nuevo Lead
-          </button>
-
-          <button
-            type="button"
-            onClick={handleRequestMobileNotifications}
-            style={{
-              padding: '0.38rem 0.75rem',
-              borderRadius: '8px',
-              background: notifPermission === 'granted' ? 'rgba(74, 222, 128, 0.16)' : 'rgba(245, 158, 11, 0.18)',
-              color: notifPermission === 'granted' ? '#4ade80' : '#fbbf24',
-              border: notifPermission === 'granted' ? '1px solid rgba(74, 222, 128, 0.4)' : '1px solid rgba(245, 158, 11, 0.45)',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '700'
-            }}
-          >
-            {notifPermission === 'granted' ? '🔔 Alertas Móvil Activas' : '🔔 Activar Alertas Móvil'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCheckEmailsNow}
-            style={{
-              padding: '0.38rem 0.75rem',
-              borderRadius: '8px',
-              background: 'rgba(16, 185, 129, 0.16)',
-              color: '#34d399',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              cursor: 'pointer',
-              fontSize: '0.76rem',
-              fontWeight: '700'
-            }}
-          >
-            {loading ? '⏳ Revisando...' : '📬 Revisar Emails Ahora'}
+            ➕ Nuevo Lead
           </button>
 
           <button
             type="button"
             onClick={fetchDashboard}
+            title="Sincronizar"
             style={{
-              padding: '0.38rem 0.75rem',
+              padding: '0.36rem 0.6rem',
               borderRadius: '8px',
               background: 'rgba(56, 189, 248, 0.1)',
               color: '#38bdf8',
               border: '1px solid rgba(56, 189, 248, 0.3)',
               cursor: 'pointer',
-              fontSize: '0.76rem',
-              fontWeight: '600'
+              fontSize: '0.74rem',
+              fontWeight: '700'
             }}
           >
-            {loading ? '⏳...' : '🔄 Sincronizar'}
+            {loading ? '⏳' : '🔄'}
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(30, 41, 59, 0.85)', padding: '0.32rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(148,163,184,0.2)' }}>
-            <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '700' }}>{currentUser.name}</div>
-              <div style={{ fontSize: '0.68rem', color: roleBadge.color, fontWeight: '600' }}>{currentUser.roleLabel || roleBadge.label}</div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(30, 41, 59, 0.85)', padding: '0.25rem 0.55rem', borderRadius: '8px', border: '1px solid rgba(148,163,184,0.2)' }}>
+            <span style={{ fontSize: '0.74rem', fontWeight: '700', color: '#e2e8f0' }}>
+              {currentUser.name?.split(' ')[0] || 'Agente'}
+            </span>
             <button
               type="button"
               onClick={handleLogout}
               style={{
-                padding: '0.25rem 0.5rem',
+                padding: '0.18rem 0.45rem',
                 borderRadius: '6px',
                 background: 'rgba(239, 68, 68, 0.15)',
                 color: '#fca5a5',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
                 cursor: 'pointer',
-                fontSize: '0.7rem'
+                fontSize: '0.68rem',
+                fontWeight: '700'
               }}
             >
               Salir
@@ -1269,45 +1195,53 @@ export default function IACondoPanel() {
         <div role="status" aria-live="polite" style={{
           background: 'linear-gradient(90deg, #0284c7, #2563eb)',
           color: '#fff',
-          padding: '0.75rem 2rem',
+          padding: '0.6rem 1rem',
           textAlign: 'center',
           fontWeight: '600',
-          fontSize: '0.9rem'
+          fontSize: '0.82rem',
+          overflowWrap: 'anywhere'
         }}>
           {syncMessage}
         </div>
       )}
 
       {/* MAIN CONTAINER */}
-      <div style={{ maxWidth: '1420px', margin: '0 auto', padding: '1.25rem 1.25rem' }}>
-        {/* NAVIGATION TABS */}
+      <div style={{
+        maxInlineSize: '1380px',
+        inlineSize: '100%',
+        margin: '0 auto',
+        padding: '0.85rem',
+        boxSizing: 'border-box',
+        overflowX: 'hidden'
+      }}>
+        {/* NAVIGATION TABS COMPACTAS */}
         <div style={{
           display: 'flex',
-          gap: '0.55rem',
+          gap: '0.4rem',
           flexWrap: 'wrap',
-          marginBottom: '1.5rem',
-          borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
-          paddingBottom: '0.85rem'
+          marginBlockEnd: '1rem',
+          borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
+          paddingBlockEnd: '0.65rem'
         }}>
           {[
-            { id: 'agenda', label: `👑 Túnel CRM, Agenda de Llamadas y Control CEO (${salesCalls.length})` },
-            { id: 'usuarios', label: `👥 Equipo Comercial por Zonas, Roles y Funciones (${users.length})` },
-            { id: 'ia', label: `🤖 Agentes IA y Entrenamiento de Sofía (${aiAgents.length})` },
-            { id: 'soporte', label: `🛠️ Departamento Técnico (${supportTickets.length})` },
-            { id: 'chats', label: `💬 Conversaciones WhatsApp / Web (${sessions.length})` }
+            { id: 'agenda', label: `📋 Pendientes y CRM (${salesCalls.length})` },
+            { id: 'usuarios', label: `👥 Equipo y Zonas (${users.length})` },
+            { id: 'ia', label: `🤖 Sofía IA (${aiAgents.length})` },
+            { id: 'soporte', label: `🛠️ Soporte (${supportTickets.length})` },
+            { id: 'chats', label: `💬 Chats (${sessions.length})` }
           ].map(tab => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               style={{
-                padding: '0.68rem 1.15rem',
-                borderRadius: '10px',
+                padding: '0.5rem 0.85rem',
+                borderRadius: '8px',
                 border: activeTab === tab.id ? '1px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.2)',
                 background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.25))' : 'rgba(15, 23, 42, 0.7)',
                 color: activeTab === tab.id ? '#fff' : '#94a3b8',
-                fontWeight: activeTab === tab.id ? '700' : '600',
-                fontSize: '0.88rem',
+                fontWeight: activeTab === tab.id ? '800' : '600',
+                fontSize: '0.78rem',
                 cursor: 'pointer'
               }}
             >
@@ -1317,147 +1251,424 @@ export default function IACondoPanel() {
         </div>
 
         {/* ===================================================================
-            TAB 1: PANEL CEO, TÚNEL CRM (PASO 7), CONTROL DIRECTOR (PASO 8) Y AGENDA
+            TAB 1: PENDIENTES DEL AGENTE, ACCIONES DIRECTAS Y TÚNEL CRM
             =================================================================== */}
         {activeTab === 'agenda' && (
-          <div>
-            {/* PASO 8: MATRIZ EJECUTIVA DEL CEO Y DIRECTOR COMERCIAL */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxInlineSize: '100%', minInlineSize: 0 }}>
+            {/* 1. FICHA DE ACCIÓN INMEDIATA (SE MUESTRA ARRIBA DEL TODO AL ABRIR UN LEAD O ENTRAR DESDE WHATSAPP) */}
+            <div ref={selectedLeadSectionRef} style={{ maxInlineSize: '100%', minInlineSize: 0 }}>
+              {selectedLead && (() => {
+                const call = selectedLead;
+                const callId = call.id || call._id;
+                const clientName = call.clientName || call.contactName || 'Interesado';
+                const rawPhone = call.clientPhone || call.phone || '';
+                const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+                const timeLabel = call.callTimeLabel || call.callTimeDescription || 'Lo antes posible';
+                const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en implementar IA Condo en su condominio.';
+                const units = String(call.units || call.unitsCount || 'Por confirmar');
+                const formattedUnitsHeader = /casa|apto|apartamento|vivienda|unid/i.test(units)
+                  ? units
+                  : `${units} Unidades`;
+                const hasAccessControl = call.hasAccessControl || 'Sí (Portón / Garita)';
+                const numericUnits = String(units).replace(/\D/g, '') || '24';
+                const unitType = /apto|apartamento|edificio/i.test(String(units)) ? 'Apto' : 'Casa';
+                const accessParam = hasAccessControl === 'No' ? 'no' : 'si';
+                const personalizedDemoUrl = `${DEMO_URL}?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&access=${accessParam}&client=${encodeURIComponent(clientName)}`;
+                const st = CALL_STATUS_LABELS[call.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
+                const logs = Array.isArray(call.activityLog) ? call.activityLog : [];
+                const transcripts = Array.isArray(call.callTranscripts) ? call.callTranscripts : [];
+                const zoneObj = VENEZUELA_ZONES.find(z => z.id === call.zone);
+                const zoneBadgeLabel = call.zoneLabel || zoneObj?.label || '📍 Venezuela';
+
+                return (
+                  <div key={callId} style={{
+                    background: 'rgba(15, 23, 42, 0.96)',
+                    border: '2px solid #0ea5e9',
+                    borderRadius: '14px',
+                    padding: '1rem',
+                    boxShadow: '0 14px 32px -12px rgba(14, 165, 233, 0.35)',
+                    maxInlineSize: '100%',
+                    minInlineSize: 0,
+                    overflow: 'hidden',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.85rem'
+                  }}>
+                    {/* Encabezado compacto del Lead activo */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                      paddingBlockEnd: '0.65rem',
+                      borderBlockEnd: '1px solid rgba(56, 189, 248, 0.2)'
+                    }}>
+                      <div style={{ minInlineSize: 0, flex: '1 1 220px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBlockEnd: '0.3rem' }}>
+                          <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', background: st.bg, color: st.color }}>
+                            {st.label}
+                          </span>
+                          <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', background: 'rgba(56, 189, 248, 0.14)', color: '#38bdf8' }}>
+                            {zoneBadgeLabel}
+                          </span>
+                        </div>
+                        <h3 style={{ fontSize: '1.08rem', fontWeight: '800', margin: 0, color: '#fff', overflowWrap: 'anywhere' }}>
+                          🏢 {call.condoName || 'Condominio'} — {formattedUnitsHeader}
+                        </h3>
+                        <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: '600', marginBlockStart: '0.2rem', overflowWrap: 'anywhere' }}>
+                          👤 {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} • 📍 {call.city || 'Venezuela'}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#fbbf24', marginBlockStart: '0.2rem', fontWeight: '700', overflowWrap: 'anywhere' }}>
+                          ⏰ Llamar / Contactar: {timeLabel}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLeadId(null)}
+                        style={{
+                          padding: '0.35rem 0.7rem',
+                          borderRadius: '8px',
+                          background: 'rgba(239, 68, 68, 0.16)',
+                          color: '#fca5a5',
+                          border: '1px solid rgba(239, 68, 68, 0.35)',
+                          fontSize: '0.74rem',
+                          fontWeight: '800',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✕ Cerrar
+                      </button>
+                    </div>
+
+                    {/* ACCIONES DIRECTAS DEL AGENTE (AL FRENTE Y SIN RUIDO) */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
+                      gap: '0.5rem',
+                      maxInlineSize: '100%'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => openOutcomeAndCallModal(call, 'llamada', true)}
+                        style={{
+                          padding: '0.7rem 0.65rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(56, 189, 248, 0.5)',
+                          background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                          color: '#fff',
+                          fontWeight: '800',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textAlign: 'center'
+                        }}
+                      >
+                        📞 Llamar Ahora
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openOutcomeAndCallModal(call, 'whatsapp', true)}
+                        style={{
+                          padding: '0.7rem 0.65rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(34, 197, 94, 0.5)',
+                          background: 'linear-gradient(135deg, #16a34a 0%, #059669 100%)',
+                          color: '#fff',
+                          fontWeight: '800',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textAlign: 'center'
+                        }}
+                      >
+                        💬 Escribir WhatsApp
+                      </button>
+
+                      <a
+                        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => {
+                          handleUpdateCall(callId, {
+                            newActivity: {
+                              type: 'demo',
+                              actor: currentUser.name,
+                              text: `✨ Demo Personalizado (${call.condoName}, ${numericUnits} viv.) enviado por WhatsApp a ${clientName}.`
+                            }
+                          });
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          padding: '0.7rem 0.65rem',
+                          borderRadius: '10px',
+                          background: 'rgba(192, 132, 252, 0.22)',
+                          color: '#e9d5ff',
+                          border: '1px solid rgba(192, 132, 252, 0.5)',
+                          textDecoration: 'none',
+                          fontWeight: '800',
+                          fontSize: '0.8rem'
+                        }}
+                      >
+                        ✨ Enviar Demo WhatsApp
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => openOutcomeAndCallModal(call, 'llamada', false)}
+                        style={{
+                          padding: '0.7rem 0.65rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(245, 158, 11, 0.55)',
+                          background: 'rgba(245, 158, 11, 0.2)',
+                          color: '#fde68a',
+                          fontWeight: '800',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textAlign: 'center'
+                        }}
+                      >
+                        ✅ Resultado / Agendar
+                      </button>
+                    </div>
+
+                    {/* Resumen puntual del caso */}
+                    <div style={{
+                      padding: '0.7rem 0.85rem',
+                      background: 'rgba(6, 13, 24, 0.75)',
+                      borderRadius: '10px',
+                      borderInlineStart: '3px solid #0ea5e9',
+                      fontSize: '0.8rem',
+                      color: '#e2e8f0',
+                      lineHeight: 1.45,
+                      overflowWrap: 'anywhere'
+                    }}>
+                      <strong style={{ color: '#38bdf8' }}>📋 Resumen:</strong> {summary}
+                    </div>
+
+                    {/* Selectores rápidos: Fase CRM, Agente y Control de Acceso */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
+                      gap: '0.55rem'
+                    }}>
+                      <div>
+                        <label htmlFor={`status-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          Etapa CRM
+                        </label>
+                        <select
+                          id={`status-${callId}`}
+                          name="status"
+                          value={call.status || 'pendiente'}
+                          onChange={e => handleUpdateCall(callId, {
+                            status: e.target.value,
+                            newActivity: {
+                              type: 'fase',
+                              actor: currentUser.name,
+                              text: `Cambio de etapa a: ${CALL_STATUS_LABELS[e.target.value]?.label || e.target.value}`
+                            }
+                          })}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                        >
+                          <option value="pendiente">1. Nuevo / Contacto Inicial</option>
+                          <option value="visita_demo">2. Contacto / Visita o Demo</option>
+                          <option value="cotizacion">3. Cotización / Propuesta</option>
+                          <option value="en_espera">4. En Espera (Junta)</option>
+                          <option value="implementacion">5. En Implementación</option>
+                          <option value="ganado">6. Ganado (Activo)</option>
+                          <option value="perdido">7. Perdido / Descartado</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          Agente Asignado
+                        </label>
+                        <select
+                          id={`agent-${callId}`}
+                          name="assignedAgentEmail"
+                          value={call.assignedAgentEmail || 'alejandrosaezh@iacondo.com'}
+                          onChange={e => {
+                            const found = users.find(u => u.email === e.target.value);
+                            const newName = found ? found.name : e.target.value;
+                            handleUpdateCall(callId, {
+                              assignedAgentId: found?.id || '',
+                              assignedAgentEmail: e.target.value,
+                              assignedAgentName: newName,
+                              newActivity: {
+                                type: 'asignacion',
+                                actor: currentUser.name,
+                                text: `Lead reasignado a: ${newName}`
+                              }
+                            });
+                          }}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                        >
+                          {users.map(u => (
+                            <option key={u.id || u._id || u.email} value={u.email}>
+                              {u.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor={`access-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          Control de Acceso (Demo)
+                        </label>
+                        <select
+                          id={`access-${callId}`}
+                          name="hasAccessControl"
+                          value={call.hasAccessControl || 'Sí (Portón / Garita)'}
+                          onChange={e => handleUpdateCall(callId, { hasAccessControl: e.target.value })}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.35)', fontSize: '0.78rem', fontWeight: '600' }}
+                        >
+                          <option value="Sí (Portón / Garita)">✅ Con Portón / Garita</option>
+                          <option value="No">❌ Sin Control de Acceso</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Historial y Transcripciones desplegable para no saturar la pantalla */}
+                    <details style={{
+                      background: 'rgba(6, 13, 24, 0.75)',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(148, 163, 184, 0.18)',
+                      padding: '0.6rem 0.8rem'
+                    }}>
+                      <summary style={{ cursor: 'pointer', fontSize: '0.76rem', fontWeight: '700', color: '#94a3b8' }}>
+                        🕒 Ver Bitácora, Transcripciones IA y Opciones ({logs.length + transcripts.length})
+                      </summary>
+                      <div style={{ marginBlockStart: '0.65rem', display: 'grid', gap: '0.6rem' }}>
+                        {transcripts.length > 0 && (
+                          <div style={{ display: 'grid', gap: '0.4rem', padding: '0.6rem', background: 'rgba(88, 28, 135, 0.18)', borderRadius: '8px' }}>
+                            <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#e9d5ff' }}>
+                              🎙️ Resúmenes de Llamadas ({transcripts.length}):
+                            </div>
+                            {transcripts.slice().reverse().map((tr, idx) => (
+                              <div key={tr.id || idx} style={{ fontSize: '0.74rem', color: '#f8fafc', overflowWrap: 'anywhere' }}>
+                                <strong>{tr.actor || 'Agente'}:</strong> {tr.summary || tr.transcript}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <div style={{ maxBlockSize: '150px', overflowY: 'auto', display: 'grid', gap: '0.35rem' }}>
+                          {logs.slice().reverse().map((entry, idx) => (
+                            <div key={idx} style={{ fontSize: '0.73rem', paddingBlockEnd: '0.3rem', borderBlockEnd: '1px dashed rgba(148,163,184,0.12)', overflowWrap: 'anywhere' }}>
+                              <span style={{ color: '#38bdf8', fontWeight: '700' }}>{entry.actor || 'IA Condo'}: </span>
+                              <span style={{ color: '#cbd5e1' }}>{entry.text}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingBlockStart: '0.3rem' }}>
+                          <a
+                            href={personalizedDemoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ color: '#c084fc', fontSize: '0.74rem', fontWeight: '700', textDecoration: 'underline' }}
+                          >
+                            🎮 Probar Demo de {call.condoName || 'este Condominio'} ↗
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCall(callId)}
+                            style={{
+                              padding: '0.35rem 0.7rem',
+                              borderRadius: '6px',
+                              background: 'rgba(239, 68, 68, 0.12)',
+                              color: '#fca5a5',
+                              border: '1px solid rgba(239, 68, 68, 0.3)',
+                              fontWeight: '700',
+                              fontSize: '0.72rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            🗑️ Eliminar Lead
+                          </button>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* 2. BARRA COMPACTA DE FILTROS (AGENTE, ZONA Y BÚSQUEDA) */}
             <div style={{
               background: 'rgba(15, 23, 42, 0.85)',
-              border: '1px solid rgba(56, 189, 248, 0.22)',
-              borderRadius: '16px',
-              padding: '1.25rem',
-              marginBottom: '1.5rem'
+              border: '1px solid rgba(148, 163, 184, 0.18)',
+              borderRadius: '12px',
+              padding: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.6rem',
+              maxInlineSize: '100%',
+              boxSizing: 'border-box'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.9rem' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: '800', color: '#fff' }}>
-                    👑 Supervisión Ejecutiva (CEO y Director Comercial) — Seguimiento de Solicitudes y Zonas
-                  </h3>
-                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
-                    Filtra por integrante o por zona geográfica del país, o registra un nuevo lead manualmente (Paso 1).
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => newLeadDialogRef.current?.showModal()}
-                    style={{
-                      padding: '0.45rem 0.9rem',
-                      borderRadius: '8px',
-                      background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
-                      color: '#fff',
-                      border: 'none',
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ➕ Registrar Nuevo Lead en el CRM
-                  </button>
-                  {(agentFilter !== 'todos' || zoneFilter !== 'todas' || callFilter !== 'todos') && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAgentFilter('todos');
-                        setZoneFilter('todas');
-                        setCallFilter('todos');
-                      }}
-                      style={{
-                        padding: '0.42rem 0.85rem',
-                        borderRadius: '8px',
-                        background: 'rgba(56, 189, 248, 0.2)',
-                        color: '#38bdf8',
-                        border: '1px solid #38bdf8',
-                        fontSize: '0.78rem',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      🔄 Limpiar Filtros ({salesCalls.length})
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: '700' }}>Agente:</span>
+                <button
+                  type="button"
+                  onClick={() => setAgentFilter('todos')}
+                  style={{
+                    padding: '0.3rem 0.65rem',
+                    borderRadius: '999px',
+                    border: agentFilter === 'todos' ? '1px solid #0ea5e9' : '1px solid rgba(148,163,184,0.25)',
+                    background: agentFilter === 'todos' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(6, 13, 24, 0.7)',
+                    color: agentFilter === 'todos' ? '#fff' : '#cbd5e1',
+                    fontSize: '0.73rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Todos ({salesCalls.length})
+                </button>
                 {users.map(u => {
-                  const assignedLeads = salesCalls.filter(c => c.assignedAgentEmail === u.email);
-                  const rb = ROLE_LABELS[u.role] || ROLE_LABELS.ventas;
+                  const count = salesCalls.filter(c => c.assignedAgentEmail === u.email).length;
                   const isFiltered = agentFilter === u.email;
-                  const userZones = Array.isArray(u.assignedZones) && u.assignedZones.length > 0
-                    ? u.assignedZones
-                    : ['nacional'];
                   return (
                     <button
                       key={u.id || u._id || u.email}
                       type="button"
                       onClick={() => setAgentFilter(isFiltered ? 'todos' : u.email)}
                       style={{
-                        textAlign: 'left',
-                        padding: '0.85rem',
-                        borderRadius: '12px',
-                        border: isFiltered ? `2px solid ${rb.color}` : '1px solid rgba(148, 163, 184, 0.2)',
-                        background: isFiltered ? 'rgba(14, 165, 233, 0.14)' : 'rgba(6, 13, 24, 0.7)',
-                        color: '#fff',
+                        padding: '0.3rem 0.65rem',
+                        borderRadius: '999px',
+                        border: isFiltered ? '1px solid #38bdf8' : '1px solid rgba(148, 163, 184, 0.2)',
+                        background: isFiltered ? 'rgba(56, 189, 248, 0.2)' : 'rgba(6, 13, 24, 0.7)',
+                        color: isFiltered ? '#fff' : '#cbd5e1',
+                        fontSize: '0.73rem',
+                        fontWeight: '700',
                         cursor: 'pointer'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem' }}>
-                        <span style={{ fontSize: '0.7rem', padding: '0.15rem 0.55rem', borderRadius: '999px', background: rb.bg, color: rb.color, fontWeight: '700' }}>
-                          {u.roleLabel || rb.label}
-                        </span>
-                        <span style={{ fontSize: '0.78rem', fontWeight: '800', color: assignedLeads.length > 0 ? '#4ade80' : '#64748b' }}>
-                          {assignedLeads.length} {assignedLeads.length === 1 ? 'lead' : 'leads'}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.92rem', fontWeight: '800', marginTop: '0.4rem' }}>{u.name}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#38bdf8', marginTop: '0.2rem' }}>
-                        🗺️ Zonas: {userZones.includes('nacional') || userZones.length >= 6 ? '🇻🇪 Cobertura Nacional' : `${userZones.length} zona(s) asignada(s)`}
-                      </div>
-                      {assignedLeads.length > 0 ? (
-                        <div style={{ marginTop: '0.4rem', fontSize: '0.75rem', color: '#cbd5e1', display: 'grid', gap: '0.2rem' }}>
-                          {assignedLeads.map(l => (
-                            <div key={l.id || l._id} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              • <strong>{l.condoName}</strong> ({l.units} unid.)
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div style={{ marginTop: '0.4rem', fontSize: '0.73rem', color: '#64748b' }}>
-                          En guardia esperando próximo lead en su zona
-                        </div>
-                      )}
+                      {u.name.split(' ')[0]} ({count})
                     </button>
                   );
                 })}
               </div>
-            </div>
 
-            {/* BARRA DE BÚSQUEDA Y FILTRO DE ZONA DEL TÚNEL DE VENTAS CRM (PASOS 3 Y 7) */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: '800', margin: 0 }}>
-                  📊 Túnel de Ventas CRM — IA Condo ({filteredSalesCalls.length} {filteredSalesCalls.length === 1 ? 'solicitud' : 'solicitudes'})
-                </h2>
-                <p style={{ color: '#94a3b8', fontSize: '0.84rem', margin: '0.2rem 0 0 0' }}>
-                  Haz clic sobre cualquier solicitud en el Túnel de Ventas para desplegar su expediente detallado, transcripciones y acciones.
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <input
                   type="search"
                   aria-label="Buscar condominio, contacto o ciudad"
-                  placeholder="🔍 Buscar condominio, contacto o ciudad..."
+                  placeholder="🔍 Buscar condominio o contacto..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   style={{
-                    minWidth: '240px',
-                    padding: '0.45rem 0.75rem',
+                    flex: '1 1 180px',
+                    minInlineSize: 0,
+                    padding: '0.42rem 0.7rem',
                     borderRadius: '8px',
                     background: '#0f172a',
                     color: '#fff',
-                    border: '1px solid rgba(148, 163, 184, 0.35)',
+                    border: '1px solid rgba(148, 163, 184, 0.3)',
                     fontSize: '0.78rem'
                   }}
                 />
@@ -1467,16 +1678,18 @@ export default function IACondoPanel() {
                   value={zoneFilter}
                   onChange={e => setZoneFilter(e.target.value)}
                   style={{
-                    padding: '0.45rem 0.75rem',
+                    flex: '1 1 160px',
+                    minInlineSize: 0,
+                    padding: '0.42rem 0.65rem',
                     borderRadius: '8px',
                     background: '#0f172a',
                     color: '#38bdf8',
                     border: '1px solid rgba(56, 189, 248, 0.35)',
-                    fontSize: '0.78rem',
+                    fontSize: '0.76rem',
                     fontWeight: '700'
                   }}
                 >
-                  <option value="todas">🇻🇪 Todas las Zonas del País</option>
+                  <option value="todas">🇻🇪 Todas las Zonas</option>
                   {VENEZUELA_ZONES.map(z => (
                     <option key={z.id} value={z.id}>{z.label}</option>
                   ))}
@@ -1484,12 +1697,12 @@ export default function IACondoPanel() {
               </div>
             </div>
 
-            {/* PASO 7: TÚNEL VISUAL TIPO CRM (KANBAN INTERACTIVO CON SELECCIÓN BAJO DEMANDA) */}
+            {/* 3. TÚNEL CRM COMPACTO (COLUMNAS SIN ALTURA VACÍA EN MÓVIL) */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-              gap: '0.8rem',
-              marginBottom: '1.25rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
+              gap: '0.7rem',
+              maxInlineSize: '100%'
             }}>
               {CRM_TUNNEL_COLUMNS.map(col => {
                 const colLeads = filteredSalesCalls.filter(c => col.match.includes(c.status || 'pendiente'));
@@ -1497,25 +1710,25 @@ export default function IACondoPanel() {
                   <div key={col.id} style={{
                     background: 'rgba(15, 23, 42, 0.88)',
                     border: `1px solid ${col.color}44`,
-                    borderRadius: '14px',
-                    padding: '0.85rem',
+                    borderRadius: '12px',
+                    padding: '0.75rem',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '0.65rem',
-                    minHeight: '220px',
-                    maxHeight: '520px',
+                    gap: '0.55rem',
+                    minInlineSize: 0,
+                    maxBlockSize: '500px',
                     overflowY: 'auto'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `2px solid ${col.color}`, paddingBottom: '0.45rem', position: 'sticky', top: 0, background: 'rgba(15, 23, 42, 0.96)', zIndex: 2 }}>
-                      <span style={{ fontSize: '0.78rem', fontWeight: '800', color: col.color }}>{col.title}</span>
-                      <span style={{ fontSize: '0.74rem', fontWeight: '800', padding: '0.1rem 0.5rem', borderRadius: '999px', background: col.bg, color: col.color }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBlockEnd: `2px solid ${col.color}`, paddingBlockEnd: '0.35rem' }}>
+                      <span style={{ fontSize: '0.76rem', fontWeight: '800', color: col.color }}>{col.title}</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: '800', padding: '0.08rem 0.45rem', borderRadius: '999px', background: col.bg, color: col.color }}>
                         {colLeads.length}
                       </span>
                     </div>
 
                     {colLeads.length === 0 ? (
-                      <div style={{ fontSize: '0.73rem', color: '#64748b', textAlign: 'center', padding: '1.5rem 0.4rem' }}>
-                        Sin solicitudes en esta etapa
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.35rem 0' }}>
+                        Sin pendientes
                       </div>
                     ) : (
                       colLeads.map(item => {
@@ -1535,43 +1748,33 @@ export default function IACondoPanel() {
                               background: isLeadSelected ? 'rgba(14, 165, 233, 0.18)' : 'rgba(6, 13, 24, 0.88)',
                               border: isLeadSelected ? '2px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.25)',
                               borderRadius: '10px',
-                              padding: '0.72rem',
+                              padding: '0.68rem',
                               display: 'grid',
-                              gap: '0.35rem',
+                              gap: '0.3rem',
                               cursor: 'pointer',
-                              boxShadow: isLeadSelected ? '0 0 18px rgba(14, 165, 233, 0.35)' : 'none'
+                              minInlineSize: 0
                             }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.35rem' }}>
-                              <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fff' }}>
-                                🏢 {item.condoName || 'Condominio'}
-                              </div>
-                              {isLeadSelected && (
-                                <span style={{ fontSize: '0.64rem', padding: '0.1rem 0.4rem', borderRadius: '999px', background: '#0ea5e9', color: '#fff', fontWeight: '800', whiteSpace: 'nowrap' }}>
-                                  📂 Abierto
-                                </span>
-                              )}
+                            <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
+                              🏢 {item.condoName || 'Condominio'}
                             </div>
-                            <div style={{ fontSize: '0.73rem', color: '#38bdf8', fontWeight: '600' }}>
+                            <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
                               🏘️ {compactUnitsLabel} • 📍 {item.city || 'Venezuela'}
                             </div>
-                            <div style={{ fontSize: '0.73rem', color: '#cbd5e1' }}>
+                            <div style={{ fontSize: '0.72rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
                               👤 {item.clientName || 'Interesado'} {cPhone ? `(+${cPhone})` : ''}
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.25rem 0.45rem', borderRadius: '6px' }}>
+                            <div style={{ fontSize: '0.7rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.2rem 0.45rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
                               🕒 {item.callTimeLabel || 'Contacto pendiente'}
                             </div>
-                            <div style={{ fontSize: '0.69rem', color: '#94a3b8' }}>
-                              Agente: <strong style={{ color: '#e2e8f0' }}>{item.assignedAgentName || 'Alejandro Sáez'}</strong>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', marginTop: '0.25rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', marginBlockStart: '0.25rem' }}>
                               <button
                                 type="button"
                                 onClick={e => {
                                   e.stopPropagation();
                                   openOutcomeAndCallModal(item, 'llamada', true);
                                 }}
-                                style={{ padding: '0.35rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                                style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
                               >
                                 📞 Llamar
                               </button>
@@ -1581,29 +1784,9 @@ export default function IACondoPanel() {
                                   e.stopPropagation();
                                   openOutcomeAndCallModal(item, 'whatsapp', true);
                                 }}
-                                style={{ padding: '0.35rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                                style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
                               >
                                 💬 WhatsApp
-                              </button>
-                              <button
-                                type="button"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  handleSelectLeadFromTunnel(cid);
-                                }}
-                                style={{
-                                  gridColumn: '1 / -1',
-                                  padding: '0.38rem 0.4rem',
-                                  borderRadius: '6px',
-                                  border: isLeadSelected ? '1px solid #0ea5e9' : '1px solid rgba(192,132,252,0.4)',
-                                  background: isLeadSelected ? '#0ea5e9' : 'rgba(192,132,252,0.18)',
-                                  color: isLeadSelected ? '#fff' : '#e9d5ff',
-                                  fontSize: '0.71rem',
-                                  fontWeight: '800',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                {isLeadSelected ? '✕ Ocultar Expediente Detallado' : '📂 Ver Expediente y Acciones'}
                               </button>
                             </div>
                           </div>
@@ -1613,575 +1796,6 @@ export default function IACondoPanel() {
                   </div>
                 );
               })}
-            </div>
-
-            {/* EXPEDIENTE DETALLADO BAJO DEMANDA: SOLO SE MUESTRA CUANDO SE SELECCIONA UN LEAD EN EL TÚNEL */}
-            <div ref={selectedLeadSectionRef}>
-              {!selectedLead ? (
-                <div style={{
-                  background: 'rgba(15, 23, 42, 0.65)',
-                  border: '1px dashed rgba(56, 189, 248, 0.35)',
-                  borderRadius: '14px',
-                  padding: '1rem 1.5rem',
-                  textAlign: 'center',
-                  color: '#94a3b8',
-                  fontSize: '0.86rem'
-                }}>
-                  👆 <strong>Selecciona cualquier solicitud en el Túnel de Ventas de arriba</strong> para abrir su expediente completo, transcripciones de llamadas con IA, bitácora de avances y acciones comerciales sin saturar la pantalla.
-                </div>
-              ) : (
-                (() => {
-                  const call = selectedLead;
-                  const callId = call.id || call._id;
-                  const clientName = call.clientName || call.contactName || 'Interesado';
-                  const rawPhone = call.clientPhone || call.phone || '';
-                  const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
-                  const timeLabel = call.callTimeLabel || call.callTimeDescription || 'Lo antes posible';
-                  const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en implementar IA Condo en su condominio.';
-                  const units = String(call.units || call.unitsCount || 'Por confirmar');
-                  const formattedUnitsHeader = /casa|apto|apartamento|vivienda|unid/i.test(units)
-                    ? units
-                    : `${units} Unidades`;
-                  const hasAccessControl = call.hasAccessControl || 'Sí (Portón / Garita)';
-                  const numericUnits = String(units).replace(/\D/g, '') || '24';
-                  const unitType = /apto|apartamento|edificio/i.test(String(units)) ? 'Apto' : 'Casa';
-                  const accessParam = hasAccessControl === 'No' ? 'no' : 'si';
-                  const personalizedDemoUrl = `${DEMO_URL}?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&access=${accessParam}&client=${encodeURIComponent(clientName)}`;
-                  const st = CALL_STATUS_LABELS[call.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
-                  const chainButtonText = CHAIN_ACTION_LABELS[call.status || 'pendiente'];
-                  const logs = Array.isArray(call.activityLog) ? call.activityLog : [];
-                  const transcripts = Array.isArray(call.callTranscripts) ? call.callTranscripts : [];
-                  const zoneObj = VENEZUELA_ZONES.find(z => z.id === call.zone);
-                  const zoneBadgeLabel = call.zoneLabel || zoneObj?.label || '📍 Venezuela';
-
-                  return (
-                    <div key={callId} style={{
-                      background: 'rgba(15, 23, 42, 0.96)',
-                      border: '2px solid #0ea5e9',
-                      borderRadius: '16px',
-                      padding: '1.15rem',
-                      boxShadow: '0 20px 40px -15px rgba(14, 165, 233, 0.35)',
-                      maxInlineSize: '100%',
-                      overflow: 'hidden',
-                      boxSizing: 'border-box'
-                    }}>
-                      {/* Barra superior del expediente seleccionado con botón para cerrar */}
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '0.75rem',
-                        paddingBottom: '0.9rem',
-                        marginBottom: '1.1rem',
-                        borderBottom: '1px solid rgba(56, 189, 248, 0.25)'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                          <span style={{ padding: '0.28rem 0.75rem', borderRadius: '999px', background: 'rgba(14, 165, 233, 0.2)', color: '#38bdf8', fontSize: '0.76rem', fontWeight: '800', border: '1px solid rgba(56, 189, 248, 0.45)' }}>
-                            📂 EXPEDIENTE SELECCIONADO EN EL TÚNEL
-                          </span>
-                          <span style={{ padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.76rem', fontWeight: '700', background: st.bg, color: st.color }}>
-                            {st.label}
-                          </span>
-                          <span style={{ padding: '0.25rem 0.65rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: '700', background: 'rgba(56, 189, 248, 0.14)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                            {zoneBadgeLabel}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedLeadId(null)}
-                          style={{
-                            padding: '0.4rem 0.9rem',
-                            borderRadius: '8px',
-                            background: 'rgba(239, 68, 68, 0.16)',
-                            color: '#fca5a5',
-                            border: '1px solid rgba(239, 68, 68, 0.35)',
-                            fontSize: '0.78rem',
-                            fontWeight: '800',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ✕ Cerrar Expediente y Volver al Túnel
-                        </button>
-                      </div>
-
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-                        gap: '1.25rem',
-                        maxInlineSize: '100%'
-                      }}>
-                        {/* Columna Izquierda: Datos del Condominio, Zona, Próxima Tarea, Transcripciones y Bitácora */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', minInlineSize: 0 }}>
-                          <div style={{ minInlineSize: 0 }}>
-                            <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '700', marginBottom: '0.2rem' }}>
-                              👤 Agente Asignado: {call.assignedAgentName || 'Alejandro Sáez'}
-                            </div>
-                            <h3 style={{ fontSize: '1.18rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: '#fff', overflowWrap: 'anywhere' }}>
-                              🏢 {call.condoName || 'Condominio por confirmar'} — {formattedUnitsHeader} ({call.city || 'Venezuela'})
-                            </h3>
-                            <div style={{ fontSize: '0.86rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
-                              👤 Contacto: {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} {call.email ? `• ✉️ ${call.email}` : ''} • 🚪 Acceso: {hasAccessControl}
-                            </div>
-                            <div style={{ fontSize: '0.8rem', color: '#fbbf24', marginTop: '0.25rem', fontWeight: '700' }}>
-                              ⏰ Horario Concertado / Próximo Contacto: {timeLabel}
-                            </div>
-                            <div style={{ fontSize: '0.78rem', color: '#c084fc', marginTop: '0.3rem', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
-                              🔗 Demo Personalizado:{' '}
-                              <a
-                                href={personalizedDemoUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ color: '#e9d5ff', fontWeight: '800', textDecoration: 'underline' }}
-                              >
-                                Abrir Demo — {call.condoName || 'Condominio'} ↗
-                              </a>
-                              <span style={{ color: '#94a3b8', marginLeft: '0.4rem', fontSize: '0.73rem' }}>
-                                (Usuario: <code>DEMO</code> | Clave: <code>IACondo*2026!</code>)
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* CAJA DESTACADA: PRÓXIMA TAREA OBLIGATORIA DEL AGENTE */}
-                          <div style={{
-                            padding: '0.9rem 1rem',
-                            background: 'rgba(245, 158, 11, 0.12)',
-                            border: '1px solid rgba(245, 158, 11, 0.4)',
-                            borderRadius: '12px'
-                          }}>
-                            <div style={{ fontSize: '0.74rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.25rem', display: 'flex', justifyContent: 'space-between' }}>
-                              <span>⚡ PRÓXIMA TAREA ASIGNADA AL AGENTE ({call.assignedAgentName || 'Alejandro Sáez'}):</span>
-                            </div>
-                            <div style={{ fontSize: '0.88rem', fontWeight: '700', color: '#fff', lineHeight: '1.4' }}>
-                              {call.nextTask || '📞 Llamar al contacto del condominio, enviar demo (https://iacondo.com/demo) y registrar resultado.'}
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.45rem', marginTop: '0.55rem' }}>
-                              <input
-                                type="text"
-                                aria-label="Editar próxima tarea"
-                                placeholder="Asignar o actualizar próxima tarea para este lead..."
-                                value={nextTaskDraft[callId] !== undefined ? nextTaskDraft[callId] : ''}
-                                onChange={e => setNextTaskDraft({ ...nextTaskDraft, [callId]: e.target.value })}
-                                style={{ flex: 1, padding: '0.4rem 0.65rem', borderRadius: '6px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.76rem' }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if ((nextTaskDraft[callId] || '').trim()) {
-                                    handleUpdateCall(callId, {
-                                      nextTask: nextTaskDraft[callId],
-                                      newActivity: {
-                                        type: 'tarea',
-                                        actor: currentUser.name,
-                                        text: `Nueva tarea asignada: ${nextTaskDraft[callId]}`
-                                      }
-                                    });
-                                    setNextTaskDraft({ ...nextTaskDraft, [callId]: '' });
-                                  }
-                                }}
-                                style={{ padding: '0.4rem 0.7rem', borderRadius: '6px', background: 'rgba(245, 158, 11, 0.25)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)', fontSize: '0.74rem', fontWeight: '700', cursor: 'pointer' }}
-                              >
-                                Fijar Tarea
-                              </button>
-                            </div>
-                          </div>
-
-                          <div style={{ padding: '0.85rem', background: 'rgba(6, 13, 24, 0.75)', borderRadius: '10px', borderLeft: '3px solid #0ea5e9' }}>
-                            <div style={{ fontSize: '0.73rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
-                              📋 FICHA EJECUTIVA Y RESUMEN DE IA CONDO:
-                            </div>
-                            <div style={{ fontSize: '0.83rem', color: '#e2e8f0', lineHeight: '1.45', whiteSpace: 'pre-line' }}>
-                              {summary}
-                            </div>
-                          </div>
-
-                          {/* PASO 6: TRANSCRIPCIONES Y RESÚMENES DE LLAMADAS GUARDADOS */}
-                          {transcripts.length > 0 && (
-                            <div style={{
-                              padding: '0.85rem',
-                              background: 'rgba(88, 28, 135, 0.18)',
-                              border: '1px solid rgba(192, 132, 252, 0.35)',
-                              borderRadius: '10px',
-                              maxHeight: '175px',
-                              overflowY: 'auto'
-                            }}>
-                              <div style={{ fontSize: '0.74rem', fontWeight: '800', color: '#e9d5ff', marginBottom: '0.4rem' }}>
-                                🎙️ TRANSCRIPCIONES Y RESÚMENES DE LLAMADAS CON IA ({transcripts.length}):
-                              </div>
-                              <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                {transcripts.slice().reverse().map((tr, idx) => (
-                                  <div key={tr.id || idx} style={{ fontSize: '0.76rem', paddingBottom: '0.4rem', borderBottom: '1px dashed rgba(192,132,252,0.2)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#c084fc', fontWeight: '700' }}>
-                                      <span>🎙️ {tr.actor || 'Agente Comercial'}</span>
-                                      <span>{tr.date ? new Date(tr.date).toLocaleString('es-VE', { dateStyle: 'short', timeStyle: 'short' }) : ''}</span>
-                                    </div>
-                                    {tr.summary && (
-                                      <div style={{ color: '#f8fafc', marginTop: '0.2rem', whiteSpace: 'pre-line' }}>
-                                        <strong>🧠 Resumen IA:</strong> {tr.summary}
-                                      </div>
-                                    )}
-                                    {tr.transcript && (
-                                      <div style={{ color: '#cbd5e1', marginTop: '0.2rem', fontStyle: 'italic' }}>
-                                        <strong>📝 Transcripción:</strong> "{tr.transcript}"
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* BITÁCORA CRONOLÓGICA DE LLAMADAS, CORREOS Y HANDOFFS */}
-                          <div style={{
-                            padding: '0.85rem',
-                            background: 'rgba(6, 13, 24, 0.85)',
-                            borderRadius: '10px',
-                            border: '1px solid rgba(148, 163, 184, 0.18)',
-                            maxHeight: '190px',
-                            overflowY: 'auto'
-                          }}>
-                            <div style={{ fontSize: '0.74rem', fontWeight: '800', color: '#94a3b8', marginBottom: '0.45rem' }}>
-                              🕒 HISTORIAL DE AVANCES, LLAMADAS Y AUTOMATIZACIONES ({logs.length}):
-                            </div>
-                            <div style={{ display: 'grid', gap: '0.45rem' }}>
-                              {logs.slice().reverse().map((entry, idx) => (
-                                <div key={idx} style={{ fontSize: '0.77rem', paddingBottom: '0.35rem', borderBottom: '1px dashed rgba(148,163,184,0.12)' }}>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#38bdf8', fontWeight: '700' }}>
-                                    <span>{entry.actor || 'Equipo IA Condo'}</span>
-                                    <span style={{ color: '#64748b', fontSize: '0.7rem' }}>
-                                      {entry.date ? new Date(entry.date).toLocaleString('es-VE', { dateStyle: 'short', timeStyle: 'short' }) : ''}
-                                    </span>
-                                  </div>
-                                  <div style={{ color: '#e2e8f0', marginTop: '0.15rem', whiteSpace: 'pre-line' }}>{entry.text}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Columna Derecha: Botones Paso 5 y 6 (Llamar/Escribir + Transcribir + Resultado + Re-Agendar), Etapa y Demo */}
-                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '0.85rem', minInlineSize: 0 }}>
-                          {/* PASO 5 Y PASO 6: PANEL DE CONTACTO DIRECTO, TRANSCRIPCIÓN IA Y RE-AGENDAMIENTO */}
-                          <div style={{
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(147, 51, 234, 0.15))',
-                            border: '1px solid rgba(56, 189, 248, 0.45)'
-                          }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.5rem' }}>
-                              📞 PASOS 5 Y 6: LLAMAR / ESCRIBIR DESDE EL PANEL + TRANSCRIBIR CON IA + REGISTRAR RESULTADO:
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                              <button
-                                type="button"
-                                onClick={() => openOutcomeAndCallModal(call, 'llamada', true)}
-                                style={{
-                                  padding: '0.7rem 0.75rem',
-                                  borderRadius: '10px',
-                                  border: '1px solid rgba(56, 189, 248, 0.5)',
-                                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                                  color: '#fff',
-                                  fontWeight: '800',
-                                  fontSize: '0.8rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                📞 Llamar y Transcribir (+{cleanPhone || 'Tel'})
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => openOutcomeAndCallModal(call, 'whatsapp', true)}
-                                style={{
-                                  padding: '0.7rem 0.75rem',
-                                  borderRadius: '10px',
-                                  border: '1px solid rgba(34, 197, 94, 0.5)',
-                                  background: 'linear-gradient(135deg, #16a34a 0%, #059669 100%)',
-                                  color: '#fff',
-                                  fontWeight: '800',
-                                  fontSize: '0.8rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                💬 Escribir por WhatsApp y Registrar
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => openOutcomeAndCallModal(call, 'llamada', false)}
-                                style={{
-                                  gridColumn: '1 / -1',
-                                  padding: '0.65rem 0.85rem',
-                                  borderRadius: '10px',
-                                  border: '1px solid rgba(192, 132, 252, 0.55)',
-                                  background: 'rgba(147, 51, 234, 0.25)',
-                                  color: '#f3e8ff',
-                                  fontWeight: '800',
-                                  fontSize: '0.8rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                🎙️ Abrir Transcriptor de Llamada con IA / Cargar Resultado / Re-Agendar en Calendario
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* BOTÓN DE AUTOMATIZACIÓN EN CADENA (HANDOFF AUTOMÁTICO) */}
-                          {chainButtonText && (
-                            <div style={{
-                              padding: '0.85rem',
-                              borderRadius: '12px',
-                              background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(45, 212, 191, 0.12))',
-                              border: '1px solid rgba(45, 212, 191, 0.4)'
-                            }}>
-                              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#2dd4bf', marginBottom: '0.35rem' }}>
-                                🔄 AVANCE RÁPIDO EN CADENA (PASO 7):
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleAdvanceChainPhase(call)}
-                                style={{
-                                  width: '100%',
-                                  padding: '0.68rem 1rem',
-                                  borderRadius: '10px',
-                                  border: 'none',
-                                  background: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
-                                  color: '#fff',
-                                  fontWeight: '800',
-                                  fontSize: '0.82rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                {chainButtonText}
-                              </button>
-                            </div>
-                          )}
-
-                          {/* SELECTORES MANUALES DE ETAPA, ZONA, CONTROL DE ACCESO Y RESPONSABLE */}
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
-                            <div>
-                              <label htmlFor={`status-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
-                                Fase del Túnel CRM
-                              </label>
-                              <select
-                                id={`status-${callId}`}
-                                name="status"
-                                value={call.status || 'pendiente'}
-                                onChange={e => handleUpdateCall(callId, {
-                                  status: e.target.value,
-                                  newActivity: {
-                                    type: 'fase',
-                                    actor: currentUser.name,
-                                    text: `Cambio manual de etapa a: ${CALL_STATUS_LABELS[e.target.value]?.label || e.target.value}`
-                                  }
-                                })}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem' }}
-                              >
-                                <option value="pendiente">1. Nuevo / Contacto Inicial</option>
-                                <option value="visita_demo">2. Contacto / Visita o Demo</option>
-                                <option value="cotizacion">3. Cotización / Propuesta (% o Fijo)</option>
-                                <option value="en_espera">4. En Espera (Asamblea / Junta)</option>
-                                <option value="implementacion">5. En Implementación (Diego IA + Dev)</option>
-                                <option value="ganado">6. Ganado (Condominio Activo)</option>
-                                <option value="perdido">7. Perdido / Descartado</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label htmlFor={`zone-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
-                                📍 Zona Geográfica (Paso 3)
-                              </label>
-                              <select
-                                id={`zone-${callId}`}
-                                name="zone"
-                                value={call.zone || 'gran_caracas'}
-                                onChange={e => {
-                                  const zFound = VENEZUELA_ZONES.find(z => z.id === e.target.value);
-                                  handleUpdateCall(callId, {
-                                    zone: e.target.value,
-                                    zoneLabel: zFound ? zFound.label : e.target.value
-                                  });
-                                }}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#0f172a', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.35)', fontSize: '0.8rem', fontWeight: '600' }}
-                              >
-                                {VENEZUELA_ZONES.map(z => (
-                                  <option key={z.id} value={z.id}>{z.label}</option>
-                                ))}
-                              </select>
-                            </div>
-
-                            <div>
-                              <label htmlFor={`access-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
-                                🚪 Control de Acceso (para Demo)
-                              </label>
-                              <select
-                                id={`access-${callId}`}
-                                name="hasAccessControl"
-                                value={call.hasAccessControl || 'Sí (Portón / Garita)'}
-                                onChange={e => handleUpdateCall(callId, { hasAccessControl: e.target.value })}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#0f172a', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.35)', fontSize: '0.8rem', fontWeight: '600' }}
-                              >
-                                <option value="Sí (Portón / Garita)">✅ Sí tiene Control de Acceso (Portón / Garita)</option>
-                                <option value="No">❌ No tiene Control de Acceso</option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#94a3b8', marginBottom: '0.2rem', fontWeight: '600' }}>
-                                Agente Responsable Asignado
-                              </label>
-                              <select
-                                id={`agent-${callId}`}
-                                name="assignedAgentEmail"
-                                value={call.assignedAgentEmail || 'alejandrosaezh@iacondo.com'}
-                                onChange={e => {
-                                  const found = users.find(u => u.email === e.target.value);
-                                  const newName = found ? found.name : e.target.value;
-                                  handleUpdateCall(callId, {
-                                    assignedAgentId: found?.id || '',
-                                    assignedAgentEmail: e.target.value,
-                                    assignedAgentName: newName,
-                                    newActivity: {
-                                      type: 'asignacion',
-                                      actor: currentUser.name,
-                                      text: `Lead reasignado a: ${newName}`
-                                    }
-                                  });
-                                }}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem' }}
-                              >
-                                {users.map(u => (
-                                  <option key={u.id || u._id || u.email} value={u.email}>
-                                    {u.name} — {u.roleLabel || ROLE_LABELS[u.role]?.label || u.role}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* FORMULARIO RÁPIDO PARA NOTA EN LA BITÁCORA */}
-                          <div style={{
-                            padding: '0.75rem',
-                            background: 'rgba(6, 13, 24, 0.7)',
-                            borderRadius: '10px',
-                            border: '1px solid rgba(56, 189, 248, 0.25)'
-                          }}>
-                            <label htmlFor={`act-text-${callId}`} style={{ display: 'block', fontSize: '0.73rem', color: '#38bdf8', marginBottom: '0.3rem', fontWeight: '700' }}>
-                              📝 Nota rápida en la bitácora:
-                            </label>
-                            <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap' }}>
-                              <select
-                                aria-label="Tipo de contacto"
-                                value={activityTypeDraft[callId] || 'llamada'}
-                                onChange={e => setActivityTypeDraft({ ...activityTypeDraft, [callId]: e.target.value })}
-                                style={{ padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.76rem' }}
-                              >
-                                <option value="llamada">📞 Llamada</option>
-                                <option value="whatsapp">💬 WhatsApp</option>
-                                <option value="correo">✉️ Correo</option>
-                                <option value="demo">🎮 Demo Web</option>
-                              </select>
-                              <input
-                                id={`act-text-${callId}`}
-                                type="text"
-                                placeholder="Añadir nota rápida..."
-                                value={activityTextDraft[callId] || ''}
-                                onChange={e => setActivityTextDraft({ ...activityTextDraft, [callId]: e.target.value })}
-                                style={{ flex: 1, minWidth: '160px', padding: '0.45rem 0.65rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleAddActivityLog(callId)}
-                                style={{ padding: '0.45rem 0.8rem', borderRadius: '8px', background: '#0ea5e9', color: '#fff', border: 'none', fontWeight: '700', fontSize: '0.76rem', cursor: 'pointer' }}
-                              >
-                                + Nota
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* ACCIONES RÁPIDAS: ENVIAR DEMO PERSONALIZADO VS DEMO GENERAL POR WHATSAPP */}
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.55rem' }}>
-                            <a
-                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={() => {
-                                handleUpdateCall(callId, {
-                                  newActivity: {
-                                    type: 'demo',
-                                    actor: currentUser.name,
-                                    text: `✨ Demo Personalizado (${call.condoName}, ${numericUnits} viv., Acceso: ${hasAccessControl}) enviado por WhatsApp a ${clientName}.`
-                                  }
-                                });
-                              }}
-                              style={{
-                                textAlign: 'center',
-                                padding: '0.58rem 0.7rem',
-                                borderRadius: '8px',
-                                background: 'rgba(192, 132, 252, 0.22)',
-                                color: '#e9d5ff',
-                                border: '1px solid rgba(192, 132, 252, 0.5)',
-                                textDecoration: 'none',
-                                fontWeight: '800',
-                                fontSize: '0.76rem'
-                              }}
-                            >
-                              ✨ Enviar Demo Personalizado ({call.condoName || 'Condo'})
-                            </a>
-
-                            <a
-                              href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Aquí tienes nuestro Demo General para que puedas explorar todas las funciones en vivo:\n\n🔗 ${DEMO_URL}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={() => {
-                                handleUpdateCall(callId, {
-                                  newActivity: {
-                                    type: 'demo',
-                                    actor: currentUser.name,
-                                    text: `👀 Demo General (${DEMO_URL}) enviado por WhatsApp a ${clientName}.`
-                                  }
-                                });
-                              }}
-                              style={{
-                                textAlign: 'center',
-                                padding: '0.58rem 0.7rem',
-                                borderRadius: '8px',
-                                background: 'rgba(148, 163, 184, 0.16)',
-                                color: '#cbd5e1',
-                                border: '1px solid rgba(148, 163, 184, 0.35)',
-                                textDecoration: 'none',
-                                fontWeight: '700',
-                                fontSize: '0.76rem'
-                              }}
-                            >
-                              👀 Enviar Demo General (Sin datos)
-                            </a>
-
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteCall(callId)}
-                              style={{
-                                gridColumn: '1 / -1',
-                                textAlign: 'center',
-                                padding: '0.45rem 0.8rem',
-                                borderRadius: '8px',
-                                background: 'rgba(239, 68, 68, 0.12)',
-                                color: '#fca5a5',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                                fontWeight: '700',
-                                fontSize: '0.75rem',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              🗑️ Eliminar Registro del Panel
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              )}
             </div>
           </div>
         )}
