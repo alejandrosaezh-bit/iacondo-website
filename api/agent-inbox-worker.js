@@ -197,8 +197,8 @@ ${bodyText.slice(0, 2500)}
 """
 Regla obligatoria para ofrecer el Demo:
 - Para generar un Demo Personalizado solicitamos 3 datos: 1) Nombre del condominio, 2) Cantidad de viviendas (casas o apartamentos), 3) Si tiene control de acceso (portón / vigilancia).
-- Si ya dio los 3 datos, entrégale su enlace personalizado: ${entities.personalizedDemoUrl || 'https://iacondo.com/demo'} (Usuario: DEMO / Clave: DEMO).
-- Si faltan datos, responde sus preguntas con calidez y pídele los datos que faltan para crearle su Demo Personalizado, indicando también que si prefiere ver un Demo General sin dar datos puede entrar a https://iacondo.com/demo (Usuario: DEMO / Clave: DEMO).
+- Si ya dio los 3 datos, entrégale su enlace personalizado: ${entities.personalizedDemoUrl || 'https://iacondo.com/demo'} (Usuario: DEMO / Clave: IACondo#Demo2026!).
+- Si faltan datos, responde sus preguntas con calidez y pídele los datos que faltan para crearle su Demo Personalizado, indicando también que si prefiere ver un Demo General sin dar datos puede entrar a https://iacondo.com/demo (Usuario: DEMO / Clave: IACondo#Demo2026!).
 Devuelve únicamente HTML limpio (<p>, <ul>, <li>, <strong>, <a>).`,
                   },
                 ],
@@ -234,7 +234,7 @@ Devuelve únicamente HTML limpio (<p>, <ul>, <li>, <strong>, <a>).`,
     ? `<div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px; border-radius: 8px; margin: 14px 0;">
         <p style="margin: 0 0 6px 0;"><strong>🎮 Tu Demo Personalizado de IA Condo está listo:</strong></p>
         <p style="margin: 0 0 6px 0;"><a href="${entities.personalizedDemoUrl}" style="color: #0284c7; font-weight: bold;">${entities.personalizedDemoUrl}</a></p>
-        <p style="margin: 0; font-size: 13px;">🔑 <strong>Usuario:</strong> DEMO &nbsp;|&nbsp; <strong>Clave:</strong> DEMO</p>
+        <p style="margin: 0; font-size: 13px;">🔑 <strong>Usuario:</strong> DEMO &nbsp;|&nbsp; <strong>Clave:</strong> IACondo#Demo2026!</p>
       </div>`
     : `<p>En <strong>IA Condo</strong> preparamos un <strong>Demo Personalizado</strong> a la medida de tu comunidad. Para generarlo y enviártelo de inmediato, ¿podrías confirmarme respondiendo a este correo estos 3 datos?</p>
       <ul>
@@ -242,7 +242,7 @@ Devuelve únicamente HTML limpio (<p>, <ul>, <li>, <strong>, <a>).`,
         <li><strong>2. Cantidad de viviendas (casas o apartamentos):</strong> ${entities.units || 'Por confirmar'}</li>
         <li><strong>3. ¿Cuentan con control de acceso (portón / vigilancia)?:</strong> ${entities.hasAccessControl ? (entities.hasAccessControl === 'si' ? 'Sí' : 'No') : 'Por confirmar (Sí / No)'}</li>
       </ul>
-      <p><em>💡 Si prefieres explorar primero un Demo General sin indicar estos datos, puedes ingresar directamente en <a href="https://iacondo.com/demo">https://iacondo.com/demo</a> (<strong>Usuario:</strong> DEMO / <strong>Clave:</strong> DEMO).</em></p>`;
+      <p><em>💡 Si prefieres explorar primero un Demo General sin indicar estos datos, puedes ingresar directamente en <a href="https://iacondo.com/demo">https://iacondo.com/demo</a> (<strong>Usuario:</strong> DEMO / <strong>Clave:</strong> IACondo#Demo2026!).</em></p>`;
 
   return {
     should_reply: true,
