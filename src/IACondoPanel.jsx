@@ -581,36 +581,15 @@ export default function IACondoPanel() {
 
           <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(148, 163, 184, 0.15)' }}>
             <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '0.6rem', textAlign: 'center' }}>
-              Acceso rápido por rol (Usuarios de prueba listos):
+              Acceso directo Dirección General:
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => handleLogin(null, 'alejandrosaezh@iacondo.com', 'IACondo2026!')}
-                style={{ padding: '0.5rem', fontSize: '0.75rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.12)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)', cursor: 'pointer', fontWeight: '600' }}
+                style={{ padding: '0.6rem', fontSize: '0.8rem', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.35)', cursor: 'pointer', fontWeight: '700' }}
               >
-                👑 CEO (Alejandro Sáez)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleLogin(null, 'valeria.ventas@iacondo.com', 'Ventas2026!')}
-                style={{ padding: '0.5rem', fontSize: '0.75rem', borderRadius: '8px', background: 'rgba(74, 222, 128, 0.12)', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.3)', cursor: 'pointer', fontWeight: '600' }}
-              >
-                📈 Comercial (Valeria Rivas)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleLogin(null, 'programacion@iacondo.com', 'Dev2026!')}
-                style={{ padding: '0.5rem', fontSize: '0.75rem', borderRadius: '8px', background: 'rgba(167, 139, 250, 0.12)', color: '#a78bfa', border: '1px solid rgba(167, 139, 250, 0.3)', cursor: 'pointer', fontWeight: '600' }}
-              >
-                💻 Programación (Ing. Miguel)
-              </button>
-              <button
-                type="button"
-                onClick={() => handleLogin(null, 'soporte@iacondo.com', 'Soporte2026!')}
-                style={{ padding: '0.5rem', fontSize: '0.75rem', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', cursor: 'pointer', fontWeight: '600' }}
-              >
-                🛠️ Soporte (Ing. Laura)
+                👑 Ingresar como Alejandro Sáez (CEO)
               </button>
             </div>
           </div>
@@ -684,33 +663,32 @@ export default function IACondoPanel() {
           </a>
         </div>
 
-        {/* SIMULADOR DE ROLES EN 1 CLIC PARA PRUEBAS DEL CEO */}
+        {/* SELECTOR DINÁMICO DE INTEGRANTES REALES REGISTRADOS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.73rem', color: '#94a3b8', fontWeight: '600' }}>Simular Vista:</span>
-          {[
-            { name: 'Alejandro Sáez', email: 'alejandrosaezh@iacondo.com', role: 'admin', roleLabel: '👑 CEO & Fundador' },
-            { name: 'Valeria Rivas (Demo)', email: 'valeria.ventas@iacondo.com', role: 'ventas', roleLabel: '📈 Agente Comercial 1' },
-            { name: 'Ing. Miguel Torres (Demo)', email: 'programacion@iacondo.com', role: 'programacion', roleLabel: '💻 Programación + Diego IA' },
-            { name: 'Ing. Laura Méndez (Demo)', email: 'soporte@iacondo.com', role: 'soporte', roleLabel: '🛠️ Soporte Técnico' }
-          ].map(sim => (
-            <button
-              key={sim.email}
-              type="button"
-              onClick={() => handleQuickSwitchRole(sim)}
-              style={{
-                padding: '0.32rem 0.65rem',
-                borderRadius: '8px',
-                border: currentUser.email === sim.email ? '1px solid #38bdf8' : '1px solid rgba(148,163,184,0.25)',
-                background: currentUser.email === sim.email ? 'rgba(56, 189, 248, 0.22)' : 'rgba(30, 41, 59, 0.6)',
-                color: currentUser.email === sim.email ? '#fff' : '#cbd5e1',
-                fontSize: '0.73rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              {sim.roleLabel}
-            </button>
-          ))}
+          {users.length > 1 && (
+            <>
+              <span style={{ fontSize: '0.73rem', color: '#94a3b8', fontWeight: '600' }}>Ver como:</span>
+              {users.map(u => (
+                <button
+                  key={u.id || u.email}
+                  type="button"
+                  onClick={() => handleQuickSwitchRole(u)}
+                  style={{
+                    padding: '0.32rem 0.65rem',
+                    borderRadius: '8px',
+                    border: currentUser.email === u.email ? '1px solid #38bdf8' : '1px solid rgba(148,163,184,0.25)',
+                    background: currentUser.email === u.email ? 'rgba(56, 189, 248, 0.22)' : 'rgba(30, 41, 59, 0.6)',
+                    color: currentUser.email === u.email ? '#fff' : '#cbd5e1',
+                    fontSize: '0.73rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {u.name}
+                </button>
+              ))}
+            </>
+          )}
 
           <button
             type="button"
