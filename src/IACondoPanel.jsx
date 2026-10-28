@@ -103,6 +103,8 @@ export default function IACondoPanel() {
     }
     return 'agenda';
   });
+  const [viewMode, setViewMode] = useState('auto'); // 'auto' | 'ceo' | 'agent_app'
+  const [agentAppTab, setAgentAppTab] = useState('pendientes'); // 'pendientes' | 'tunel'
   const [loading, setLoading] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
   const [waStatus, setWaStatus] = useState(null);
@@ -482,6 +484,10 @@ export default function IACondoPanel() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...newLeadForm,
+          scheduledDate: newLeadForm.contactDate,
+          scheduledTime: newLeadForm.contactTime,
+          contactMethod: newLeadForm.contactChannel,
+          assignedAgentEmail: newLeadForm.assignedAgentEmail || (currentUser?.role === 'ventas' ? currentUser?.email : ''),
           actorName: currentUser?.name || 'Equipo IA Condo'
         })
       });
@@ -739,6 +745,14 @@ export default function IACondoPanel() {
           id: activeOutcomeCall.id || activeOutcomeCall._id,
           actorName: currentUser.name,
           actorRole: currentUser.roleLabel || ROLE_LABELS[currentUser.role]?.label || 'Agente Comercial',
+          contactChannel: outcomeForm.contactMethod,
+          outcomeType: outcomeForm.outcome,
+          outcomeNotes: outcomeForm.notes,
+          nextContactDate: outcomeForm.nextContactDate,
+          nextContactTime: outcomeForm.nextContactTime,
+          nextContactMethod: outcomeForm.nextContactChannel,
+          callTranscript: outcomeForm.rawTranscript,
+          aiCallSummary: outcomeForm.aiSummary,
           ...outcomeForm
         })
       });
@@ -750,6 +764,8 @@ export default function IACondoPanel() {
         showToast(
           outcomeForm.nextContactDate
             ? `✅ Resultado registrado y nuevo contacto agendado para el ${outcomeForm.nextContactDate} ${outcomeForm.nextContactTime || ''} (Alerta enviada al celular y Calendario .ics)`
+            : outcomeForm.outcome === 'no_contesto'
+            ? '🚨 Marcado como "No fue posible contactar": el lead seguirá activo en tu lista de Pendientes para recordarte volver a intentarlo'
             : '✅ Resultado del contacto, transcripción y etapa del túnel actualizados con éxito'
         );
       } else {
@@ -757,6 +773,34 @@ export default function IACondoPanel() {
       }
     } catch {
       showToast('⚠️ Error conectando con el servidor al guardar el resultado');
+    }
+  };
+
+  // Acción rápida 1-clic: Marcar "No fue posible contactar" y mantener el recordatorio activo en Pendientes
+  const handleQuickNoAnswer = async (call) => {
+    const callId = call.id || call._id;
+    try {
+      const res = await fetch(`${API_BASE}/api/iacondo-panel/calls/record-outcome`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: callId,
+          actorName: currentUser.name,
+          actorRole: currentUser.roleLabel || ROLE_LABELS[currentUser.role]?.label || 'Agente Comercial',
+          contactChannel: 'llamada',
+          outcomeType: 'no_contesto',
+          outcomeNotes: 'Intento de contacto realizado sin respuesta — mantener recordatorio activo para reintentar.',
+          nextContactDate: '',
+          nextContactTime: ''
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (data.calls) setCalls(data.calls);
+        showToast(`🚨 "${call.condoName || 'Lead'}" marcado como "No fue posible contactar" — seguirá fijo en tus Pendientes para recordarte reintentar.`);
+      }
+    } catch {
+      showToast('⚠️ No se pudo actualizar el estado del recordatorio');
     }
   };
 
@@ -893,26 +937,140 @@ export default function IACondoPanel() {
     }
   };
 
-  // Filtered lists
+  // Filtered lists & Role-based Scopes (CEO Toda la Empresa vs App de Seguimiento de Agente Comercial)
+  const isExecutiveRole = Boolean(
+    currentUser &&
+      (currentUser.role === 'admin' ||
+        currentUser.role === 'director' ||
+        currentUser.email === 'alejandrosaezh@iacondo.com')
+  );
+  const isAgentAppMode = !isExecutiveRole || viewMode === 'agent_app';
+  const activeAgentEmailForApp = !isExecutiveRole
+    ? currentUser?.email || ''
+    : agentFilter !== 'todos'
+    ? agentFilter
+    : currentUser?.email || 'alejandrosaezh@iacondo.com';
+
   const salesCalls = calls.filter(c => c.intent !== 'support');
   const supportTickets = calls.filter(c => c.intent === 'support');
 
-  const filteredSalesCalls = salesCalls.filter(c => {
+  // En modo App de Agente Comercial solo ve los Leads asignados a ese agente; en modo CEO ve toda la empresa (o filtra a voluntad)
+  const roleScopedSalesCalls = isAgentAppMode
+    ? salesCalls.filter(
+        c =>
+          String(c.assignedAgentEmail || 'alejandrosaezh@iacondo.com').toLowerCase() ===
+          String(activeAgentEmailForApp).toLowerCase()
+      )
+    : salesCalls;
+
+  const filteredSalesCalls = roleScopedSalesCalls.filter(c => {
     const statusMatch = callFilter === 'todos' || (c.status || 'pendiente') === callFilter;
-    const agentMatch = agentFilter === 'todos' || c.assignedAgentEmail === agentFilter;
+    const agentMatch =
+      isAgentAppMode ||
+      agentFilter === 'todos' ||
+      String(c.assignedAgentEmail || '').toLowerCase() === String(agentFilter).toLowerCase();
     const zoneMatch = zoneFilter === 'todas' || (c.zone || 'gran_caracas') === zoneFilter;
     const q = searchQuery.trim().toLowerCase();
-    const searchMatch = !q || [
-      c.condoName,
-      c.clientName,
-      c.contactName,
-      c.city,
-      c.clientPhone,
-      c.phone,
-      c.email
-    ].some(val => String(val || '').toLowerCase().includes(q));
+    const searchMatch =
+      !q ||
+      [
+        c.condoName,
+        c.clientName,
+        c.contactName,
+        c.city,
+        c.clientPhone,
+        c.phone,
+        c.email
+      ].some(val => String(val || '').toLowerCase().includes(q));
     return statusMatch && agentMatch && zoneMatch && searchMatch;
   });
+
+  // Clasificador inteligente de Seguimiento:
+  // 1) "urgentPendingLeads": Toca contactar hoy/ahora, nuevos sin primer contacto, o leads que NO FUE POSIBLE CONTACTAR (no_contesto / vencidos) -> siguen apareciendo para recordar hasta lograr contacto.
+  // 2) "upcomingScheduledLeads": Próximos eventos, demos, llamadas o asambleas programadas a futuro.
+  const nowMs = Date.now();
+  const closedStatuses = ['ganado', 'afiliado', 'perdido', 'descartado'];
+  const activeFollowUpLeads = filteredSalesCalls.filter(
+    c => !closedStatuses.includes(c.status || 'pendiente')
+  );
+
+  const classifyLeadFollowUp = (call) => {
+    const rawTarget = call.callTargetTimeUtc || call.scheduledDateTimeISO || null;
+    const targetMs = rawTarget ? new Date(rawTarget).getTime() : NaN;
+    const lastContactMs = call.lastContactAt ? new Date(call.lastContactAt).getTime() : NaN;
+    const status = call.status || 'pendiente';
+
+    // Si se intentó contactar y NO fue posible (no_contesto), y no tiene una fecha futura aún no cumplida, sigue fijo en Pendientes para recordar
+    const isUnreachableReminder =
+      call.lastOutcomeType === 'no_contesto' &&
+      (isNaN(targetMs) || targetMs <= nowMs + 15 * 60 * 1000);
+
+    // Si tenía hora programada y ya llegó o venció sin que se haya registrado un contacto posterior
+    const isDueOrOverdue =
+      !isNaN(targetMs) &&
+      targetMs <= nowMs + 15 * 60 * 1000 &&
+      (isNaN(lastContactMs) || lastContactMs < targetMs);
+
+    // Si es un lead nuevo/pendiente sin fecha futura programada para otro día
+    const isNewImmediate =
+      (status === 'pendiente' || status === 'nuevo') &&
+      (isNaN(targetMs) || targetMs <= nowMs + 3 * 60 * 60 * 1000);
+
+    if (isUnreachableReminder) {
+      return {
+        bucket: 'urgent',
+        reasonBadge: '🚨 NO FUE POSIBLE CONTACTAR — Recordatorio activo para reintentar',
+        badgeColor: '#f87171',
+        badgeBg: 'rgba(239, 68, 68, 0.18)',
+        borderColor: '#ef4444',
+        sortKey: isNaN(targetMs) ? 0 : targetMs
+      };
+    }
+    if (isDueOrOverdue) {
+      const isPast = targetMs < nowMs - 20 * 60 * 1000;
+      return {
+        bucket: 'urgent',
+        reasonBadge: isPast
+          ? '⏰ CONTACTO PENDIENTE / VENCIDO — Sigue en espera de contacto'
+          : '🔔 TOCA CONTACTAR AHORA MISMO',
+        badgeColor: isPast ? '#fbbf24' : '#38bdf8',
+        badgeBg: isPast ? 'rgba(245, 158, 11, 0.2)' : 'rgba(14, 165, 233, 0.2)',
+        borderColor: isPast ? '#f59e0b' : '#0ea5e9',
+        sortKey: targetMs
+      };
+    }
+    if (isNewImmediate) {
+      return {
+        bucket: 'urgent',
+        reasonBadge: '🔔 NUEVO LEAD ASIGNADO — Realizar primer contacto',
+        badgeColor: '#fbbf24',
+        badgeBg: 'rgba(245, 158, 11, 0.18)',
+        borderColor: '#f59e0b',
+        sortKey: isNaN(targetMs) ? nowMs : targetMs
+      };
+    }
+    return {
+      bucket: 'upcoming',
+      reasonBadge: '📅 EVENTO / CONTACTO PROGRAMADO',
+      badgeColor: '#38bdf8',
+      badgeBg: 'rgba(56, 189, 248, 0.15)',
+      borderColor: 'rgba(56, 189, 248, 0.45)',
+      sortKey: isNaN(targetMs) ? nowMs + 86400000 * 30 : targetMs
+    };
+  };
+
+  const urgentPendingLeads = [];
+  const upcomingScheduledLeads = [];
+  activeFollowUpLeads.forEach(c => {
+    const meta = classifyLeadFollowUp(c);
+    if (meta.bucket === 'urgent') {
+      urgentPendingLeads.push({ call: c, meta });
+    } else {
+      upcomingScheduledLeads.push({ call: c, meta });
+    }
+  });
+  urgentPendingLeads.sort((a, b) => a.meta.sortKey - b.meta.sortKey);
+  upcomingScheduledLeads.sort((a, b) => a.meta.sortKey - b.meta.sortKey);
 
   const selectedLead = salesCalls.find(c => (c.id || c._id) === selectedLeadId) || null;
 
@@ -1095,7 +1253,7 @@ export default function IACondoPanel() {
       fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
       paddingBlockEnd: '3rem'
     }}>
-      {/* TOP HEADER COMPACTO */}
+      {/* TOP HEADER CON SELECTOR DE VISTA CEO (TODA LA EMPRESA) VS APP DE SEGUIMIENTO DE AGENTE */}
       <header style={{
         background: 'rgba(15, 23, 42, 0.95)',
         backdropFilter: 'blur(12px)',
@@ -1115,7 +1273,7 @@ export default function IACondoPanel() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap', minInlineSize: 0 }}>
           <div style={{ fontSize: '1.05rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ inlineSize: '26px', blockSize: '26px', objectFit: 'contain' }} />
-            <span>PANEL<span style={{ color: '#0ea5e9' }}>.IACONDO</span></span>
+            <span>{isAgentAppMode ? 'APP COMERCIAL' : 'PANEL CEO'}<span style={{ color: '#0ea5e9' }}>.IACONDO</span></span>
           </div>
           <span style={{
             padding: '0.2rem 0.55rem',
@@ -1128,9 +1286,72 @@ export default function IACondoPanel() {
           }}>
             {waStatus?.whatsapp_status === 'connected' ? '🟢 IA Activa' : '⏳ Sincronizando'}
           </span>
+
+          {/* Si es CEO / Director, puede alternar entre ver TODA LA EMPRESA o probar la APP DE SEGUIMIENTO DEL AGENTE */}
+          {isExecutiveRole && (
+            <div style={{ display: 'inline-flex', background: 'rgba(6, 13, 24, 0.85)', padding: '0.18rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode('ceo');
+                  setAgentFilter('todos');
+                }}
+                style={{
+                  padding: '0.26rem 0.65rem',
+                  borderRadius: '999px',
+                  border: 'none',
+                  background: !isAgentAppMode ? '#0ea5e9' : 'transparent',
+                  color: !isAgentAppMode ? '#fff' : '#94a3b8',
+                  fontSize: '0.7rem',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
+              >
+                👑 Vista CEO (Toda la Empresa)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode('agent_app');
+                  setActiveTab('agenda');
+                }}
+                style={{
+                  padding: '0.26rem 0.65rem',
+                  borderRadius: '999px',
+                  border: 'none',
+                  background: isAgentAppMode ? '#10b981' : 'transparent',
+                  color: isAgentAppMode ? '#fff' : '#94a3b8',
+                  fontSize: '0.7rem',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
+              >
+                📱 App Agente Comercial
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', minInlineSize: 0 }}>
+          {!isAgentAppMode && (
+            <button
+              type="button"
+              onClick={handleCheckEmailsNow}
+              style={{
+                padding: '0.36rem 0.65rem',
+                borderRadius: '8px',
+                background: 'rgba(16, 185, 129, 0.16)',
+                color: '#34d399',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                cursor: 'pointer',
+                fontSize: '0.72rem',
+                fontWeight: '700'
+              }}
+            >
+              {loading ? '⏳...' : '📬 Revisar Emails'}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => newLeadDialogRef.current?.showModal()}
@@ -1214,46 +1435,127 @@ export default function IACondoPanel() {
         boxSizing: 'border-box',
         overflowX: 'hidden'
       }}>
-        {/* NAVIGATION TABS COMPACTAS */}
-        <div style={{
-          display: 'flex',
-          gap: '0.4rem',
-          flexWrap: 'wrap',
-          marginBlockEnd: '1rem',
-          borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
-          paddingBlockEnd: '0.65rem'
-        }}>
-          {[
-            { id: 'agenda', label: `📋 Pendientes y CRM (${salesCalls.length})` },
-            { id: 'usuarios', label: `👥 Equipo y Zonas (${users.length})` },
-            { id: 'ia', label: `🤖 Sofía IA (${aiAgents.length})` },
-            { id: 'soporte', label: `🛠️ Soporte (${supportTickets.length})` },
-            { id: 'chats', label: `💬 Chats (${sessions.length})` }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.5rem 0.85rem',
-                borderRadius: '8px',
-                border: activeTab === tab.id ? '1px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.2)',
-                background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.25))' : 'rgba(15, 23, 42, 0.7)',
-                color: activeTab === tab.id ? '#fff' : '#94a3b8',
-                fontWeight: activeTab === tab.id ? '800' : '600',
-                fontSize: '0.78rem',
-                cursor: 'pointer'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {/* NAVIGATION TABS:
+            - MODO CEO: Ve TODAS las áreas de la empresa (Control CEO + CRM, Equipo y Zonas, Sofía IA, Soporte, Chats en Vivo).
+            - MODO APP AGENTE COMERCIAL: App enfocada en sus Pendientes / Recordatorios, sus Próximos Eventos Programados y su Túnel de Ventas. */}
+        {!isAgentAppMode ? (
+          <div style={{
+            display: 'flex',
+            gap: '0.4rem',
+            flexWrap: 'wrap',
+            marginBlockEnd: '1rem',
+            borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
+            paddingBlockEnd: '0.65rem'
+          }}>
+            {[
+              { id: 'agenda', label: `👑 Control CEO, Agenda y CRM (${salesCalls.length})` },
+              { id: 'usuarios', label: `👥 Equipo y Zonas (${users.length})` },
+              { id: 'ia', label: `🤖 Sofía IA (${aiAgents.length})` },
+              { id: 'soporte', label: `🛠️ Soporte (${supportTickets.length})` },
+              { id: 'chats', label: `💬 Chats en Vivo (${sessions.length})` }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '0.5rem 0.85rem',
+                  borderRadius: '8px',
+                  border: activeTab === tab.id ? '1px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.2)',
+                  background: activeTab === tab.id ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.25))' : 'rgba(15, 23, 42, 0.7)',
+                  color: activeTab === tab.id ? '#fff' : '#94a3b8',
+                  fontWeight: activeTab === tab.id ? '800' : '600',
+                  fontSize: '0.78rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            marginBlockEnd: '1rem',
+            borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
+            paddingBlockEnd: '0.65rem'
+          }}>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              {[
+                {
+                  id: 'pendientes',
+                  label: `⏰ Mis Pendientes y Eventos (${urgentPendingLeads.length + upcomingScheduledLeads.length})`
+                },
+                {
+                  id: 'tunel',
+                  label: `📊 Mi Túnel de Ventas y Leads (${filteredSalesCalls.length})`
+                }
+              ].map(sub => (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('agenda');
+                    setAgentAppTab(sub.id);
+                  }}
+                  style={{
+                    padding: '0.52rem 0.9rem',
+                    borderRadius: '10px',
+                    border: agentAppTab === sub.id ? '1px solid #10b981' : '1px solid rgba(148, 163, 184, 0.2)',
+                    background:
+                      agentAppTab === sub.id
+                        ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(14, 165, 233, 0.25))'
+                        : 'rgba(15, 23, 42, 0.75)',
+                    color: agentAppTab === sub.id ? '#fff' : '#94a3b8',
+                    fontWeight: '800',
+                    fontSize: '0.79rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Si el CEO está previsualizando la App de Agente, puede elegir de qué agente ver la agenda */}
+            {isExecutiveRole && users.length > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: '700' }}>Agente:</span>
+                {users.map(u => {
+                  const active = String(activeAgentEmailForApp).toLowerCase() === String(u.email).toLowerCase();
+                  return (
+                    <button
+                      key={u.id || u._id || u.email}
+                      type="button"
+                      onClick={() => setAgentFilter(u.email)}
+                      style={{
+                        padding: '0.26rem 0.6rem',
+                        borderRadius: '999px',
+                        border: active ? '1px solid #10b981' : '1px solid rgba(148,163,184,0.25)',
+                        background: active ? 'rgba(16, 185, 129, 0.22)' : 'rgba(15, 23, 42, 0.7)',
+                        color: active ? '#fff' : '#cbd5e1',
+                        fontSize: '0.72rem',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {u.name.split(' ')[0]}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ===================================================================
-            TAB 1: PENDIENTES DEL AGENTE, ACCIONES DIRECTAS Y TÚNEL CRM
+            TAB 1: PANEL CEO (TODA LA EMPRESA) O APP DE SEGUIMIENTO DE AGENTE COMERCIAL
             =================================================================== */}
-        {activeTab === 'agenda' && (
+        {(activeTab === 'agenda' || isAgentAppMode) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxInlineSize: '100%', minInlineSize: 0 }}>
             {/* 1. FICHA DE ACCIÓN INMEDIATA (SE MUESTRA ARRIBA DEL TODO AL ABRIR UN LEAD O ENTRAR DESDE WHATSAPP) */}
             <div ref={selectedLeadSectionRef} style={{ maxInlineSize: '100%', minInlineSize: 0 }}>
@@ -1279,6 +1581,7 @@ export default function IACondoPanel() {
                 const transcripts = Array.isArray(call.callTranscripts) ? call.callTranscripts : [];
                 const zoneObj = VENEZUELA_ZONES.find(z => z.id === call.zone);
                 const zoneBadgeLabel = call.zoneLabel || zoneObj?.label || '📍 Venezuela';
+                const followMeta = classifyLeadFollowUp(call);
 
                 return (
                   <div key={callId} style={{
@@ -1307,6 +1610,9 @@ export default function IACondoPanel() {
                     }}>
                       <div style={{ minInlineSize: 0, flex: '1 1 220px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBlockEnd: '0.3rem' }}>
+                          <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '800', background: followMeta.badgeBg, color: followMeta.badgeColor }}>
+                            {followMeta.reasonBadge}
+                          </span>
                           <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', background: st.bg, color: st.color }}>
                             {st.label}
                           </span>
@@ -1321,7 +1627,7 @@ export default function IACondoPanel() {
                           👤 {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} • 📍 {call.city || 'Venezuela'}
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#fbbf24', marginBlockStart: '0.2rem', fontWeight: '700', overflowWrap: 'anywhere' }}>
-                          ⏰ Llamar / Contactar: {timeLabel}
+                          ⏰ Programado: {timeLabel} {call.nextTask ? `• 📌 ${call.nextTask.replace(/\(https?:\/\/[^)]+\)/g, '')}` : ''}
                         </div>
                       </div>
 
@@ -1346,7 +1652,7 @@ export default function IACondoPanel() {
                     {/* ACCIONES DIRECTAS DEL AGENTE (AL FRENTE Y SIN RUIDO) */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 145px), 1fr))',
                       gap: '0.5rem',
                       maxInlineSize: '100%'
                     }}>
@@ -1354,13 +1660,13 @@ export default function IACondoPanel() {
                         type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'llamada', true)}
                         style={{
-                          padding: '0.7rem 0.65rem',
+                          padding: '0.68rem 0.6rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(56, 189, 248, 0.5)',
                           background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
                           color: '#fff',
                           fontWeight: '800',
-                          fontSize: '0.8rem',
+                          fontSize: '0.78rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
@@ -1372,13 +1678,13 @@ export default function IACondoPanel() {
                         type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'whatsapp', true)}
                         style={{
-                          padding: '0.7rem 0.65rem',
+                          padding: '0.68rem 0.6rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(34, 197, 94, 0.5)',
                           background: 'linear-gradient(135deg, #16a34a 0%, #059669 100%)',
                           color: '#fff',
                           fontWeight: '800',
-                          fontSize: '0.8rem',
+                          fontSize: '0.78rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
@@ -1404,14 +1710,14 @@ export default function IACondoPanel() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           textAlign: 'center',
-                          padding: '0.7rem 0.65rem',
+                          padding: '0.68rem 0.6rem',
                           borderRadius: '10px',
                           background: 'rgba(192, 132, 252, 0.22)',
                           color: '#e9d5ff',
                           border: '1px solid rgba(192, 132, 252, 0.5)',
                           textDecoration: 'none',
                           fontWeight: '800',
-                          fontSize: '0.8rem'
+                          fontSize: '0.78rem'
                         }}
                       >
                         ✨ Enviar Demo WhatsApp
@@ -1419,15 +1725,33 @@ export default function IACondoPanel() {
 
                       <button
                         type="button"
+                        onClick={() => handleQuickNoAnswer(call)}
+                        style={{
+                          padding: '0.68rem 0.6rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(239, 68, 68, 0.5)',
+                          background: 'rgba(239, 68, 68, 0.16)',
+                          color: '#fca5a5',
+                          fontWeight: '800',
+                          fontSize: '0.76rem',
+                          cursor: 'pointer',
+                          textAlign: 'center'
+                        }}
+                      >
+                        📵 No Contestó (Recordar)
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'llamada', false)}
                         style={{
-                          padding: '0.7rem 0.65rem',
+                          padding: '0.68rem 0.6rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(245, 158, 11, 0.55)',
                           background: 'rgba(245, 158, 11, 0.2)',
                           color: '#fde68a',
                           fontWeight: '800',
-                          fontSize: '0.8rem',
+                          fontSize: '0.78rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
@@ -1458,7 +1782,7 @@ export default function IACondoPanel() {
                     }}>
                       <div>
                         <label htmlFor={`status-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
-                          Etapa CRM
+                          Etapa en el Túnel de Ventas
                         </label>
                         <select
                           id={`status-${callId}`}
@@ -1484,37 +1808,39 @@ export default function IACondoPanel() {
                         </select>
                       </div>
 
-                      <div>
-                        <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
-                          Agente Asignado
-                        </label>
-                        <select
-                          id={`agent-${callId}`}
-                          name="assignedAgentEmail"
-                          value={call.assignedAgentEmail || 'alejandrosaezh@iacondo.com'}
-                          onChange={e => {
-                            const found = users.find(u => u.email === e.target.value);
-                            const newName = found ? found.name : e.target.value;
-                            handleUpdateCall(callId, {
-                              assignedAgentId: found?.id || '',
-                              assignedAgentEmail: e.target.value,
-                              assignedAgentName: newName,
-                              newActivity: {
-                                type: 'asignacion',
-                                actor: currentUser.name,
-                                text: `Lead reasignado a: ${newName}`
-                              }
-                            });
-                          }}
-                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
-                        >
-                          {users.map(u => (
-                            <option key={u.id || u._id || u.email} value={u.email}>
-                              {u.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      {!isAgentAppMode && (
+                        <div>
+                          <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                            Agente Asignado
+                          </label>
+                          <select
+                            id={`agent-${callId}`}
+                            name="assignedAgentEmail"
+                            value={call.assignedAgentEmail || 'alejandrosaezh@iacondo.com'}
+                            onChange={e => {
+                              const found = users.find(u => u.email === e.target.value);
+                              const newName = found ? found.name : e.target.value;
+                              handleUpdateCall(callId, {
+                                assignedAgentId: found?.id || '',
+                                assignedAgentEmail: e.target.value,
+                                assignedAgentName: newName,
+                                newActivity: {
+                                  type: 'asignacion',
+                                  actor: currentUser.name,
+                                  text: `Lead reasignado a: ${newName}`
+                                }
+                              });
+                            }}
+                            style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                          >
+                            {users.map(u => (
+                              <option key={u.id || u._id || u.email} value={u.email}>
+                                {u.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
 
                       <div>
                         <label htmlFor={`access-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
@@ -1551,7 +1877,7 @@ export default function IACondoPanel() {
                             </div>
                             {transcripts.slice().reverse().map((tr, idx) => (
                               <div key={tr.id || idx} style={{ fontSize: '0.74rem', color: '#f8fafc', overflowWrap: 'anywhere' }}>
-                                <strong>{tr.actor || 'Agente'}:</strong> {tr.summary || tr.transcript}
+                                <strong>{tr.agentName || tr.actor || 'Agente'}:</strong> {tr.aiSummary || tr.summary || tr.transcript}
                               </div>
                             ))}
                           </div>
@@ -1560,7 +1886,7 @@ export default function IACondoPanel() {
                         <div style={{ maxBlockSize: '150px', overflowY: 'auto', display: 'grid', gap: '0.35rem' }}>
                           {logs.slice().reverse().map((entry, idx) => (
                             <div key={idx} style={{ fontSize: '0.73rem', paddingBlockEnd: '0.3rem', borderBlockEnd: '1px dashed rgba(148,163,184,0.12)', overflowWrap: 'anywhere' }}>
-                              <span style={{ color: '#38bdf8', fontWeight: '700' }}>{entry.actor || 'IA Condo'}: </span>
+                              <span style={{ color: '#38bdf8', fontWeight: '700' }}>{entry.author || entry.actor || 'IA Condo'}: </span>
                               <span style={{ color: '#cbd5e1' }}>{entry.text}</span>
                             </div>
                           ))}
@@ -1575,22 +1901,24 @@ export default function IACondoPanel() {
                           >
                             🎮 Probar Demo de {call.condoName || 'este Condominio'} ↗
                           </a>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteCall(callId)}
-                            style={{
-                              padding: '0.35rem 0.7rem',
-                              borderRadius: '6px',
-                              background: 'rgba(239, 68, 68, 0.12)',
-                              color: '#fca5a5',
-                              border: '1px solid rgba(239, 68, 68, 0.3)',
-                              fontWeight: '700',
-                              fontSize: '0.72rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            🗑️ Eliminar Lead
-                          </button>
+                          {!isAgentAppMode && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCall(callId)}
+                              style={{
+                                padding: '0.35rem 0.7rem',
+                                borderRadius: '6px',
+                                background: 'rgba(239, 68, 68, 0.12)',
+                                color: '#fca5a5',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                fontWeight: '700',
+                                fontSize: '0.72rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              🗑️ Eliminar Lead
+                            </button>
+                          )}
                         </div>
                       </div>
                     </details>
@@ -1599,142 +1927,183 @@ export default function IACondoPanel() {
               })()}
             </div>
 
-            {/* 2. BARRA COMPACTA DE FILTROS (AGENTE, ZONA Y BÚSQUEDA) */}
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.85)',
-              border: '1px solid rgba(148, 163, 184, 0.18)',
-              borderRadius: '12px',
-              padding: '0.75rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.6rem',
-              maxInlineSize: '100%',
-              boxSizing: 'border-box'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: '700' }}>Agente:</span>
-                <button
-                  type="button"
-                  onClick={() => setAgentFilter('todos')}
-                  style={{
-                    padding: '0.3rem 0.65rem',
-                    borderRadius: '999px',
-                    border: agentFilter === 'todos' ? '1px solid #0ea5e9' : '1px solid rgba(148,163,184,0.25)',
-                    background: agentFilter === 'todos' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(6, 13, 24, 0.7)',
-                    color: agentFilter === 'todos' ? '#fff' : '#cbd5e1',
-                    fontSize: '0.73rem',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Todos ({salesCalls.length})
-                </button>
-                {users.map(u => {
-                  const count = salesCalls.filter(c => c.assignedAgentEmail === u.email).length;
-                  const isFiltered = agentFilter === u.email;
-                  return (
-                    <button
-                      key={u.id || u._id || u.email}
-                      type="button"
-                      onClick={() => setAgentFilter(isFiltered ? 'todos' : u.email)}
-                      style={{
-                        padding: '0.3rem 0.65rem',
-                        borderRadius: '999px',
-                        border: isFiltered ? '1px solid #38bdf8' : '1px solid rgba(148, 163, 184, 0.2)',
-                        background: isFiltered ? 'rgba(56, 189, 248, 0.2)' : 'rgba(6, 13, 24, 0.7)',
-                        color: isFiltered ? '#fff' : '#cbd5e1',
-                        fontSize: '0.73rem',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {u.name.split(' ')[0]} ({count})
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <input
-                  type="search"
-                  aria-label="Buscar condominio, contacto o ciudad"
-                  placeholder="🔍 Buscar condominio o contacto..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={{
-                    flex: '1 1 180px',
-                    minInlineSize: 0,
-                    padding: '0.42rem 0.7rem',
-                    borderRadius: '8px',
-                    background: '#0f172a',
-                    color: '#fff',
-                    border: '1px solid rgba(148, 163, 184, 0.3)',
-                    fontSize: '0.78rem'
-                  }}
-                />
-
-                <select
-                  aria-label="Filtrar por Zona del País"
-                  value={zoneFilter}
-                  onChange={e => setZoneFilter(e.target.value)}
-                  style={{
-                    flex: '1 1 160px',
-                    minInlineSize: 0,
-                    padding: '0.42rem 0.65rem',
-                    borderRadius: '8px',
-                    background: '#0f172a',
-                    color: '#38bdf8',
-                    border: '1px solid rgba(56, 189, 248, 0.35)',
-                    fontSize: '0.76rem',
-                    fontWeight: '700'
-                  }}
-                >
-                  <option value="todas">🇻🇪 Todas las Zonas</option>
-                  {VENEZUELA_ZONES.map(z => (
-                    <option key={z.id} value={z.id}>{z.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* 3. TÚNEL CRM COMPACTO (COLUMNAS SIN ALTURA VACÍA EN MÓVIL) */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
-              gap: '0.7rem',
-              maxInlineSize: '100%'
-            }}>
-              {CRM_TUNNEL_COLUMNS.map(col => {
-                const colLeads = filteredSalesCalls.filter(c => col.match.includes(c.status || 'pendiente'));
-                return (
-                  <div key={col.id} style={{
-                    background: 'rgba(15, 23, 42, 0.88)',
-                    border: `1px solid ${col.color}44`,
-                    borderRadius: '12px',
-                    padding: '0.75rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.55rem',
-                    minInlineSize: 0,
-                    maxBlockSize: '500px',
-                    overflowY: 'auto'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBlockEnd: `2px solid ${col.color}`, paddingBlockEnd: '0.35rem' }}>
-                      <span style={{ fontSize: '0.76rem', fontWeight: '800', color: col.color }}>{col.title}</span>
-                      <span style={{ fontSize: '0.72rem', fontWeight: '800', padding: '0.08rem 0.45rem', borderRadius: '999px', background: col.bg, color: col.color }}>
-                        {colLeads.length}
-                      </span>
+            {/* 2. SI ES MODO CEO: RESUMEN GLOBAL DE TODA LA EMPRESA Y FILTRO DE EQUIPO */}
+            {!isAgentAppMode && (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.88)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                borderRadius: '14px',
+                padding: '0.85rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                maxInlineSize: '100%',
+                boxSizing: 'border-box'
+              }}>
+                {/* Indicadores Globales de la Empresa para el CEO */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
+                  gap: '0.5rem'
+                }}>
+                  <div style={{ background: 'rgba(6, 13, 24, 0.8)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(148,163,184,0.18)' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: '700' }}>📊 TOTAL LEADS EMPRESA</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff' }}>{salesCalls.length}</div>
+                  </div>
+                  <div style={{ background: 'rgba(239, 68, 68, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(239,68,68,0.35)' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#fca5a5', fontWeight: '800' }}>🚨 TOCA CONTACTAR / PENDIENTES</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#f87171' }}>{urgentPendingLeads.length}</div>
+                  </div>
+                  <div style={{ background: 'rgba(56, 189, 248, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(56,189,248,0.3)' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#38bdf8', fontWeight: '800' }}>📅 PRÓXIMOS EVENTOS</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#38bdf8' }}>{upcomingScheduledLeads.length}</div>
+                  </div>
+                  <div style={{ background: 'rgba(74, 222, 128, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(74,222,128,0.3)' }}>
+                    <div style={{ fontSize: '0.68rem', color: '#4ade80', fontWeight: '800' }}>🏢 IMPLEMENTACIÓN / ACTIVOS</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#4ade80' }}>
+                      {salesCalls.filter(c => ['implementacion', 'afiliado', 'ganado'].includes(c.status)).length}
                     </div>
+                  </div>
+                </div>
 
-                    {colLeads.length === 0 ? (
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.35rem 0' }}>
-                        Sin pendientes
+                {/* Filtros de Agente, Zona y Búsqueda para el CEO */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: '700' }}>Filtrar por Agente:</span>
+                  <button
+                    type="button"
+                    onClick={() => setAgentFilter('todos')}
+                    style={{
+                      padding: '0.3rem 0.65rem',
+                      borderRadius: '999px',
+                      border: agentFilter === 'todos' ? '1px solid #0ea5e9' : '1px solid rgba(148,163,184,0.25)',
+                      background: agentFilter === 'todos' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(6, 13, 24, 0.7)',
+                      color: agentFilter === 'todos' ? '#fff' : '#cbd5e1',
+                      fontSize: '0.73rem',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Toda la Empresa ({salesCalls.length})
+                  </button>
+                  {users.map(u => {
+                    const count = salesCalls.filter(c => c.assignedAgentEmail === u.email).length;
+                    const isFiltered = agentFilter === u.email;
+                    return (
+                      <button
+                        key={u.id || u._id || u.email}
+                        type="button"
+                        onClick={() => setAgentFilter(isFiltered ? 'todos' : u.email)}
+                        style={{
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '999px',
+                          border: isFiltered ? '1px solid #38bdf8' : '1px solid rgba(148, 163, 184, 0.2)',
+                          background: isFiltered ? 'rgba(56, 189, 248, 0.2)' : 'rgba(6, 13, 24, 0.7)',
+                          color: isFiltered ? '#fff' : '#cbd5e1',
+                          fontSize: '0.73rem',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {u.name.split(' ')[0]} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <input
+                    type="search"
+                    aria-label="Buscar condominio, contacto o ciudad"
+                    placeholder="🔍 Buscar condominio, contacto o ciudad..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    style={{
+                      flex: '1 1 180px',
+                      minInlineSize: 0,
+                      padding: '0.42rem 0.7rem',
+                      borderRadius: '8px',
+                      background: '#0f172a',
+                      color: '#fff',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      fontSize: '0.78rem'
+                    }}
+                  />
+
+                  <select
+                    aria-label="Filtrar por Zona del País"
+                    value={zoneFilter}
+                    onChange={e => setZoneFilter(e.target.value)}
+                    style={{
+                      flex: '1 1 160px',
+                      minInlineSize: 0,
+                      padding: '0.42rem 0.65rem',
+                      borderRadius: '8px',
+                      background: '#0f172a',
+                      color: '#38bdf8',
+                      border: '1px solid rgba(56, 189, 248, 0.35)',
+                      fontSize: '0.76rem',
+                      fontWeight: '700'
+                    }}
+                  >
+                    <option value="todas">🇻🇪 Todas las Zonas</option>
+                    {VENEZUELA_ZONES.map(z => (
+                      <option key={z.id} value={z.id}>{z.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* 3. PANTALLA DE SEGUIMIENTO: PENDIENTES POR CONTACTAR (CON RECORDATORIO PERSISTENTE SI NO FUE POSIBLE CONTACTAR) Y PRÓXIMOS EVENTOS PROGRAMADOS */}
+            {(!isAgentAppMode || agentAppTab === 'pendientes') && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                gap: '0.85rem',
+                maxInlineSize: '100%'
+              }}>
+                {/* COLUMNA A: PENDIENTES POR CONTACTAR AHORA Y RECORDATORIOS DE NO CONTACTADOS */}
+                <div style={{
+                  background: 'rgba(15, 23, 42, 0.92)',
+                  border: urgentPendingLeads.length > 0 ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(148, 163, 184, 0.2)',
+                  borderRadius: '14px',
+                  padding: '0.9rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.65rem',
+                  minInlineSize: 0
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBlockEnd: '1px solid rgba(245, 158, 11, 0.25)', paddingBlockEnd: '0.45rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fbbf24' }}>
+                        🚨 Tareas Pendientes / Toca Contactar Ahora
                       </div>
-                    ) : (
-                      colLeads.map(item => {
+                      <div style={{ fontSize: '0.71rem', color: '#94a3b8' }}>
+                        Si un lead no pudo ser contactado, sigue apareciendo aquí para recordarte hasta lograr el contacto.
+                      </div>
+                    </div>
+                    <span style={{
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '999px',
+                      background: urgentPendingLeads.length > 0 ? 'rgba(239, 68, 68, 0.22)' : 'rgba(74, 222, 128, 0.18)',
+                      color: urgentPendingLeads.length > 0 ? '#fca5a5' : '#4ade80',
+                      fontSize: '0.78rem',
+                      fontWeight: '800'
+                    }}>
+                      {urgentPendingLeads.length}
+                    </span>
+                  </div>
+
+                  {urgentPendingLeads.length === 0 ? (
+                    <div style={{ padding: '1rem', textAlign: 'center', color: '#4ade80', fontSize: '0.78rem', fontWeight: '600', background: 'rgba(74, 222, 128, 0.06)', borderRadius: '10px' }}>
+                      ✅ ¡Al día! No tienes contactos vencidos ni llamadas pendientes sin atender en este momento.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '0.6rem', maxBlockSize: '440px', overflowY: 'auto' }}>
+                      {urgentPendingLeads.map(({ call: item, meta }) => {
                         const cid = item.id || item._id;
                         const cPhone = String(item.clientPhone || item.phone || '').replace(/[^0-9]/g, '');
-                        const isLeadSelected = selectedLeadId === cid;
+                        const st = CALL_STATUS_LABELS[item.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
                         const rawUnitsStr = String(item.units || 'Por confirmar');
                         const compactUnitsLabel = /casa|apto|apartamento|vivienda|unid/i.test(rawUnitsStr)
                           ? rawUnitsStr
@@ -1745,36 +2114,46 @@ export default function IACondoPanel() {
                             key={cid}
                             onClick={() => handleSelectLeadFromTunnel(cid)}
                             style={{
-                              background: isLeadSelected ? 'rgba(14, 165, 233, 0.18)' : 'rgba(6, 13, 24, 0.88)',
-                              border: isLeadSelected ? '2px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.25)',
+                              background: 'rgba(6, 13, 24, 0.92)',
+                              border: `1px solid ${meta.borderColor}`,
                               borderRadius: '10px',
-                              padding: '0.68rem',
+                              padding: '0.75rem',
                               display: 'grid',
-                              gap: '0.3rem',
+                              gap: '0.35rem',
                               cursor: 'pointer',
                               minInlineSize: 0
                             }}
                           >
-                            <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
-                              🏢 {item.condoName || 'Condominio'}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.3rem' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: '800', padding: '0.15rem 0.5rem', borderRadius: '999px', background: meta.badgeBg, color: meta.badgeColor }}>
+                                {meta.reasonBadge}
+                              </span>
+                              <span style={{ fontSize: '0.66rem', fontWeight: '700', padding: '0.12rem 0.45rem', borderRadius: '999px', background: st.bg, color: st.color }}>
+                                {st.label}
+                              </span>
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
-                              🏘️ {compactUnitsLabel} • 📍 {item.city || 'Venezuela'}
+
+                            <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
+                              🏢 {item.condoName || 'Condominio'} ({compactUnitsLabel} • {item.city || 'Venezuela'})
                             </div>
-                            <div style={{ fontSize: '0.72rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
-                              👤 {item.clientName || 'Interesado'} {cPhone ? `(+${cPhone})` : ''}
+
+                            <div style={{ fontSize: '0.76rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
+                              👤 {item.clientName || 'Interesado'} {cPhone ? `• 📞 +${cPhone}` : ''}
+                              {!isAgentAppMode && item.assignedAgentName ? ` • 👨‍💼 ${item.assignedAgentName}` : ''}
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.2rem 0.45rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
-                              🕒 {item.callTimeLabel || 'Contacto pendiente'}
+
+                            <div style={{ fontSize: '0.73rem', color: '#fde68a', background: 'rgba(245, 158, 11, 0.1)', padding: '0.3rem 0.5rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
+                              📌 <strong>Acción pendiente:</strong> {(item.nextTask || item.callTimeLabel || 'Llamar o escribir para presentar Demo').replace(/\(https?:\/\/[^)]+\)/g, '')}
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', marginBlockStart: '0.25rem' }}>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 105px), 1fr))', gap: '0.35rem', marginBlockStart: '0.2rem' }}>
                               <button
                                 type="button"
                                 onClick={e => {
                                   e.stopPropagation();
                                   openOutcomeAndCallModal(item, 'llamada', true);
                                 }}
-                                style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                style={{ padding: '0.42rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.45)', background: 'rgba(2, 132, 199, 0.25)', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '800', cursor: 'pointer' }}
                               >
                                 📞 Llamar
                               </button>
@@ -1784,18 +2163,296 @@ export default function IACondoPanel() {
                                   e.stopPropagation();
                                   openOutcomeAndCallModal(item, 'whatsapp', true);
                                 }}
-                                style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                style={{ padding: '0.42rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.45)', background: 'rgba(22, 163, 74, 0.22)', color: '#4ade80', fontSize: '0.72rem', fontWeight: '800', cursor: 'pointer' }}
                               >
                                 💬 WhatsApp
+                              </button>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  handleQuickNoAnswer(item);
+                                }}
+                                style={{ padding: '0.42rem', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                📵 No contestó
+                              </button>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openOutcomeAndCallModal(item, 'llamada', false);
+                                }}
+                                style={{ padding: '0.42rem', borderRadius: '6px', border: '1px solid rgba(245,158,11,0.45)', background: 'rgba(245, 158, 11, 0.18)', color: '#fde68a', fontSize: '0.71rem', fontWeight: '800', cursor: 'pointer' }}
+                              >
+                                ✅ Resultado
                               </button>
                             </div>
                           </div>
                         );
-                      })
-                    )}
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* COLUMNA B: PRÓXIMOS EVENTOS Y LLAMADAS PROGRAMADAS */}
+                <div style={{
+                  background: 'rgba(15, 23, 42, 0.92)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  borderRadius: '14px',
+                  padding: '0.9rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.65rem',
+                  minInlineSize: 0
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBlockEnd: '1px solid rgba(56, 189, 248, 0.2)', paddingBlockEnd: '0.45rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#38bdf8' }}>
+                        📅 Próximos Eventos y Llamadas Programadas
+                      </div>
+                      <div style={{ fontSize: '0.71rem', color: '#94a3b8' }}>
+                        Agenda de próximas llamadas, demos en vivo, seguimientos de cotización y asambleas.
+                      </div>
+                    </div>
+                    <span style={{
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '999px',
+                      background: 'rgba(56, 189, 248, 0.18)',
+                      color: '#38bdf8',
+                      fontSize: '0.78rem',
+                      fontWeight: '800'
+                    }}>
+                      {upcomingScheduledLeads.length}
+                    </span>
                   </div>
-                );
-              })}
+
+                  {upcomingScheduledLeads.length === 0 ? (
+                    <div style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.76rem', background: 'rgba(6, 13, 24, 0.5)', borderRadius: '10px' }}>
+                      📅 No hay eventos programados para fechas futuras. Cuando agendes una próxima llamada o visita, aparecerá aquí ordenada por fecha.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '0.6rem', maxBlockSize: '440px', overflowY: 'auto' }}>
+                      {upcomingScheduledLeads.map(({ call: item }) => {
+                        const cid = item.id || item._id;
+                        const cPhone = String(item.clientPhone || item.phone || '').replace(/[^0-9]/g, '');
+                        const st = CALL_STATUS_LABELS[item.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
+                        return (
+                          <div
+                            key={cid}
+                            onClick={() => handleSelectLeadFromTunnel(cid)}
+                            style={{
+                              background: 'rgba(6, 13, 24, 0.88)',
+                              border: '1px solid rgba(56, 189, 248, 0.28)',
+                              borderRadius: '10px',
+                              padding: '0.72rem',
+                              display: 'grid',
+                              gap: '0.32rem',
+                              cursor: 'pointer',
+                              minInlineSize: 0
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.3rem' }}>
+                              <span style={{ fontSize: '0.7rem', fontWeight: '800', color: '#38bdf8' }}>
+                                🗓️ {item.callTimeLabel || 'Próximo seguimiento'}
+                              </span>
+                              <span style={{ fontSize: '0.66rem', fontWeight: '700', padding: '0.12rem 0.45rem', borderRadius: '999px', background: st.bg, color: st.color }}>
+                                {st.label}
+                              </span>
+                            </div>
+
+                            <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
+                              🏢 {item.condoName || 'Condominio'} ({item.city || 'Venezuela'})
+                            </div>
+
+                            <div style={{ fontSize: '0.74rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
+                              👤 {item.clientName || 'Interesado'} {cPhone ? `(+${cPhone})` : ''}
+                              {!isAgentAppMode && item.assignedAgentName ? ` • 👨‍💼 ${item.assignedAgentName}` : ''}
+                            </div>
+
+                            {item.nextTask && (
+                              <div style={{ fontSize: '0.72rem', color: '#94a3b8', overflowWrap: 'anywhere' }}>
+                                📌 {item.nextTask.replace(/\(https?:\/\/[^)]+\)/g, '')}
+                              </div>
+                            )}
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.35rem', marginBlockStart: '0.2rem' }}>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openOutcomeAndCallModal(item, 'llamada', true);
+                                }}
+                                style={{ padding: '0.36rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.16)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                📞 Llamar
+                              </button>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openOutcomeAndCallModal(item, 'whatsapp', true);
+                                }}
+                                style={{ padding: '0.36rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.16)', color: '#4ade80', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                💬 WhatsApp
+                              </button>
+                              <button
+                                type="button"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  openOutcomeAndCallModal(item, 'llamada', false);
+                                }}
+                                style={{ padding: '0.36rem', borderRadius: '6px', border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.16)', color: '#fde68a', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
+                              >
+                                ✅ Resultado
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 4. TÚNEL DE VENTAS CRM Y ETAPAS DE LOS LEADS (VISIBLE SIEMPRE EN CEO Y EN APP DEL AGENTE) */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBlockEnd: '0.6rem' }}>
+                <h2 style={{ fontSize: '0.96rem', fontWeight: '800', margin: 0, color: '#e2e8f0' }}>
+                  📊 {isAgentAppMode ? 'Mi Túnel de Ventas y Etapas de Mis Leads' : 'Túnel de Ventas CRM de la Empresa'} ({filteredSalesCalls.length})
+                </h2>
+                {isAgentAppMode && (
+                  <input
+                    type="search"
+                    aria-label="Buscar en mis leads"
+                    placeholder="🔍 Buscar en mis leads..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    style={{
+                      inlineSize: '100%',
+                      maxInlineSize: '220px',
+                      padding: '0.36rem 0.65rem',
+                      borderRadius: '8px',
+                      background: '#0f172a',
+                      color: '#fff',
+                      border: '1px solid rgba(148, 163, 184, 0.3)',
+                      fontSize: '0.75rem'
+                    }}
+                  />
+                )}
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 215px), 1fr))',
+                gap: '0.7rem',
+                maxInlineSize: '100%'
+              }}>
+                {CRM_TUNNEL_COLUMNS.map(col => {
+                  const colLeads = filteredSalesCalls.filter(c => col.match.includes(c.status || 'pendiente'));
+                  return (
+                    <div key={col.id} style={{
+                      background: 'rgba(15, 23, 42, 0.88)',
+                      border: `1px solid ${col.color}44`,
+                      borderRadius: '12px',
+                      padding: '0.75rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.55rem',
+                      minInlineSize: 0,
+                      maxBlockSize: '500px',
+                      overflowY: 'auto'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBlockEnd: `2px solid ${col.color}`, paddingBlockEnd: '0.35rem' }}>
+                        <span style={{ fontSize: '0.76rem', fontWeight: '800', color: col.color }}>{col.title}</span>
+                        <span style={{ fontSize: '0.72rem', fontWeight: '800', padding: '0.08rem 0.45rem', borderRadius: '999px', background: col.bg, color: col.color }}>
+                          {colLeads.length}
+                        </span>
+                      </div>
+
+                      {colLeads.length === 0 ? (
+                        <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.35rem 0' }}>
+                          Sin leads en esta etapa
+                        </div>
+                      ) : (
+                        colLeads.map(item => {
+                          const cid = item.id || item._id;
+                          const cPhone = String(item.clientPhone || item.phone || '').replace(/[^0-9]/g, '');
+                          const isLeadSelected = selectedLeadId === cid;
+                          const rawUnitsStr = String(item.units || 'Por confirmar');
+                          const compactUnitsLabel = /casa|apto|apartamento|vivienda|unid/i.test(rawUnitsStr)
+                            ? rawUnitsStr
+                            : `${rawUnitsStr} viv.`;
+                          const isNoAnswer = item.lastOutcomeType === 'no_contesto';
+
+                          return (
+                            <div
+                              key={cid}
+                              onClick={() => handleSelectLeadFromTunnel(cid)}
+                              style={{
+                                background: isLeadSelected ? 'rgba(14, 165, 233, 0.18)' : 'rgba(6, 13, 24, 0.88)',
+                                border: isLeadSelected
+                                  ? '2px solid #0ea5e9'
+                                  : isNoAnswer
+                                  ? '1px solid rgba(239, 68, 68, 0.5)'
+                                  : '1px solid rgba(148, 163, 184, 0.25)',
+                                borderRadius: '10px',
+                                padding: '0.68rem',
+                                display: 'grid',
+                                gap: '0.3rem',
+                                cursor: 'pointer',
+                                minInlineSize: 0
+                              }}
+                            >
+                              {isNoAnswer && (
+                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#fca5a5', background: 'rgba(239, 68, 68, 0.18)', padding: '0.12rem 0.4rem', borderRadius: '4px', justifySelf: 'start' }}>
+                                  🚨 No contestó — Reintentar
+                                </span>
+                              )}
+                              <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
+                                🏢 {item.condoName || 'Condominio'}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
+                                🏘️ {compactUnitsLabel} • 📍 {item.city || 'Venezuela'}
+                              </div>
+                              <div style={{ fontSize: '0.72rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
+                                👤 {item.clientName || 'Interesado'} {cPhone ? `(+${cPhone})` : ''}
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.2rem 0.45rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
+                                🕒 {item.callTimeLabel || 'Contacto pendiente'}
+                              </div>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', marginBlockStart: '0.25rem' }}>
+                                <button
+                                  type="button"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    openOutcomeAndCallModal(item, 'llamada', true);
+                                  }}
+                                  style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                >
+                                  📞 Llamar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    openOutcomeAndCallModal(item, 'whatsapp', true);
+                                  }}
+                                  style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                >
+                                  💬 WhatsApp
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -1803,7 +2460,7 @@ export default function IACondoPanel() {
         {/* ===================================================================
             TAB 2: DEPARTAMENTO TÉCNICO (SOPORTE)
             =================================================================== */}
-        {activeTab === 'soporte' && (
+        {!isAgentAppMode && activeTab === 'soporte' && (
           <div>
             <div style={{ marginBottom: '1.25rem' }}>
               <h2 style={{ fontSize: '1.35rem', fontWeight: '800', margin: 0 }}>
@@ -1880,7 +2537,7 @@ export default function IACondoPanel() {
         {/* ===================================================================
             TAB 3: CHATS DE WHATSAPP Y WEB EN VIVO
             =================================================================== */}
-        {activeTab === 'chats' && (
+        {!isAgentAppMode && activeTab === 'chats' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
             <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148, 163, 184, 0.2)', borderRadius: '16px', padding: '1.25rem', maxHeight: '72vh', overflowY: 'auto' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginTop: 0, marginBottom: '1rem' }}>
@@ -1970,7 +2627,7 @@ export default function IACondoPanel() {
         {/* ===================================================================
             TAB 4: ORGANIGRAMA, ROLES, ZONAS ASIGNADAS (PASO 3) Y FUNCIONES
             =================================================================== */}
-        {activeTab === 'usuarios' && (
+        {!isAgentAppMode && activeTab === 'usuarios' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
             {/* Listado del Organigrama, Zonas y Funciones */}
             <div>
@@ -2344,7 +3001,7 @@ export default function IACondoPanel() {
         {/* ===================================================================
             TAB 5: ENTRENAMIENTO DE SOFÍA IA Y CATÁLOGO DE AGENTES
             =================================================================== */}
-        {activeTab === 'ia' && (
+        {!isAgentAppMode && activeTab === 'ia' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
             <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '16px', padding: '1.5rem' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginTop: 0 }}>
