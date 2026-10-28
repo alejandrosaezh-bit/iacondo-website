@@ -47,34 +47,34 @@ function App() {
         </div>
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(6,13,24,0.4) 0%, rgba(6,13,24,0.9) 100%)', zIndex: -1 }}></div>
 
-        <div style={{ maxWidth: '800px', textAlign: 'center', zIndex: 1 }} className="fade-in-up">
-          <span style={{ display: 'inline-block', padding: '0.4rem 1rem', background: 'rgba(14, 165, 233, 0.1)', color: 'var(--accent-primary)', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '1.5rem', border: '1px solid rgba(14, 165, 233, 0.3)' }}>
+        <div style={{ maxWidth: '800px', width: '100%', minWidth: 0, textAlign: 'center', zIndex: 1 }} className="fade-in-up">
+          <span style={{ display: 'inline-block', padding: '0.4rem 0.9rem', background: 'rgba(14, 165, 233, 0.1)', color: 'var(--accent-primary)', borderRadius: '20px', fontWeight: 'bold', fontSize: 'clamp(0.75rem, 0.7rem + 0.3vw, 0.85rem)', marginBottom: '1.25rem', border: '1px solid rgba(14, 165, 233, 0.3)', maxWidth: '100%' }}>
             ✨ La Nueva Era en Gestión Inmobiliaria
           </span>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: '800', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: 'clamp(1.75rem, 1.2rem + 3.8vw, 4.2rem)', fontWeight: '800', marginBottom: '1.25rem', wordBreak: 'break-word' }}>
             Tu Condominio, <br />
             <span className="text-gradient">Gestionado de Forma Inteligente.</span>
           </h1>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', maxWidth: '600px', margin: '0 auto 2.5rem auto', lineHeight: '1.8' }}>
+          <p style={{ fontSize: 'clamp(0.95rem, 0.88rem + 0.5vw, 1.2rem)', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 2rem auto', lineHeight: '1.7' }}>
             La plataforma definitiva para la administración transparente. Automatiza cobros, concilia pagos bancarios y mantén a toda tu comunidad conectada e informada.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="#contacto" className="btn btn-primary" style={{ padding: '1rem 2.2rem', fontSize: '1.1rem', fontWeight: '700' }}>Solicitar Información / Demo</a>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
+            <a href="#contacto" className="btn btn-primary" style={{ padding: 'clamp(0.8rem, 2.5vw, 1rem) clamp(1.2rem, 4vw, 2.2rem)', fontSize: 'clamp(0.92rem, 0.85rem + 0.45vw, 1.1rem)', fontWeight: '700', whiteSpace: 'normal', textAlign: 'center', maxWidth: '100%' }}>Solicitar Información / Demo</a>
           </div>
         </div>
       </section>
 
       {/* FEATURES SECTION */}
-      <section id="features" style={{ padding: '6rem 5%', background: 'var(--bg-main)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }} className="fade-in-up delay-1">
-            <h2 style={{ fontSize: '2.5rem', fontWeight: '700' }}>Todo lo que tu edificio necesita</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '1rem auto 0 auto' }}>
+      <section id="features" style={{ padding: 'clamp(3.5rem, 8vw, 6rem) 5%', background: 'var(--bg-main)', width: '100%', overflowX: 'clip' }}>
+        <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 5vw, 4rem)' }} className="fade-in-up delay-1">
+            <h2 style={{ fontSize: 'clamp(1.55rem, 1.2rem + 2vw, 2.5rem)', fontWeight: '700' }}>Todo lo que tu edificio necesita</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 0.9rem + 0.35vw, 1.1rem)', maxWidth: '600px', margin: '0.85rem auto 0 auto' }}>
               Herramientas diseñadas para ahorrar horas de trabajo administrativo y brindar total claridad financiera a los vecinos.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 'clamp(1.1rem, 3vw, 2rem)', width: '100%' }}>
             <FeatureCard 
               icon="🏦" 
               title="Conciliación Automática" 
@@ -100,14 +100,14 @@ function App() {
       </section>
 
       {/* BENEFITS SECTION */}
-      <section style={{ padding: '6rem 5%', background: 'linear-gradient(to bottom, var(--bg-main), #0a1120)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '3rem' }}>
+      <section style={{ padding: 'clamp(3.5rem, 8vw, 6rem) 5%', background: 'linear-gradient(to bottom, var(--bg-main), #0a1120)', width: '100%', overflowX: 'clip' }}>
+        <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 'clamp(1.25rem, 4vw, 3rem)' }}>
           
           <div className="glass-panel fade-in-up delay-2">
-            <h3 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <h3 style={{ fontSize: 'clamp(1.25rem, 1.05rem + 1vw, 1.75rem)', color: 'white', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
               <span style={{ color: 'var(--accent-primary)' }}>🛡️</span> Para Administradores
             </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <BenefitItem text="Ahorra hasta un 80% del tiempo en conciliaciones." />
               <BenefitItem text="Historial contable inmutable y seguro." />
               <BenefitItem text="Directorio centralizado de propietarios e inquilinos." />
@@ -116,10 +116,10 @@ function App() {
           </div>
 
           <div className="glass-panel fade-in-up delay-3">
-            <h3 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <h3 style={{ fontSize: 'clamp(1.25rem, 1.05rem + 1vw, 1.75rem)', color: 'white', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
               <span style={{ color: 'var(--accent-primary)' }}>👥</span> Para Propietarios
             </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <BenefitItem text="Reporta tus pagos en segundos desde el celular." />
               <BenefitItem text="Conoce exactamente en qué se invierte tu dinero." />
               <BenefitItem text="Accede a tus recibos históricos en cualquier momento." />
@@ -131,11 +131,11 @@ function App() {
       </section>
 
       {/* CTA SECTION */}
-      <section id="contacto" style={{ padding: '6rem 5%', borderTop: '1px solid var(--border-light)' }}>
-        <div style={{ maxInlineSize: '600px', marginInline: 'auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '2.4rem', marginBottom: '0.85rem' }}>Solicita tu Demostración</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.6 }}>
+      <section id="contacto" style={{ padding: 'clamp(3.5rem, 8vw, 6rem) 5%', borderTop: '1px solid var(--border-light)', width: '100%', overflowX: 'clip' }}>
+        <div style={{ maxInlineSize: '600px', inlineSize: '100%', marginInline: 'auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: 'clamp(1.55rem, 1.2rem + 2vw, 2.4rem)', marginBottom: '0.75rem' }}>Solicita tu Demostración</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.92rem, 0.86rem + 0.35vw, 1.05rem)', lineHeight: 1.6 }}>
               Déjanos tus datos de contacto y <strong>Sofía IA</strong> te atenderá de inmediato por correo o WhatsApp para configurar una demostración personalizada a la medida de tu condominio.
             </p>
           </div>
@@ -176,9 +176,9 @@ function FeatureCard({ icon, title, desc }) {
 
 function BenefitItem({ text }) {
   return (
-    <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.8rem' }}>
-      <span style={{ color: 'var(--success)', color: '#10b981', marginTop: '2px' }}>✓</span>
-      <span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem' }}>{text}</span>
+    <li style={{ display: 'flex', alignItems: 'flex-start', gap: '0.7rem', minWidth: 0 }}>
+      <span style={{ color: '#10b981', marginTop: '2px', flexShrink: 0 }}>✓</span>
+      <span style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.9rem, 0.85rem + 0.3vw, 1.05rem)', minWidth: 0 }}>{text}</span>
     </li>
   );
 }
@@ -314,7 +314,7 @@ function ContactForm() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '1rem' }}>
         <div>
           <label htmlFor="contact-name" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Nombre Completo *</label>
           <input 
@@ -345,7 +345,7 @@ function ContactForm() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '1rem' }}>
         <div>
           <label htmlFor="contact-phone" style={{ display: 'block', marginBottom: '0.45rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Teléfono / WhatsApp *</label>
           <input 
@@ -389,7 +389,7 @@ function ContactForm() {
         ></textarea>
       </div>
 
-      <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '1rem', fontSize: '1.08rem', marginTop: '0.4rem', fontWeight: '800' }}>
+      <button type="submit" disabled={status === 'loading'} className="btn btn-primary" style={{ padding: '0.95rem 1rem', fontSize: 'clamp(0.9rem, 0.84rem + 0.4vw, 1.05rem)', marginTop: '0.4rem', fontWeight: '800', whiteSpace: 'normal', textAlign: 'center', width: '100%' }}>
         {status === 'loading' ? 'Conectando con Sofía IA...' : 'Solicitar Atención y Demo con Sofía IA'}
       </button>
     </form>
