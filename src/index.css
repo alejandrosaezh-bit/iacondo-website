@@ -73,6 +73,69 @@ h1, h2, h3, h4 {
   transition: all 0.2s ease;
   text-decoration: none;
   font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Responsive Navbar */
+.site-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0.9rem 4%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+}
+
+.site-brand {
+  font-size: clamp(1.02rem, 0.82rem + 1.1vw, 1.5rem);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.35rem, 1vw, 0.6rem);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.site-brand-logo {
+  width: clamp(28px, 6vw, 38px);
+  height: clamp(28px, 6vw, 38px);
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.site-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.38rem, 1.2vw, 0.75rem);
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.site-nav-btn {
+  padding: clamp(0.42rem, 1vw, 0.55rem) clamp(0.65rem, 1.8vw, 1.15rem) !important;
+  font-size: clamp(0.75rem, 0.68rem + 0.35vw, 0.92rem) !important;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+
+@media (max-width: 360px) {
+  .site-navbar {
+    padding: 0.75rem 3%;
+    gap: 0.35rem;
+  }
+  .site-brand {
+    font-size: 0.95rem;
+  }
+  .site-nav-btn {
+    padding: 0.38rem 0.52rem !important;
+    font-size: 0.72rem !important;
+  }
 }
 
 .btn-primary {

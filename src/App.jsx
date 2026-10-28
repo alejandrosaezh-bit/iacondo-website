@@ -16,22 +16,23 @@ function App() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* NAVBAR */}
-      <nav style={{ 
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, 
-        padding: '1.2rem 5%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: scrolled ? 'rgba(6, 13, 24, 0.9)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
-        borderBottom: scrolled ? '1px solid var(--border-light)' : '1px solid transparent',
-        transition: 'all 0.3s ease'
-      }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '38px', height: '38px', objectFit: 'contain' }} />
+      <nav
+        className="site-navbar"
+        style={{
+          background: scrolled ? 'rgba(6, 13, 24, 0.92)' : 'rgba(6, 13, 24, 0.45)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderBottom: scrolled ? '1px solid var(--border-light)' : '1px solid transparent'
+        }}
+      >
+        <div className="site-brand">
+          <img src="/logo-iacondo.png" alt="Logo IA Condo" className="site-brand-logo" />
           <span>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="site-nav-actions">
           <a href="#features" style={{ color: 'white', textDecoration: 'none', fontWeight: '500', display: 'none' }} className="nav-link">Características</a>
-          <a href="#contacto" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Solicitar Demo</a>
-          <a href="https://app.iacondo.com" className="btn btn-secondary" style={{ padding: '0.5rem 1.2rem' }}>Iniciar Sesión</a>
+          <a href="#contacto" className="btn btn-primary site-nav-btn">Solicitar Demo</a>
+          <a href="https://app.iacondo.com" className="btn btn-secondary site-nav-btn">Iniciar Sesión</a>
         </div>
       </nav>
 
@@ -73,7 +74,7 @@ function App() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}>
             <FeatureCard 
               icon="🏦" 
               title="Conciliación Automática" 
@@ -100,7 +101,7 @@ function App() {
 
       {/* BENEFITS SECTION */}
       <section style={{ padding: '6rem 5%', background: 'linear-gradient(to bottom, var(--bg-main), #0a1120)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '3rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '3rem' }}>
           
           <div className="glass-panel fade-in-up delay-2">
             <h3 style={{ fontSize: '1.8rem', color: 'white', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
