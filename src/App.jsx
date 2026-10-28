@@ -198,9 +198,7 @@ function ContactForm() {
     const d = data || formData;
     const text =
       `Hola Sofía, mi nombre es *${d.name || ''}*${d.condominium ? ` del condominio *${d.condominium}*` : ''}.\n` +
-      `Correo: ${d.email || ''}${d.phone ? `\nTeléfono: ${d.phone}` : ''}\n\n` +
-      `${d.message ? `*Mensaje:* ${d.message}\n\n` : ''}` +
-      `Me gustaría solicitar información y que me generes una demostración personalizada para nuestro condominio.`;
+      `Vengo de la página web iacondo.com${d.message ? ` (${d.message})` : ''} y me gustaría conversar contigo sobre IA Condo.`;
     return `https://wa.me/584222537239?text=${encodeURIComponent(text)}`;
   };
 
@@ -400,7 +398,7 @@ function WhatsAppFloatingButton() {
   const whatsappUrl =
     'https://wa.me/584222537239?text=' +
     encodeURIComponent(
-      'Hola, vengo de iacondo.com y me gustaría recibir información y una demostración para mi condominio.'
+      'Hola Sofía, vengo de la página web iacondo.com y me gustaría conocer más sobre IA Condo.'
     );
 
   return (
