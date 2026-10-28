@@ -1338,6 +1338,10 @@ export default function IACondoPanel() {
                 👑 Ingresar como Alejandro Sáez (CEO)
               </button>
             </div>
+            <div style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(148, 163, 184, 0.1)', textAlign: 'center', fontSize: '0.72rem', color: '#64748b', lineHeight: '1.45' }}>
+              © {new Date().getFullYear()} <strong style={{ color: '#94a3b8' }}>SOLUCIONES DIGITALES CREAPPTIVAS C.A.</strong><br />
+              RIF: <strong style={{ color: '#94a3b8' }}>J508901061</strong> • Todos los derechos reservados.
+            </div>
           </div>
         </div>
       </div>
@@ -3381,6 +3385,24 @@ export default function IACondoPanel() {
           </div>
         )}
       </div>
+
+      {/* PIE DE PÁGINA FISCAL DEL PANEL DE IA CONDO */}
+      <footer style={{
+        marginTop: '2.5rem',
+        padding: '1.25rem 1rem',
+        borderTop: '1px solid rgba(148, 163, 184, 0.12)',
+        textAlign: 'center',
+        color: '#64748b',
+        fontSize: '0.78rem',
+        lineHeight: '1.5'
+      }}>
+        <div>
+          © {new Date().getFullYear()} <strong style={{ color: '#94a3b8' }}>SOLUCIONES DIGITALES CREAPPTIVAS C.A.</strong> — RIF: <strong style={{ color: '#94a3b8' }}>J508901061</strong>
+        </div>
+        <div style={{ fontSize: '0.72rem', marginTop: '0.15rem' }}>
+          IACONDO.COM • Todos los derechos reservados.
+        </div>
+      </footer>
 
       {/* =====================================================================
           MODAL 1 (PASO 1): REGISTRAR NUEVO LEAD MANUALMENTE DESDE EL PANEL

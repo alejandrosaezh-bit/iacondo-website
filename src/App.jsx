@@ -145,11 +145,16 @@ function App() {
 
       {/* FOOTER */}
       <footer style={{ background: '#030712', padding: '3rem 5%', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', marginBottom: '1.5rem' }}>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
           <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
           <span style={{ color: 'white' }}>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
-        <p style={{ marginBottom: '1rem' }}>© {new Date().getFullYear()} IACondo.com. Todos los derechos reservados.</p>
+        <p style={{ marginBottom: '0.35rem', color: '#e2e8f0', fontWeight: '600', fontSize: '0.92rem' }}>
+          © {new Date().getFullYear()} SOLUCIONES DIGITALES CREAPPTIVAS C.A. — Todos los derechos reservados.
+        </p>
+        <p style={{ marginBottom: '1.25rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
+          IDENTIFICACIÓN DEL CONTRIBUYENTE • RIF: <strong style={{ color: '#cbd5e1' }}>J508901061</strong>
+        </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem', flexWrap: 'wrap' }}>
           <a href="mailto:hola@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>📧 hola@iacondo.com</a>
           <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>🛠️ soporte@iacondo.com</a>
