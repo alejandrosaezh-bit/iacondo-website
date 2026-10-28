@@ -954,21 +954,60 @@ export default function IACondoPanel() {
   const salesCalls = calls.filter(c => c.intent !== 'support');
   const supportTickets = calls.filter(c => c.intent === 'support');
 
-  // En modo App de Agente Comercial solo ve los Leads asignados a ese agente; en modo CEO ve toda la empresa (o filtra a voluntad)
+  // Determina si un Lead corresponde a un Agente específico (por asignación directa o por sus Zonas Geográficas asignadas)
+  const doesLeadBelongToAgent = (call, agentObj) => {
+    if (!call || !agentObj) return false;
+    const agentEmail = String(agentObj.email || '').trim().toLowerCase();
+    const agentName = String(agentObj.name || '').trim().toLowerCase();
+    const callAgentEmail = String(call.assignedAgentEmail || '').trim().toLowerCase();
+    const callAgentName = String(call.assignedAgentName || '').trim().toLowerCase();
+
+    // 1. Coincidencia directa por correo, ID o nombre del agente
+    if (agentEmail && callAgentEmail === agentEmail) return true;
+    if (agentObj.id && call.assignedAgentId && String(call.assignedAgentId) === String(agentObj.id)) return true;
+    if (agentName && callAgentName && (callAgentName === agentName || callAgentName.includes(agentName))) return true;
+
+    // 2. Si es un Agente Comercial (ej. Andrés Hofle) y el lead estaba en el buzón general/CEO por defecto,
+    // mostrarlo automáticamente en su App de Seguimiento si pertenece a sus Zonas Geográficas asignadas
+    const isDefaultOrUnassigned = !callAgentEmail || callAgentEmail === 'alejandrosaezh@iacondo.com';
+    if (isDefaultOrUnassigned && (agentObj.role === 'ventas' || agentEmail !== 'alejandrosaezh@iacondo.com')) {
+      const agentZones =
+        Array.isArray(agentObj.assignedZones) && agentObj.assignedZones.length > 0
+          ? agentObj.assignedZones
+          : ['gran_caracas', 'central', 'centro_occidental', 'zulia_andes', 'oriental', 'guayana', 'nacional'];
+      const leadZone = call.zone || 'gran_caracas';
+      if (agentZones.includes('nacional') || agentZones.includes(leadZone)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const targetAgentForScope =
+    users.find(u => String(u.email || '').toLowerCase() === String(activeAgentEmailForApp).toLowerCase()) ||
+    (String(activeAgentEmailForApp).toLowerCase() === DEFAULT_CEO_USER.email.toLowerCase()
+      ? DEFAULT_CEO_USER
+      : { email: activeAgentEmailForApp, role: 'ventas' });
+
+  // En modo App de Agente Comercial ve los Leads asignados a él o a sus Zonas; en modo CEO ve toda la empresa (o filtra a voluntad)
   const roleScopedSalesCalls = isAgentAppMode
-    ? salesCalls.filter(
-        c =>
-          String(c.assignedAgentEmail || 'alejandrosaezh@iacondo.com').toLowerCase() ===
-          String(activeAgentEmailForApp).toLowerCase()
-      )
+    ? salesCalls.filter(c => doesLeadBelongToAgent(c, targetAgentForScope))
     : salesCalls;
 
   const filteredSalesCalls = roleScopedSalesCalls.filter(c => {
     const statusMatch = callFilter === 'todos' || (c.status || 'pendiente') === callFilter;
+    const filterAgentObj =
+      agentFilter === 'todos'
+        ? null
+        : users.find(u => String(u.email || '').toLowerCase() === String(agentFilter).toLowerCase()) || {
+            email: agentFilter,
+            role: 'ventas'
+          };
     const agentMatch =
       isAgentAppMode ||
       agentFilter === 'todos' ||
-      String(c.assignedAgentEmail || '').toLowerCase() === String(agentFilter).toLowerCase();
+      doesLeadBelongToAgent(c, filterAgentObj);
     const zoneMatch = zoneFilter === 'todas' || (c.zone || 'gran_caracas') === zoneFilter;
     const q = searchQuery.trim().toLowerCase();
     const searchMatch =
@@ -1096,9 +1135,7 @@ export default function IACondoPanel() {
       }
     });
     return Array.from(map.values()).map(agent => {
-      const agentLeads = salesCalls.filter(
-        c => String(c.assignedAgentEmail || 'alejandrosaezh@iacondo.com').toLowerCase() === String(agent.email).toLowerCase()
-      );
+      const agentLeads = salesCalls.filter(c => doesLeadBelongToAgent(c, agent));
       const agentActiveLeads = agentLeads.filter(c => !closedStatuses.includes(c.status || 'pendiente'));
       const agentUrgentCount = agentActiveLeads.filter(c => classifyLeadFollowUp(c).bucket === 'urgent').length;
       return {
@@ -1965,7 +2002,7 @@ export default function IACondoPanel() {
                         </select>
                       </div>
 
-                      {!isAgentAppMode && (
+                      {isExecutiveRole && (
                         <div>
                           <label htmlFor={`agent-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
                             Agente Asignado
@@ -2143,7 +2180,7 @@ export default function IACondoPanel() {
                     Toda la Empresa ({salesCalls.length})
                   </button>
                   {users.map(u => {
-                    const count = salesCalls.filter(c => c.assignedAgentEmail === u.email).length;
+                    const count = salesCalls.filter(c => doesLeadBelongToAgent(c, u)).length;
                     const isFiltered = agentFilter === u.email;
                     return (
                       <button
