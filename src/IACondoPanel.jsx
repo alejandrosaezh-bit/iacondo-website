@@ -1072,6 +1072,76 @@ export default function IACondoPanel() {
   urgentPendingLeads.sort((a, b) => a.meta.sortKey - b.meta.sortKey);
   upcomingScheduledLeads.sort((a, b) => a.meta.sortKey - b.meta.sortKey);
 
+  // Lista consolidada de agentes disponibles para que el CEO pueda cambiar de vista desde el desplegable superior derecho
+  const availableTeamAgents = (() => {
+    const map = new Map();
+    const baseList = Array.isArray(users) && users.length > 0 ? users : [DEFAULT_CEO_USER];
+    baseList.forEach(u => {
+      if (u && u.email) {
+        map.set(String(u.email).toLowerCase(), u);
+      }
+    });
+    if (!map.has(DEFAULT_CEO_USER.email.toLowerCase())) {
+      map.set(DEFAULT_CEO_USER.email.toLowerCase(), DEFAULT_CEO_USER);
+    }
+    salesCalls.forEach(c => {
+      const em = String(c.assignedAgentEmail || '').trim().toLowerCase();
+      if (em && !map.has(em)) {
+        map.set(em, {
+          id: `agent_${em}`,
+          name: c.assignedAgentName || em.split('@')[0],
+          email: c.assignedAgentEmail,
+          role: 'ventas'
+        });
+      }
+    });
+    return Array.from(map.values()).map(agent => {
+      const agentLeads = salesCalls.filter(
+        c => String(c.assignedAgentEmail || 'alejandrosaezh@iacondo.com').toLowerCase() === String(agent.email).toLowerCase()
+      );
+      const agentActiveLeads = agentLeads.filter(c => !closedStatuses.includes(c.status || 'pendiente'));
+      const agentUrgentCount = agentActiveLeads.filter(c => classifyLeadFollowUp(c).bucket === 'urgent').length;
+      return {
+        ...agent,
+        totalLeadsCount: agentLeads.length,
+        urgentCount: agentUrgentCount
+      };
+    });
+  })();
+
+  const activeInspectedAgent =
+    availableTeamAgents.find(
+      u => String(u.email).toLowerCase() === String(activeAgentEmailForApp).toLowerCase()
+    ) || currentUser;
+
+  const handleCeoSwitcherChange = (rawValue) => {
+    if (rawValue === 'ceo_all') {
+      setViewMode('ceo');
+      setAgentFilter('todos');
+      showToast('👑 Vista CEO activada: Mostrando información de toda la empresa');
+      return;
+    }
+    if (rawValue === 'manage_agents') {
+      setViewMode('ceo');
+      setActiveTab('usuarios');
+      showToast('👥 Gestión de Equipo y Agentes abierta');
+      return;
+    }
+    if (rawValue.startsWith('agent:')) {
+      const targetEmail = rawValue.replace('agent:', '');
+      const foundAgent = availableTeamAgents.find(
+        u => String(u.email).toLowerCase() === String(targetEmail).toLowerCase()
+      );
+      setViewMode('agent_app');
+      setAgentFilter(targetEmail);
+      setActiveTab('agenda');
+      setAgentAppTab('pendientes');
+      showToast(
+        `📱 Viendo como ${foundAgent?.name || targetEmail}: Sus leads asignados y tareas pendientes`
+      );
+    }
+  };
+
   const selectedLead = salesCalls.find(c => (c.id || c._id) === selectedLeadId) || null;
 
   // ============================================================================
@@ -1387,10 +1457,62 @@ export default function IACondoPanel() {
             {loading ? '⏳' : '🔄'}
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(30, 41, 59, 0.85)', padding: '0.25rem 0.55rem', borderRadius: '8px', border: '1px solid rgba(148,163,184,0.2)' }}>
-            <span style={{ fontSize: '0.74rem', fontWeight: '700', color: '#e2e8f0' }}>
-              {currentUser.name?.split(' ')[0] || 'Agente'}
-            </span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: isExecutiveRole && isAgentAppMode ? 'rgba(16, 185, 129, 0.16)' : 'rgba(30, 41, 59, 0.9)',
+            padding: '0.22rem 0.45rem',
+            borderRadius: '8px',
+            border: isExecutiveRole && isAgentAppMode ? '1px solid rgba(16, 185, 129, 0.55)' : '1px solid rgba(56, 189, 248, 0.35)',
+            maxInlineSize: '100%'
+          }}>
+            {isExecutiveRole ? (
+              <select
+                id="ceo-agent-view-switcher"
+                name="ceoAgentViewSwitcher"
+                aria-label="Cambiar vista entre CEO y Agentes"
+                value={!isAgentAppMode ? 'ceo_all' : `agent:${activeAgentEmailForApp}`}
+                onChange={e => handleCeoSwitcherChange(e.target.value)}
+                style={{
+                  background: 'transparent',
+                  color: isAgentAppMode ? '#34d399' : '#e2e8f0',
+                  border: 'none',
+                  fontSize: '0.75rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  paddingBlock: '0.15rem',
+                  paddingInline: '0.2rem',
+                  maxInlineSize: '215px',
+                  textOverflow: 'ellipsis',
+                  outline: 'none'
+                }}
+              >
+                <option value="ceo_all" style={{ background: '#0f172a', color: '#38bdf8', fontWeight: '800' }}>
+                  👑 {currentUser.name?.split(' ')[0] || 'Alejandro'} (Vista CEO Empresa)
+                </option>
+                <optgroup label="📱 Ver como Agente Comercial (Sus Leads y Tareas):" style={{ background: '#0f172a', color: '#94a3b8' }}>
+                  {availableTeamAgents.map(agent => (
+                    <option
+                      key={agent.id || agent._id || agent.email}
+                      value={`agent:${agent.email}`}
+                      style={{ background: '#0f172a', color: '#f8fafc' }}
+                    >
+                      📱 {agent.name?.split(' ')[0] || agent.name} — {agent.name} ({agent.urgentCount} pend. · {agent.totalLeadsCount} leads)
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="⚙️ Equipo Comercial:" style={{ background: '#0f172a', color: '#94a3b8' }}>
+                  <option value="manage_agents" style={{ background: '#0f172a', color: '#fbbf24' }}>
+                    ➕ Agregar / Configurar Agentes...
+                  </option>
+                </optgroup>
+              </select>
+            ) : (
+              <span style={{ fontSize: '0.74rem', fontWeight: '700', color: '#e2e8f0' }}>
+                {currentUser.name?.split(' ')[0] || 'Agente'}
+              </span>
+            )}
             <button
               type="button"
               onClick={handleLogout}
@@ -1476,14 +1598,78 @@ export default function IACondoPanel() {
         ) : (
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
+            flexDirection: 'column',
+            gap: '0.55rem',
             marginBlockEnd: '1rem',
             borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
             paddingBlockEnd: '0.65rem'
           }}>
+            {/* Barra de inspección cuando el CEO está viendo la pantalla de un Agente */}
+            {isExecutiveRole && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '10px',
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.35)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap', fontSize: '0.78rem', color: '#e2e8f0' }}>
+                  <span>👁️ <strong>Viendo App de Seguimiento como:</strong></span>
+                  <span style={{ color: '#34d399', fontWeight: '800' }}>
+                    {activeInspectedAgent?.name || activeAgentEmailForApp}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                    ({urgentPendingLeads.length} pendientes · {upcomingScheduledLeads.length} eventos · {filteredSalesCalls.length} leads)
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {availableTeamAgents.map(u => {
+                    const active = String(activeAgentEmailForApp).toLowerCase() === String(u.email).toLowerCase();
+                    return (
+                      <button
+                        key={u.id || u._id || u.email}
+                        type="button"
+                        onClick={() => handleCeoSwitcherChange(`agent:${u.email}`)}
+                        style={{
+                          padding: '0.24rem 0.6rem',
+                          borderRadius: '999px',
+                          border: active ? '1px solid #10b981' : '1px solid rgba(148,163,184,0.25)',
+                          background: active ? 'rgba(16, 185, 129, 0.25)' : 'rgba(15, 23, 42, 0.8)',
+                          color: active ? '#fff' : '#cbd5e1',
+                          fontSize: '0.72rem',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        📱 {u.name.split(' ')[0]} ({u.urgentCount})
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => handleCeoSwitcherChange('ceo_all')}
+                    style={{
+                      padding: '0.24rem 0.65rem',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(56, 189, 248, 0.45)',
+                      background: 'rgba(14, 165, 233, 0.2)',
+                      color: '#38bdf8',
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    👑 Volver a Vista CEO
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
               {[
                 {
@@ -1520,35 +1706,6 @@ export default function IACondoPanel() {
                 </button>
               ))}
             </div>
-
-            {/* Si el CEO está previsualizando la App de Agente, puede elegir de qué agente ver la agenda */}
-            {isExecutiveRole && users.length > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: '700' }}>Agente:</span>
-                {users.map(u => {
-                  const active = String(activeAgentEmailForApp).toLowerCase() === String(u.email).toLowerCase();
-                  return (
-                    <button
-                      key={u.id || u._id || u.email}
-                      type="button"
-                      onClick={() => setAgentFilter(u.email)}
-                      style={{
-                        padding: '0.26rem 0.6rem',
-                        borderRadius: '999px',
-                        border: active ? '1px solid #10b981' : '1px solid rgba(148,163,184,0.25)',
-                        background: active ? 'rgba(16, 185, 129, 0.22)' : 'rgba(15, 23, 42, 0.7)',
-                        color: active ? '#fff' : '#cbd5e1',
-                        fontSize: '0.72rem',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {u.name.split(' ')[0]}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
         )}
 
@@ -2713,7 +2870,14 @@ export default function IACondoPanel() {
                             {isActive ? '🟢 En Guardia (Activo)' : '⏸️ Fuera de Guardia'}
                           </button>
 
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleCeoSwitcherChange(`agent:${u.email}`)}
+                              style={{ padding: '0.3rem 0.65rem', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}
+                            >
+                              📱 Ver como {u.name?.split(' ')[0] || 'Agente'}
+                            </button>
                             <button
                               type="button"
                               onClick={() => setUserForm({
