@@ -153,7 +153,7 @@ function App() {
           © {new Date().getFullYear()} SOLUCIONES DIGITALES CREAPPTIVAS C.A. — Todos los derechos reservados.
         </p>
         <p style={{ marginBottom: '1.25rem', fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-          IDENTIFICACIÓN DEL CONTRIBUYENTE • RIF: <strong style={{ color: '#cbd5e1' }}>J508901061</strong>
+          RIF: <strong style={{ color: '#cbd5e1' }}>J508901061</strong>
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem', flexWrap: 'wrap' }}>
           <a href="mailto:hola@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>📧 hola@iacondo.com</a>
