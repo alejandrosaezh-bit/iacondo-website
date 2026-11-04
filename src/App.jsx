@@ -479,7 +479,7 @@ function WebsiteOnboardingModal({ onClose }) {
   const buildLaunchAppUrl = () => {
     const cleanUnits = Math.min(300, Math.max(2, parseInt(totalUnits, 10) || 24));
     const hasAccess = accessControlType !== 'none';
-    const initialView = userRoleType === 'owner_only' ? 'owner' : 'admin';
+    const initialView = userRoleType === 'admin_only' ? 'admin' : 'owner';
     const params = new URLSearchParams({
       demo: '1',
       onboarding: '1',
