@@ -143,41 +143,55 @@ function App() {
         </div>
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(6,13,24,0.45) 0%, rgba(6,13,24,0.92) 100%)', zIndex: -1 }}></div>
 
-        <div style={{ maxWidth: '880px', width: '100%', minWidth: 0, textAlign: 'center', zIndex: 1 }} className="fade-in-up">
-          <span style={{ display: 'inline-block', padding: '0.45rem 1rem', background: 'rgba(14, 165, 233, 0.14)', color: 'var(--accent-primary)', borderRadius: '999px', fontWeight: '800', fontSize: 'clamp(0.75rem, 0.7rem + 0.3vw, 0.88rem)', marginBottom: '1.25rem', border: '1px solid rgba(14, 165, 233, 0.35)', maxWidth: '100%' }}>
-            ✨ UN PROGRAMA INTELIGENTE PARA UNA COMUNIDAD ORGANIZADA
+        <div style={{ maxWidth: '900px', width: '100%', minWidth: 0, textAlign: 'center', zIndex: 1 }} className="fade-in-up">
+          <span style={{ display: 'inline-block', padding: '0.45rem 1.1rem', background: 'rgba(16, 185, 129, 0.16)', color: '#34d399', borderRadius: '999px', fontWeight: '800', fontSize: 'clamp(0.75rem, 0.7rem + 0.3vw, 0.9rem)', marginBottom: '1.25rem', border: '1px solid rgba(16, 185, 129, 0.45)', maxWidth: '100%' }}>
+            🎁 ALTA 100% GRATIS + 30 DÍAS CON TODAS LAS FUNCIONES PREMIUM
           </span>
-          <h1 style={{ fontSize: 'clamp(1.85rem, 1.25rem + 3.6vw, 4.1rem)', fontWeight: '900', marginBottom: '1.25rem', wordBreak: 'break-word', lineHeight: 1.15 }}>
-            Todo lo que tu gestión necesita para una <br />
-            <span className="text-gradient">Comunidad Organizada e Inteligente.</span>
+          <h1 style={{ fontSize: 'clamp(1.9rem, 1.3rem + 3.6vw, 4.15rem)', fontWeight: '900', marginBottom: '1.25rem', wordBreak: 'break-word', lineHeight: 1.14 }}>
+            Descubre cómo la <span className="text-gradient">Inteligencia Artificial</span> <br />
+            puede gestionar tu Condominio.
           </h1>
-          <p style={{ fontSize: 'clamp(0.98rem, 0.9rem + 0.45vw, 1.22rem)', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto 2.2rem auto', lineHeight: '1.7' }}>
-            Automatiza cobros por cuota fija o alícuotas, controla el acceso de visitantes en garita y portón, concilia tus bancos con Inteligencia Artificial y brinda transparencia total a cada vecino desde su celular.
+          <p style={{ fontSize: 'clamp(1rem, 0.92rem + 0.45vw, 1.24rem)', color: '#e2e8f0', maxWidth: '740px', margin: '0 auto 1.4rem auto', lineHeight: '1.68' }}>
+            Da de alta tu condominio <strong>totalmente gratis</strong> y disfruta durante <strong>30 días de todas las funciones Premium</strong> para que descubras cómo gestionar tu condominio de forma inteligente: control de acceso, conciliación bancaria con IA, cobros automatizados y reserva de áreas comunes.
           </p>
+
+          {/* Píldoras de Confianza de la Promoción de 30 Días */}
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '2rem' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(52, 211, 153, 0.4)', color: '#6ee7b7', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+              ✓ Registro Gratis en 2 minutos
+            </span>
+            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#7dd3fc', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+              ⭐ 30 días de Plan Premium incluidos
+            </span>
+            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(255, 255, 255, 0.18)', color: '#cbd5e1', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+              🔓 Sin compromiso (Plan Gratuito permanente disponible)
+            </span>
+          </div>
+
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
             <button
               type="button"
               onClick={() => setShowOnboardingModal(true)}
               className="btn btn-primary"
               style={{
-                padding: 'clamp(0.9rem, 2.5vw, 1.1rem) clamp(1.4rem, 4vw, 2.2rem)',
-                fontSize: 'clamp(0.95rem, 0.88rem + 0.4vw, 1.1rem)',
-                fontWeight: '800',
+                padding: 'clamp(0.95rem, 2.5vw, 1.15rem) clamp(1.5rem, 4vw, 2.4rem)',
+                fontSize: 'clamp(0.96rem, 0.9rem + 0.4vw, 1.12rem)',
+                fontWeight: '900',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                boxShadow: '0 10px 28px rgba(16, 185, 129, 0.38)',
+                boxShadow: '0 10px 28px rgba(16, 185, 129, 0.42)',
                 whiteSpace: 'normal',
                 textAlign: 'center',
                 maxWidth: '100%',
                 border: 'none'
               }}
             >
-              🚀 Dar de Alta mi Condominio y Comenzar Ahora
+              🚀 Dar de Alta mi Condominio Gratis (30 Días Premium)
             </button>
             <a
               href="#features"
               className="btn btn-secondary"
               style={{
-                padding: 'clamp(0.9rem, 2.5vw, 1.1rem) clamp(1.3rem, 3.5vw, 2rem)',
+                padding: 'clamp(0.95rem, 2.5vw, 1.15rem) clamp(1.3rem, 3.5vw, 2rem)',
                 fontSize: 'clamp(0.92rem, 0.86rem + 0.35vw, 1.05rem)',
                 fontWeight: '700',
                 background: 'rgba(15, 23, 42, 0.65)',
@@ -209,13 +223,13 @@ function App() {
               letterSpacing: '0.5px',
               marginBottom: '0.85rem'
             }}>
-              ⚡ ECOSISTEMA INTEGRAL CON INTELIGENCIA ARTIFICIAL
+              ⚡ UN PROGRAMA INTELIGENTE PARA UNA COMUNIDAD ORGANIZADA
             </span>
             <h2 style={{ fontSize: 'clamp(1.7rem, 1.3rem + 2.2vw, 2.75rem)', fontWeight: '800', color: '#ffffff' }}>
-              Todo lo que tu gestión necesita en un <span className="text-gradient">Programa Inteligente</span>
+              Todo lo que tu gestión necesita para una <span className="text-gradient">Comunidad Organizada</span>
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.98rem, 0.92rem + 0.35vw, 1.15rem)', maxWidth: '720px', margin: '0.9rem auto 0 auto', lineHeight: 1.65 }}>
-              Diseñado para urbanizaciones, conjuntos de casas y residencias que buscan orden financiero, seguridad en sus accesos y una comunidad organizada sin horas de carga administrativa.
+              Conoce todas las bondades que tendrás activas desde el primer día durante tus 30 días de prueba Premium gratuita para ahorrar horas de trabajo administrativo y brindar total claridad financiera a tus vecinos.
             </p>
           </div>
 
@@ -249,13 +263,13 @@ function App() {
           >
             <div style={{ maxWidth: '680px' }}>
               <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#34d399', letterSpacing: '0.4px', marginBottom: '0.35rem' }}>
-                🚀 PUESTA EN MARCHA INMEDIATA Y PROGRESIVA
+                🎁 ALTA GRATIS + 30 DÍAS DE PLAN PREMIUM INCLUIDOS
               </div>
               <h3 style={{ fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.65rem)', color: '#ffffff', marginBottom: '0.45rem', fontWeight: '800' }}>
-                ¿Quieres verlo funcionando hoy mismo con el nombre y las propiedades de tu comunidad?
+                Descubre hoy mismo cómo la Inteligencia Artificial gestiona tu condominio
               </h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.95rem', margin: 0, lineHeight: 1.55 }}>
-                Completa los datos básicos en 2 minutos (nombre del condominio, número de propiedades, bancos, modalidad de cobro y áreas comunes) y comienza a usar el programa de inmediato. Nuestro <strong>Equipo de Soporte por WhatsApp</strong> te guiará paso a paso.
+                Registra tu condominio gratis en 2 minutos y disfruta durante <strong>30 días de todas las funciones Premium sin costo</strong>. Nuestro <strong>Equipo de Soporte por WhatsApp</strong> te acompañará paso a paso en la puesta en marcha.
               </p>
             </div>
             <button
@@ -273,7 +287,7 @@ function App() {
                 textAlign: 'center'
               }}
             >
-              🚀 Dar de Alta mi Condominio Ahora →
+              🚀 Dar de Alta mi Condominio Gratis →
             </button>
           </div>
         </div>
@@ -548,10 +562,10 @@ function WebsiteOnboardingModal({ onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
             <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#34d399', letterSpacing: '0.4px' }}>
-              🚀 ALTA INMEDIATA — PASO {step} DE 4
+              🎁 ALTA GRATIS + 30 DÍAS PREMIUM INCLUIDOS — PASO {step} DE 4
             </span>
             <h3 style={{ margin: '0.2rem 0 0 0', fontSize: '1.3rem', fontWeight: '900', color: '#ffffff' }}>
-              Configura tu Comunidad y Comienza Ahora
+              Da de Alta tu Condominio y Comienza Ahora
             </h3>
           </div>
           <button
