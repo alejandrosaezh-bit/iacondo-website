@@ -489,9 +489,14 @@ function WebsiteOnboardingModal({ onClose }) {
       access: hasAccess ? '1' : '0',
       quota: String(Number(quotaUSD) || 25),
       client: (clientName || '').trim(),
+      email: (clientEmail || '').trim(),
+      phone: (clientPhone || '').trim(),
+      ownerUnit: String(ownerUnitNumber || 1),
       roleType: userRoleType,
       billing: billingMethod,
       currency: baseCurrency,
+      banks: selectedBanks.join(','),
+      areas: selectedAreas.join(','),
       view: initialView
     });
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
