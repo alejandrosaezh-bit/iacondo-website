@@ -113,13 +113,40 @@ export default function IACondoPanel() {
   const [sessions, setSessions] = useState([]);
   const [aiAgents, setAiAgents] = useState([]);
 
+  const DEFAULT_CARLOS_GLOBAL_CONFIG = {
+    globalPersonalityAndTone: `1. COMPRENSIÓN HUMANA E INTELIGENTE (CERO ROBOT):
+- Lee siempre la oración completa y el historial antes de actuar. Nunca dispares acciones por palabras sueltas (por ejemplo, si el vecino pregunta "¿tengo algún delivery o invitado activo?", está consultando la lista, no creando un pase).
+- Si lo que pide el vecino es ambiguo o incompleto, hazle preguntas cálidas, breves y naturales hasta entender exactamente qué tarea necesita.
+- Mantén mensajes cortos de WhatsApp (máximo 2 párrafos breves, sin menús numerados robóticos ni listas de comandos repetitivas).`,
+    taskRules: {
+      guestInvitation: `REGLAS OBLIGATORIAS PARA CREAR INVITACIÓN DE VISITA / INVITADO:
+Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse de solicitar y conocer estos campos necesarios:
+1) Nombre y Apellido real del invitado: Si el vecino solo menciona un parentesco ("viene mi hermano", "mi mamá", "un amigo", "el hermano del invitado"), PROHIBIDO crear la invitación con la palabra "Hermano"; pregúntale cómo se llama.
+2) Duración de la invitación: ¿Por cuánto tiempo estará vigente el pase? (ej. por unas horas, solo por hoy / 24 horas, 2 días, fin de semana).
+3) Modo de ingreso: ¿Viene en carro/vehículo, en moto o entra a pie (peatonal)?
+4) Cédula y Placa: Preguntar si conoce el número de cédula del invitado y, si viene en vehículo o moto, el número de placa (si el vecino indica que no conoce la cédula o la placa en ese momento, se permite continuar dejando constancia).
+5) Teléfono (opcional): Si desea indicar el celular del invitado para enviarle el Pase QR directo a su WhatsApp o habilitarle apertura de portón.`,
+      deliveryPass: `REGLAS PARA PASES DE DELIVERY, ENCOMIENDAS Y SERVICIOS TÉCNICOS:
+- Todo pase de delivery, encomienda o proveedor tiene una vigencia corta de 2 horas por seguridad.
+- Dato mínimo obligatorio antes de crearlo: saber qué empresa, servicio o repartidor viene (ej. Farmatodo, PedidosYa, MRW, Plomero, Técnico de Internet). Si solo dice "viene un delivery", pregúntale de qué empresa o servicio es.
+- 20 minutos antes de vencer el pase (si no se ha registrado su entrada en garita), pregúntale por WhatsApp al vecino si ya llegó para eliminar el pase, o si aún no ha llegado para extendérselo por 2 horas más.`,
+      gateAndAuthorized: `REGLAS PARA ACCESO CONSTANTE AL PORTÓN Y PERSONAS AUTORIZADAS:
+- Acceso frecuente al portón: requiere el nombre/parentesco y el número de teléfono celular para asignarle posición en el portón y notificar a vigilancia.
+- Personas autorizadas (familiares, pareja, inquilinos): requiere nombre completo, teléfono celular y parentesco/rol, para luego mostrar el Cuadro de Selección de Permisos (1 al 6) y enviarle su invitación a la App.`,
+      paymentsAndReceipts: `REGLAS PARA PAGOS, BANCOS, ESTADOS DE CUENTA Y RECIBOS:
+- Datos bancarios: entrega únicamente las cuentas oficiales registradas en el condominio en burbujas separadas fáciles de copiar (Banco, Titular, Cédula/RIF, Cuenta y Monto exacto en Bs a tasa BCV). Prohibido inventar bancos.
+- Reporte de pagos: acepta capturas/fotos del comprobante (vía visión IA) o texto con Monto y Referencia. Regístralo en Proceso de Conciliación, descuéntalo de la deuda visible y notifica a la Junta.`
+    }
+  };
+
   // Playbook Form State
   const [playbookForm, setPlaybookForm] = useState({
     agentName: 'Sofía',
     companyName: 'IA Condo',
     humanAgentCalendarEmail: 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
     humanAgentWhatsapp: '+34651626150',
-    customInstructions: ''
+    customInstructions: '',
+    carlosGlobalConfig: DEFAULT_CARLOS_GLOBAL_CONFIG
   });
 
   // User Form State
@@ -234,12 +261,22 @@ export default function IACondoPanel() {
         setSessions(dashData.sessions || []);
         setAiAgents(dashData.aiAgents || []);
         if (dashData.playbook) {
+          const cfg = dashData.playbook.carlosGlobalConfig || {};
           setPlaybookForm({
             agentName: dashData.playbook.agentName || 'Sofía',
             companyName: 'IA Condo',
             humanAgentCalendarEmail: dashData.playbook.humanAgentCalendarEmail || 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
             humanAgentWhatsapp: dashData.playbook.humanAgentWhatsapp || '+34651626150',
-            customInstructions: dashData.playbook.customInstructions || ''
+            customInstructions: dashData.playbook.customInstructions || '',
+            carlosGlobalConfig: {
+              globalPersonalityAndTone: cfg.globalPersonalityAndTone || DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
+              taskRules: {
+                guestInvitation: cfg.taskRules?.guestInvitation || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.guestInvitation,
+                deliveryPass: cfg.taskRules?.deliveryPass || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.deliveryPass,
+                gateAndAuthorized: cfg.taskRules?.gateAndAuthorized || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.gateAndAuthorized,
+                paymentsAndReceipts: cfg.taskRules?.paymentsAndReceipts || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.paymentsAndReceipts
+              }
+            }
           });
         }
       }
@@ -3267,16 +3304,97 @@ export default function IACondoPanel() {
 
                   <div>
                     <label htmlFor="pb-instructions" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                      Directrices de Personalidad, Enlace Demo ({DEMO_URL}) y Reglas de Negocio
+                      Directrices de Personalidad de Sofía IA (Ventas / Demos {DEMO_URL})
                     </label>
                     <textarea
                       id="pb-instructions"
                       name="customInstructions"
-                      rows={10}
+                      rows={8}
                       value={playbookForm.customInstructions}
                       onChange={e => setPlaybookForm({ ...playbookForm, customInstructions: e.target.value })}
                       style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem', lineHeight: '1.5' }}
                     />
+                  </div>
+
+                  {/* NORMAS MAESTRAS DEL AGENTE DE CONDOMINIO (CARLOS) APLICABLES A TODOS LOS CONDOMINIOS DE IA CONDO */}
+                  <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.75rem' }}>
+                    <div>
+                      <span style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.45)', borderRadius: '999px', padding: '0.18rem 0.6rem', fontSize: '0.7rem', fontWeight: '800', marginBottom: '0.35rem' }}>
+                        🌐 ESTÁNDAR GLOBAL PARA TODOS LOS CONDOMINIOS
+                      </span>
+                      <h3 style={{ margin: 0, fontSize: '0.96rem', color: '#f8fafc' }}>
+                        🧠 Entrenamiento Maestro del Agente de Condominio (Carlos IA)
+                      </h3>
+                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.77rem', color: '#94a3b8', lineHeight: 1.45 }}>
+                        Determina cómo piensa el agente de soporte al vecino y qué datos obligatorios exige antes de ejecutar tareas (Invitaciones de Visita, Pases de Delivery 2h, Portón y Pagos) en todos los condominios que operan con IA Condo.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                        1️⃣ Comprensión Semántica y Regla de &ldquo;Preguntar hasta Entender&rdquo;
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || ''}
+                        onChange={e =>
+                          setPlaybookForm({
+                            ...playbookForm,
+                            carlosGlobalConfig: {
+                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                              globalPersonalityAndTone: e.target.value
+                            }
+                          })
+                        }
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#34d399', marginBottom: '0.25rem' }}>
+                        2️⃣ Campos Obligatorios para Invitaciones de Visita (Nombre Real, Duración, Carro/Moto/A pie, Cédula y Placa)
+                      </label>
+                      <textarea
+                        rows={6}
+                        value={playbookForm.carlosGlobalConfig?.taskRules?.guestInvitation || ''}
+                        onChange={e =>
+                          setPlaybookForm({
+                            ...playbookForm,
+                            carlosGlobalConfig: {
+                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                              taskRules: {
+                                ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                guestInvitation: e.target.value
+                              }
+                            }
+                          })
+                        }
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#fbbf24', marginBottom: '0.25rem' }}>
+                        3️⃣ Reglas para Pases de Delivery / Encomiendas (Vigencia 2h + Consulta antes de vencer)
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={playbookForm.carlosGlobalConfig?.taskRules?.deliveryPass || ''}
+                        onChange={e =>
+                          setPlaybookForm({
+                            ...playbookForm,
+                            carlosGlobalConfig: {
+                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                              taskRules: {
+                                ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                deliveryPass: e.target.value
+                              }
+                            }
+                          })
+                        }
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
+                      />
+                    </div>
                   </div>
 
                   <button
@@ -3291,7 +3409,7 @@ export default function IACondoPanel() {
                       cursor: 'pointer'
                     }}
                   >
-                    🚀 Aplicar Entrenamiento en Vivo a Sofía IA
+                    🚀 Aplicar Entrenamiento en Vivo a Sofía y Carlos IA (Global)
                   </button>
                 </fieldset>
               </form>
