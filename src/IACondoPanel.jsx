@@ -272,6 +272,8 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     return null;
   });
   const deepLinkHandledRef = useRef(false);
+  const playbookLoadedRef = useRef(false);
+  const playbookDirtyRef = useRef(false);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedLeadSectionRef = useRef(null);
   const [callFilter, setCallFilter] = useState('todos');
@@ -333,8 +335,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     setTimeout(() => setSyncMessage(''), 4500);
   };
 
-  const fetchDashboard = useCallback(async () => {
-    setLoading(true);
+  const fetchDashboard = useCallback(async (options = {}) => {
+    const isBackground = Boolean(options && options.background);
+    const forceRefreshPlaybook = Boolean(options && options.forceRefreshPlaybook);
+    if (!isBackground) {
+      setLoading(true);
+    }
     try {
       const [dashRes, statusRes] = await Promise.all([
         fetch(`${API_BASE}/api/iacondo-panel/dashboard`),
@@ -348,21 +354,33 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         setCalls(dashData.calls || []);
         setSessions(dashData.sessions || []);
         setAiAgents(dashData.aiAgents || []);
-        if (dashData.playbook) {
+        // Solo cargar el formulario de directrices la primera vez o cuando se pida explícitamente,
+        // NUNCA durante el refresco automático en segundo plano (para no borrar lo que el usuario está escribiendo ni mover el cursor)
+        if (dashData.playbook && (forceRefreshPlaybook || (!playbookLoadedRef.current && !playbookDirtyRef.current))) {
+          playbookLoadedRef.current = true;
           const cfg = dashData.playbook.carlosGlobalConfig || {};
+          const sofiaAgentFromDb = (dashData.aiAgents || []).find(a => a && a.id === 'agent_comercial_sofia');
           setPlaybookForm({
             agentName: dashData.playbook.agentName || 'Sofía',
             companyName: 'IA Condo',
-            humanAgentCalendarEmail: dashData.playbook.humanAgentCalendarEmail || 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
-            humanAgentWhatsapp: dashData.playbook.humanAgentWhatsapp || '+34651626150',
-            customInstructions: dashData.playbook.customInstructions || '',
+            humanAgentCalendarEmail: dashData.playbook.humanAgentCalendarEmail ?? 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
+            humanAgentWhatsapp: dashData.playbook.humanAgentWhatsapp ?? '+34651626150',
+            customInstructions:
+              dashData.playbook.customInstructions ||
+              sofiaAgentFromDb?.trainingInstructions ||
+              '',
             carlosGlobalConfig: {
-              globalPersonalityAndTone: cfg.globalPersonalityAndTone || DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
+              globalPersonalityAndTone:
+                cfg.globalPersonalityAndTone ?? DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
               taskRules: {
-                guestInvitation: cfg.taskRules?.guestInvitation || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.guestInvitation,
-                deliveryPass: cfg.taskRules?.deliveryPass || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.deliveryPass,
-                gateAndAuthorized: cfg.taskRules?.gateAndAuthorized || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.gateAndAuthorized,
-                paymentsAndReceipts: cfg.taskRules?.paymentsAndReceipts || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.paymentsAndReceipts
+                guestInvitation:
+                  cfg.taskRules?.guestInvitation ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.guestInvitation,
+                deliveryPass:
+                  cfg.taskRules?.deliveryPass ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.deliveryPass,
+                gateAndAuthorized:
+                  cfg.taskRules?.gateAndAuthorized ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.gateAndAuthorized,
+                paymentsAndReceipts:
+                  cfg.taskRules?.paymentsAndReceipts ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.paymentsAndReceipts
               }
             }
           });
@@ -374,14 +392,16 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     } catch (e) {
       console.error('Error cargando panel IA Condo:', e);
     } finally {
-      setLoading(false);
+      if (!isBackground) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
     if (currentUser) {
-      fetchDashboard();
-      const interval = setInterval(fetchDashboard, 25000);
+      fetchDashboard({ background: false });
+      const interval = setInterval(() => fetchDashboard({ background: true }), 25000);
       return () => clearInterval(interval);
     }
   }, [currentUser, fetchDashboard]);
@@ -1026,6 +1046,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       'agent_elena_facturacion',
       'agent_sofia_soporte',
       'agent_sofia_omnicanal',
+      'agent_sofia_principal',
       'agent_marcos_soporte'
     ]);
     const validFromDb = (Array.isArray(aiAgents) ? aiAgents : []).filter(
@@ -1076,6 +1097,16 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     }
     const ag = agentObjOrNew;
     setSelectedAiAgentId(ag.id);
+    const resolvedSofiaInstructions =
+      ag.id === 'agent_comercial_sofia'
+        ? playbookForm.customInstructions || ag.trainingInstructions || ''
+        : ag.trainingInstructions || '';
+    if (ag.id === 'agent_comercial_sofia' && !playbookForm.customInstructions && ag.trainingInstructions) {
+      setPlaybookForm(prev => ({
+        ...prev,
+        customInstructions: ag.trainingInstructions
+      }));
+    }
     setAgentForm({
       id: ag.id,
       name: ag.name || '',
@@ -1083,10 +1114,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       role: ag.role || '',
       channels: Array.isArray(ag.channels) ? ag.channels.join(', ') : ag.channels || 'WhatsApp (0422-2537239)',
       description: ag.description || '',
-      trainingInstructions:
-        ag.id === 'agent_comercial_sofia'
-          ? playbookForm.customInstructions || ag.trainingInstructions || ''
-          : ag.trainingInstructions || '',
+      trainingInstructions: resolvedSofiaInstructions,
       active: ag.active !== false,
       isFixedCore: Boolean(ag.isFixedCore),
       agentCategory: ag.agentCategory || 'iacondo_custom'
@@ -1103,8 +1131,8 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       });
       const data = await res.json();
       if (data.ok) {
+        playbookDirtyRef.current = false;
         showToast('🧠 Entrenamiento actualizado en vivo para WhatsApp, Web y Condominios');
-        fetchDashboard();
       }
     } catch {
       showToast('⚠️ Error guardando el entrenamiento');
@@ -1123,35 +1151,33 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         trainingInstructions: isSofia
           ? playbookForm.customInstructions
           : isCondoMaster
-          ? playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || agentForm.trainingInstructions
+          ? playbookForm.carlosGlobalConfig?.globalPersonalityAndTone ?? agentForm.trainingInstructions
           : agentForm.trainingInstructions,
-        carlosGlobalConfig: isCondoMaster ? playbookForm.carlosGlobalConfig : undefined
+        carlosGlobalConfig: isCondoMaster ? playbookForm.carlosGlobalConfig : undefined,
+        humanAgentWhatsapp: isSofia ? playbookForm.humanAgentWhatsapp : undefined,
+        humanAgentCalendarEmail: isSofia ? playbookForm.humanAgentCalendarEmail : undefined
       };
 
-      const requests = [
-        fetch(`${API_BASE}/api/iacondo-panel/ai-agents`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-      ];
+      const res = await fetch(`${API_BASE}/api/iacondo-panel/ai-agents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
       if (isSofia || isCondoMaster) {
-        requests.push(
-          fetch(`${API_BASE}/api/sofia-whatsapp/playbook`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...playbookForm,
-              agentName: isSofia ? agentForm.shortName || playbookForm.agentName || 'Sofía' : playbookForm.agentName
-            })
+        await fetch(`${API_BASE}/api/sofia-whatsapp/playbook`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...playbookForm,
+            agentName: isSofia ? agentForm.shortName || playbookForm.agentName || 'Sofía' : playbookForm.agentName
           })
-        );
+        }).catch(() => {});
       }
 
-      const [res] = await Promise.all(requests);
       const data = await res.json();
       if (data.ok) {
+        playbookDirtyRef.current = false;
         showToast(
           selectedAiAgentId === '__new__'
             ? `✅ Nuevo agente "${agentForm.name}" creado y listo para entrenar`
@@ -1166,7 +1192,6 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
             }
           }
         }
-        fetchDashboard();
       } else {
         showToast(`⚠️ ${data.error || 'No se pudo guardar el agente'}`);
       }
@@ -3770,8 +3795,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         type="text"
                         required
                         placeholder="Ej. Amanda — Agente de Servicio al Cliente"
-                        value={agentForm.name}
-                        onChange={e => setAgentForm({ ...agentForm, name: e.target.value })}
+                        value={agentForm.name ?? ''}
+                        onChange={e => {
+                          playbookDirtyRef.current = true;
+                          const val = e.target.value;
+                          setAgentForm(prev => ({ ...prev, name: val }));
+                        }}
                         style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontWeight: '700' }}
                       />
                     </div>
@@ -3784,8 +3813,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         type="text"
                         required
                         placeholder="Ej. Servicio al Cliente y Soporte IA Condo"
-                        value={agentForm.role}
-                        onChange={e => setAgentForm({ ...agentForm, role: e.target.value })}
+                        value={agentForm.role ?? ''}
+                        onChange={e => {
+                          playbookDirtyRef.current = true;
+                          const val = e.target.value;
+                          setAgentForm(prev => ({ ...prev, role: val }));
+                        }}
                         style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
@@ -3796,8 +3829,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       </label>
                       <input
                         type="text"
-                        value={agentForm.channels}
-                        onChange={e => setAgentForm({ ...agentForm, channels: e.target.value })}
+                        value={agentForm.channels ?? ''}
+                        onChange={e => {
+                          playbookDirtyRef.current = true;
+                          const val = e.target.value;
+                          setAgentForm(prev => ({ ...prev, channels: val }));
+                        }}
                         style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#38bdf8', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
@@ -3809,8 +3846,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                     </label>
                     <textarea
                       rows={2}
-                      value={agentForm.description}
-                      onChange={e => setAgentForm({ ...agentForm, description: e.target.value })}
+                      value={agentForm.description ?? ''}
+                      onChange={e => {
+                        playbookDirtyRef.current = true;
+                        const val = e.target.value;
+                        setAgentForm(prev => ({ ...prev, description: val }));
+                      }}
                       placeholder="Resumen de qué hace este agente dentro de IA Condo..."
                       style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#e2e8f0', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem' }}
                     />
@@ -3826,8 +3867,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <input
                             type="tel"
-                            value={playbookForm.humanAgentWhatsapp}
-                            onChange={e => setPlaybookForm({ ...playbookForm, humanAgentWhatsapp: e.target.value })}
+                            value={playbookForm.humanAgentWhatsapp ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({ ...prev, humanAgentWhatsapp: val }));
+                            }}
                             style={{ width: '100%', padding: '0.58rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                           />
                         </div>
@@ -3837,8 +3882,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <input
                             type="text"
-                            value={playbookForm.humanAgentCalendarEmail}
-                            onChange={e => setPlaybookForm({ ...playbookForm, humanAgentCalendarEmail: e.target.value })}
+                            value={playbookForm.humanAgentCalendarEmail ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({ ...prev, humanAgentCalendarEmail: val }));
+                            }}
                             style={{ width: '100%', padding: '0.58rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                           />
                         </div>
@@ -3850,8 +3899,13 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         </label>
                         <textarea
                           rows={10}
-                          value={playbookForm.customInstructions}
-                          onChange={e => setPlaybookForm({ ...playbookForm, customInstructions: e.target.value })}
+                          value={playbookForm.customInstructions ?? ''}
+                          onChange={e => {
+                            playbookDirtyRef.current = true;
+                            const val = e.target.value;
+                            setPlaybookForm(prev => ({ ...prev, customInstructions: val }));
+                            setAgentForm(prev => ({ ...prev, trainingInstructions: val }));
+                          }}
                           style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.83rem', lineHeight: 1.5 }}
                         />
                       </div>
@@ -3875,16 +3929,18 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         </label>
                         <textarea
                           rows={4}
-                          value={playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || ''}
-                          onChange={e =>
-                            setPlaybookForm({
-                              ...playbookForm,
+                          value={playbookForm.carlosGlobalConfig?.globalPersonalityAndTone ?? ''}
+                          onChange={e => {
+                            playbookDirtyRef.current = true;
+                            const val = e.target.value;
+                            setPlaybookForm(prev => ({
+                              ...prev,
                               carlosGlobalConfig: {
-                                ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
-                                globalPersonalityAndTone: e.target.value
+                                ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                globalPersonalityAndTone: val
                               }
-                            })
-                          }
+                            }));
+                          }}
                           style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem', lineHeight: 1.45 }}
                         />
                       </div>
@@ -3896,19 +3952,21 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <textarea
                             rows={7}
-                            value={playbookForm.carlosGlobalConfig?.taskRules?.guestInvitation || ''}
-                            onChange={e =>
-                              setPlaybookForm({
-                                ...playbookForm,
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.guestInvitation ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({
+                                ...prev,
                                 carlosGlobalConfig: {
-                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
                                   taskRules: {
-                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                    guestInvitation: e.target.value
+                                    ...(prev.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    guestInvitation: val
                                   }
                                 }
-                              })
-                            }
+                              }));
+                            }}
                             style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
                           />
                         </div>
@@ -3919,19 +3977,21 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <textarea
                             rows={7}
-                            value={playbookForm.carlosGlobalConfig?.taskRules?.deliveryPass || ''}
-                            onChange={e =>
-                              setPlaybookForm({
-                                ...playbookForm,
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.deliveryPass ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({
+                                ...prev,
                                 carlosGlobalConfig: {
-                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
                                   taskRules: {
-                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                    deliveryPass: e.target.value
+                                    ...(prev.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    deliveryPass: val
                                   }
                                 }
-                              })
-                            }
+                              }));
+                            }}
                             style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
                           />
                         </div>
@@ -3942,19 +4002,21 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <textarea
                             rows={5}
-                            value={playbookForm.carlosGlobalConfig?.taskRules?.gateAndAuthorized || ''}
-                            onChange={e =>
-                              setPlaybookForm({
-                                ...playbookForm,
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.gateAndAuthorized ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({
+                                ...prev,
                                 carlosGlobalConfig: {
-                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
                                   taskRules: {
-                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                    gateAndAuthorized: e.target.value
+                                    ...(prev.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    gateAndAuthorized: val
                                   }
                                 }
-                              })
-                            }
+                              }));
+                            }}
                             style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
                           />
                         </div>
@@ -3965,19 +4027,21 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           </label>
                           <textarea
                             rows={5}
-                            value={playbookForm.carlosGlobalConfig?.taskRules?.paymentsAndReceipts || ''}
-                            onChange={e =>
-                              setPlaybookForm({
-                                ...playbookForm,
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.paymentsAndReceipts ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({
+                                ...prev,
                                 carlosGlobalConfig: {
-                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
                                   taskRules: {
-                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                    paymentsAndReceipts: e.target.value
+                                    ...(prev.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    paymentsAndReceipts: val
                                   }
                                 }
-                              })
-                            }
+                              }));
+                            }}
                             style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
                           />
                         </div>
@@ -3999,8 +4063,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           rows={10}
                           required
                           placeholder="Escribe aquí las instrucciones detalladas de entrenamiento para este agente..."
-                          value={agentForm.trainingInstructions}
-                          onChange={e => setAgentForm({ ...agentForm, trainingInstructions: e.target.value })}
+                          value={agentForm.trainingInstructions ?? ''}
+                          onChange={e => {
+                            playbookDirtyRef.current = true;
+                            const val = e.target.value;
+                            setAgentForm(prev => ({ ...prev, trainingInstructions: val }));
+                          }}
                           style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.35)', fontSize: '0.83rem', lineHeight: 1.5 }}
                         />
                       </div>
@@ -4010,12 +4078,13 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                     {selectedAiAgentId === 'agent_condominios_base' && (
                       <button
                         type="button"
-                        onClick={() =>
-                          setPlaybookForm({
-                            ...playbookForm,
+                        onClick={() => {
+                          playbookDirtyRef.current = true;
+                          setPlaybookForm(prev => ({
+                            ...prev,
                             carlosGlobalConfig: DEFAULT_CARLOS_GLOBAL_CONFIG
-                          })
-                        }
+                          }));
+                        }}
                         style={{
                           padding: '0.65rem 1rem',
                           borderRadius: '10px',
