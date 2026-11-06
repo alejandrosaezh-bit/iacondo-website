@@ -125,7 +125,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 2) Duración de la invitación: ¿Por cuánto tiempo estará vigente el pase? (ej. por unas horas, solo por hoy / 24 horas, 2 días, fin de semana).
 3) Modo de ingreso: ¿Viene en carro/vehículo, en moto o entra a pie (peatonal)?
 4) Cédula y Placa: Preguntar si conoce el número de cédula del invitado y, si viene en vehículo o moto, el número de placa (si el vecino indica que no conoce la cédula o la placa en ese momento, se permite continuar dejando constancia).
-5) Teléfono (opcional): Si desea indicar el celular del invitado para enviarle el Pase QR directo a su WhatsApp o habilitarle apertura de portón.`,
+5) Teléfono del Invitado (opcional) y Entrega del Pase:
+   - Siempre enviar la notificación a Vigilancia / Garita al crear la invitación.
+   - Si el vecino da el número de teléfono del invitado: el Agente envía directamente por WhatsApp al invitado el Pase de Acceso con su enlace QR y ubicación.
+   - Si el vecino NO tiene o no da el número del invitado: el Agente envía una burbuja de mensaje aparte lista para reenviar con 1 toque desde WhatsApp ("¡Hola (Invitado)! Aquí (Vecino) te ha enviado el Pase de Acceso a (Conjunto)..." + enlace QR + enlace para chatear con Sofía de IA Condo si desea el sistema en su condominio).`,
       deliveryPass: `REGLAS PARA PASES DE DELIVERY, ENCOMIENDAS Y SERVICIOS TÉCNICOS:
 - Todo pase de delivery, encomienda o proveedor tiene una vigencia corta de 2 horas por seguridad.
 - Dato mínimo obligatorio antes de crearlo: saber qué empresa, servicio o repartidor viene (ej. Farmatodo, PedidosYa, MRW, Plomero, Técnico de Internet). Si solo dice "viene un delivery", pregúntale de qué empresa o servicio es.
