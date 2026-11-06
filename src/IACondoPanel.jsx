@@ -17,7 +17,7 @@ const CONTACT_OUTCOME_OPTIONS = [
   { id: 'acordo_visita_demo', label: '🎯 Se acordó Visita / Demo en vivo (Avanza a Fase 2: Demo)' },
   { id: 'envio_cotizacion', label: '📊 Se realizó Demo y se envió Cotización (Avanza a Fase 3: Cotización)' },
   { id: 'espera_asamblea', label: '⏳ En espera de aprobación en Asamblea / Junta (Fase 4: En Espera)' },
-  { id: 'aprobo_contratacion', label: '🚀 ¡Aprobó Contratación! (Pasa a Fase 5: Implementación con Diego IA)' },
+  { id: 'aprobo_contratacion', label: '🚀 ¡Aprobó Contratación! (Pasa a Fase 5: Implementación con Agente de Implementación)' },
   { id: 'volver_a_contactar', label: '📅 Requiere volver a contactar (Re-agendar en Calendario y Alertas)' },
   { id: 'no_contesto', label: '📵 No contestó / Buzón de voz (Re-agendar próximo intento)' },
   { id: 'descartado', label: '❌ Descartado / Sin interés por ahora (Fase 7: Perdido)' }
@@ -50,7 +50,7 @@ const CALL_STATUS_LABELS = {
   demo_realizada: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
   cotizacion: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
   en_espera: { label: '4. En Espera (Asamblea / Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)' },
-  implementacion: { label: '5. En Implementación (Diego IA + Programación)', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
+  implementacion: { label: '5. En Implementación (Agente de Implementación + Programación)', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
   afiliado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
   ganado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
   descartado: { label: '7. Perdido / Descartado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
@@ -66,9 +66,9 @@ const CHAIN_ACTION_LABELS = {
   nuevo: '✅ Fase 1 Cumplida: Marcar Contactado + Demo Enviado → Pasar a Fase 2 (Demo)',
   contactado: '📊 Fase 2 Cumplida: Demo Realizado → Pasar a Fase 3 (Cotización % o Fijo)',
   visita_demo: '📊 Fase 2 Cumplida: Demo Realizado → Pasar a Fase 3 (Cotización % o Fijo)',
-  demo_realizada: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Diego IA + 💻 Programación',
-  cotizacion: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Diego IA + 💻 Programación',
-  en_espera: '🚀 Asamblea Aprobó → Transferir a 🤖 Diego IA + 💻 Programación (Implementación)',
+  demo_realizada: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Agente de Implementación + 💻 Programación',
+  cotizacion: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Agente de Implementación + 💻 Programación',
+  en_espera: '🚀 Asamblea Aprobó → Transferir a 🤖 Agente de Implementación + 💻 Programación (Implementación)',
   implementacion: '🏁 Fase 4 Cumplida: Datos y Carga Listos → Activar Condominio (Pasar a Facturación)'
 };
 
@@ -164,15 +164,100 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     active: true
   });
 
+  const FIXED_CORE_AGENTS_FALLBACK = [
+    {
+      id: 'agent_comercial_sofia',
+      name: 'Sofía — Agente de Comercialización',
+      shortName: 'Sofía',
+      agentCategory: 'iacondo_fixed',
+      isFixedCore: true,
+      sortOrder: 1,
+      role: 'Agente de Comercialización: Captación, Demos Personalizados y Agendamiento (.ics)',
+      channels: ['WhatsApp (0422-2537239)', 'Chat Web (iacondo.com)', 'Correo (hola@iacondo.com)'],
+      description:
+        'Atiende en tiempo real a juntas de condominio y administradores interesados en IA Condo. Explica beneficios, solicita los 3 datos para el Demo Personalizado, agenda llamadas (.ics) y asigna el lead.',
+      trainingInstructions: '',
+      active: true
+    },
+    {
+      id: 'agent_implementacion',
+      name: 'Agente de Implementación',
+      shortName: 'Implementación',
+      agentCategory: 'iacondo_fixed',
+      isFixedCore: true,
+      sortOrder: 2,
+      role: 'Agente de Implementación: Onboarding, Censo de Inmuebles, Alícuotas y Puesta en Marcha',
+      channels: ['WhatsApp (0422-2537239)', 'Correo (hola@iacondo.com)', 'panel.iacondo.com'],
+      description:
+        'Se activa cuando un condominio aprueba contratar IA Condo. Guía paso a paso a la Junta o Administración para recolectar la planilla de inmuebles y propietarios, alícuotas, saldos iniciales, cuentas bancarias y configuración de garita/portón.',
+      trainingInstructions: `ROL Y OBJETIVO DEL AGENTE DE IMPLEMENTACIÓN DE IA CONDO:
+1. Bienvenida y Onboarding: Da una bienvenida cálida y ejecutiva a la Junta de Condominio o Administración que acaba de aprobar la contratación de IA Condo.
+2. Recolección Estructurada de Datos de Arranque (Paso a Paso):
+   - Paso 1: Solicita el listado o planilla (Excel, PDF o texto) con los inmuebles (casas o apartamentos), nombre del propietario, teléfono WhatsApp, correo electrónico y alícuota (o confirma si manejan cuota fija en USD).
+   - Paso 2: Solicita los saldos iniciales (quiénes están solventes, quiénes tienen deuda acumulada o saldo a favor).
+   - Paso 3: Solicita los datos de las cuentas bancarias oficiales del condominio (Banco, 20 dígitos, RIF/Cédula, Pago Móvil, Zelle/Efectivo) y la frecuencia deseada de conciliación bancaria.
+   - Paso 4: Confirma cómo desean llamar al Agente de su Condominio (ej. "Carlos", "Pepe", etc.), qué miembro de la Junta recibirá los reportes de incidencias y cuál es el teléfono de la Garita de Vigilancia y del motor del portón.
+3. Estilo de Comunicación: Claro, organizado, paciente y resolutivo. Mensajes breves por WhatsApp (máximo 2 párrafos cortos por turno).`,
+      active: true
+    },
+    {
+      id: 'agent_servicio_amanda',
+      name: 'Amanda — Agente de Servicio al Cliente',
+      shortName: 'Amanda',
+      agentCategory: 'iacondo_fixed',
+      isFixedCore: true,
+      sortOrder: 3,
+      role: 'Agente de Servicio al Cliente: Atención, Soporte Operativo y Asistencia IA Condo',
+      channels: ['WhatsApp (0422-2537239)', 'soporte.iacondo.com', 'Correo (soporte@iacondo.com)'],
+      description:
+        'Nuestra agente oficial de Servicio al Cliente de IA Condo. Atiende dudas sobre el uso del sistema, requerimientos de soporte técnico de Juntas de Condominio y administradores, seguimiento de tickets y orientación paso a paso.',
+      trainingInstructions: `ROL Y OBJETIVO DE AMANDA (AGENTE DE SERVICIO AL CLIENTE DE IA CONDO):
+1. Identidad y Tono: Te llamas Amanda y eres la ejecutiva de Servicio al Cliente y Soporte de IA Condo (www.iacondo.com). Hablas con calidez humana, empatía, profesionalismo venezolano y respuestas concisas (máximo 2 párrafos cortos en WhatsApp).
+2. Atención y Diagnóstico Inteligente:
+   - Cuando una Junta de Condominio, administrador o usuario escriba por una duda operativa o inconveniente técnico, salúdalo como Amanda de Servicio al Cliente de IA Condo.
+   - Si aún no lo ha indicado, pregúntale amablemente de qué condominio escribe y qué desea realizar o qué inconveniente presenta.
+   - Oriéntalo paso a paso sobre cómo usar los módulos de IA Condo (emisión de recibos USD/Bs a tasa BCV, conciliación bancaria con IA, configuración de cuentas y frecuencia de extractos, pases QR y control de acceso).
+   - Si requiere ajuste técnico o revisión de programación, confirma que su ticket ya quedó registrado y priorizado para nuestro equipo técnico.`,
+      active: true
+    },
+    {
+      id: 'agent_condominios_base',
+      name: 'Agente de los Condominios (Plantilla Maestra)',
+      shortName: 'Agente de Condominios',
+      agentCategory: 'condominium_master',
+      isFixedCore: true,
+      sortOrder: 4,
+      role: 'Cerebro Maestro para todos los Condominios (Personalizable por cada conjunto: ej. "Carlos" en Semeruco, "Pepe" en otro)',
+      channels: ['WhatsApp Oficial', 'App de cada Condominio (app.iacondo.com)'],
+      description:
+        'Agente base entrenado desde este Panel para operar en todos los conjuntos residenciales de IA Condo. Cada condominio define el nombre propio de su agente (ej. "Carlos", "Pepe") y sus indicaciones locales, heredando automáticamente estas normas maestras.',
+      trainingInstructions: DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
+      active: true
+    }
+  ];
+
+  // Selected AI Agent in Training Center ('agent_comercial_sofia' | 'agent_implementacion' | 'agent_servicio_amanda' | 'agent_condominios_base' | custom id | '__new__')
+  const [selectedAiAgentId, setSelectedAiAgentId] = useState('agent_condominios_base');
+
   // New/Edit AI Agent Form State
   const [agentForm, setAgentForm] = useState({
-    id: '',
-    name: '',
-    role: '',
-    channels: 'WhatsApp 0422-2537239, Correo',
-    description: '',
-    active: true
+    id: 'agent_condominios_base',
+    name: 'Agente de los Condominios (Plantilla Maestra)',
+    shortName: 'Agente de Condominios',
+    role: 'Cerebro Maestro para todos los Condominios (Personalizable por cada conjunto: ej. "Carlos" en Semeruco, "Pepe" en otro)',
+    channels: 'WhatsApp Oficial, App de cada Condominio (app.iacondo.com)',
+    description:
+      'Agente base entrenado desde este Panel para operar en todos los conjuntos residenciales de IA Condo. Cada condominio define el nombre propio de su agente (ej. "Carlos", "Pepe") y sus indicaciones locales, heredando automáticamente estas normas maestras.',
+    trainingInstructions: DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
+    active: true,
+    isFixedCore: true,
+    agentCategory: 'condominium_master'
   });
+
+  // Live Simulator State for AI Agents in Panel
+  const [agentSimMessages, setAgentSimMessages] = useState([]);
+  const [agentSimInput, setAgentSimInput] = useState('');
+  const [agentSimLoading, setAgentSimLoading] = useState(false);
 
   // Selected Session in Live Chat Tab & Selected Lead in CRM Tunnel
   const [selectedSession, setSelectedSession] = useState(null);
@@ -930,8 +1015,83 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     }
   };
 
+  // Catálogo consolidado de Agentes IA (los 4 fijos oficiales + cualquier nuevo agente creado, filtrando cualquier rastro obsoleto de Diego/Marcos/Elena)
+  const catalogAiAgents = (() => {
+    const obsoleteRe = /\b(Diego|Marcos|Elena)\b|^Carlos IA\b/i;
+    const obsoleteIds = new Set([
+      'agent_diego_onboarding',
+      'agent_elena_facturacion',
+      'agent_sofia_soporte',
+      'agent_sofia_omnicanal',
+      'agent_marcos_soporte'
+    ]);
+    const validFromDb = (Array.isArray(aiAgents) ? aiAgents : []).filter(
+      ag => ag && !obsoleteIds.has(ag.id) && !obsoleteRe.test(String(ag.name || ''))
+    );
+    const byId = new Map();
+    FIXED_CORE_AGENTS_FALLBACK.forEach(def => {
+      byId.set(def.id, {
+        ...def,
+        trainingInstructions:
+          def.id === 'agent_comercial_sofia'
+            ? playbookForm.customInstructions || def.trainingInstructions
+            : def.trainingInstructions
+      });
+    });
+    validFromDb.forEach(ag => {
+      const existing = byId.get(ag.id) || {};
+      byId.set(ag.id, {
+        ...existing,
+        ...ag,
+        trainingInstructions:
+          ag.id === 'agent_comercial_sofia'
+            ? ag.trainingInstructions || playbookForm.customInstructions || existing.trainingInstructions || ''
+            : ag.trainingInstructions || existing.trainingInstructions || ''
+      });
+    });
+    return Array.from(byId.values()).sort((a, b) => (a.sortOrder || 99) - (b.sortOrder || 99));
+  })();
+
+  const handleSelectAiAgentForTraining = (agentObjOrNew) => {
+    setAgentSimMessages([]);
+    setAgentSimInput('');
+    if (agentObjOrNew === '__new__') {
+      setSelectedAiAgentId('__new__');
+      setAgentForm({
+        id: '',
+        name: '',
+        shortName: '',
+        role: '',
+        channels: 'WhatsApp (0422-2537239), Correo',
+        description: '',
+        trainingInstructions: '',
+        active: true,
+        isFixedCore: false,
+        agentCategory: 'iacondo_custom'
+      });
+      return;
+    }
+    const ag = agentObjOrNew;
+    setSelectedAiAgentId(ag.id);
+    setAgentForm({
+      id: ag.id,
+      name: ag.name || '',
+      shortName: ag.shortName || String(ag.name || '').split('—')[0].trim(),
+      role: ag.role || '',
+      channels: Array.isArray(ag.channels) ? ag.channels.join(', ') : ag.channels || 'WhatsApp (0422-2537239)',
+      description: ag.description || '',
+      trainingInstructions:
+        ag.id === 'agent_comercial_sofia'
+          ? playbookForm.customInstructions || ag.trainingInstructions || ''
+          : ag.trainingInstructions || '',
+      active: ag.active !== false,
+      isFixedCore: Boolean(ag.isFixedCore),
+      agentCategory: ag.agentCategory || 'iacondo_custom'
+    });
+  };
+
   const handleSavePlaybook = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
       const res = await fetch(`${API_BASE}/api/sofia-whatsapp/playbook`, {
         method: 'POST',
@@ -940,37 +1100,141 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       });
       const data = await res.json();
       if (data.ok) {
-        showToast('🧠 Entrenamiento de Sofía IA actualizado en vivo para WhatsApp y Web');
+        showToast('🧠 Entrenamiento actualizado en vivo para WhatsApp, Web y Condominios');
         fetchDashboard();
       }
     } catch {
-      showToast('⚠️ Error guardando el entrenamiento de Sofía IA');
+      showToast('⚠️ Error guardando el entrenamiento');
     }
   };
 
   const handleSaveAiAgent = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
-      const res = await fetch(`${API_BASE}/api/iacondo-panel/ai-agents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agentForm)
+      const isSofia = selectedAiAgentId === 'agent_comercial_sofia';
+      const isCondoMaster = selectedAiAgentId === 'agent_condominios_base';
+
+      const payload = {
+        ...agentForm,
+        id: selectedAiAgentId === '__new__' ? '' : agentForm.id || selectedAiAgentId,
+        trainingInstructions: isSofia
+          ? playbookForm.customInstructions
+          : isCondoMaster
+          ? playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || agentForm.trainingInstructions
+          : agentForm.trainingInstructions,
+        carlosGlobalConfig: isCondoMaster ? playbookForm.carlosGlobalConfig : undefined
+      };
+
+      const requests = [
+        fetch(`${API_BASE}/api/iacondo-panel/ai-agents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+      ];
+
+      if (isSofia || isCondoMaster) {
+        requests.push(
+          fetch(`${API_BASE}/api/sofia-whatsapp/playbook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...playbookForm,
+              agentName: isSofia ? agentForm.shortName || playbookForm.agentName || 'Sofía' : playbookForm.agentName
+            })
+          })
+        );
+      }
+
+      const [res] = await Promise.all(requests);
+      const data = await res.json();
+      if (data.ok) {
+        showToast(
+          selectedAiAgentId === '__new__'
+            ? `✅ Nuevo agente "${agentForm.name}" creado y listo para entrenar`
+            : `🧠 Entrenamiento de "${agentForm.name}" guardado y activado en vivo`
+        );
+        if (data.aiAgents) {
+          setAiAgents(data.aiAgents);
+          if (selectedAiAgentId === '__new__') {
+            const newest = data.aiAgents.find(a => a.name === agentForm.name.trim()) || data.aiAgents[data.aiAgents.length - 1];
+            if (newest) {
+              handleSelectAiAgentForTraining(newest);
+            }
+          }
+        }
+        fetchDashboard();
+      } else {
+        showToast(`⚠️ ${data.error || 'No se pudo guardar el agente'}`);
+      }
+    } catch {
+      showToast('⚠️ Error guardando el entrenamiento del agente de IA');
+    }
+  };
+
+  const handleDeleteAiAgent = async (agentId, agentName) => {
+    if (!agentId) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/iacondo-panel/ai-agents/${encodeURIComponent(agentId)}`, {
+        method: 'DELETE'
       });
       const data = await res.json();
       if (data.ok) {
-        showToast('🤖 Agente de IA guardado en el catálogo de IA Condo');
-        setAgentForm({
-          id: '',
-          name: '',
-          role: '',
-          channels: 'WhatsApp 0422-2537239, Correo',
-          description: '',
-          active: true
-        });
-        fetchDashboard();
+        if (data.aiAgents) setAiAgents(data.aiAgents);
+        showToast(`🗑️ Agente "${agentName}" eliminado del catálogo`);
+        handleSelectAiAgentForTraining(FIXED_CORE_AGENTS_FALLBACK[0]);
+      } else {
+        showToast(`⚠️ ${data.error || 'No se pudo eliminar el agente'}`);
       }
     } catch {
-      showToast('⚠️ Error guardando el agente de IA');
+      showToast('⚠️ Error eliminando el agente');
+    }
+  };
+
+  const handleSendAgentSimMessage = async (presetText = null, resetChat = false) => {
+    const targetId = selectedAiAgentId === '__new__' ? 'agent_condominios_base' : selectedAiAgentId;
+    const textToSend = presetText !== null ? presetText : agentSimInput.trim();
+    if (!resetChat && !textToSend) return;
+
+    setAgentSimLoading(true);
+    if (!resetChat && presetText === null) {
+      setAgentSimInput('');
+    }
+    if (resetChat) {
+      setAgentSimMessages([]);
+    } else {
+      setAgentSimMessages(prev => [...prev, { role: 'user', text: textToSend }]);
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/sofia-whatsapp/test-ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: `sim_panel_${targetId}`,
+          senderName: 'Alejandro',
+          senderPhone: '+584122537239',
+          text: resetChat ? 'Hola' : textToSend,
+          reset: Boolean(resetChat),
+          forceResidentMode: targetId === 'agent_condominios_base',
+          targetAgentId: targetId
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const allReplies = [data.reply, ...(data.extraMessages || [])].filter(Boolean);
+        setAgentSimMessages(prev => [
+          ...(resetChat ? [] : prev),
+          ...allReplies.map(r => ({ role: 'assistant', text: r }))
+        ]);
+      }
+    } catch {
+      setAgentSimMessages(prev => [
+        ...prev,
+        { role: 'assistant', text: '⚠️ Error conectando con el simulador en vivo.' }
+      ]);
+    } finally {
+      setAgentSimLoading(false);
     }
   };
 
@@ -1650,7 +1914,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
             {[
               { id: 'agenda', label: `👑 Control CEO, Agenda y CRM (${salesCalls.length})` },
               { id: 'usuarios', label: `👥 Equipo y Zonas (${users.length})` },
-              { id: 'ia', label: `🤖 Sofía IA (${aiAgents.length})` },
+              { id: 'ia', label: `🤖 Agentes IA (${catalogAiAgents.length})` },
               { id: 'soporte', label: `🛠️ Soporte (${supportTickets.length})` },
               { id: 'chats', label: `💬 Chats en Vivo (${sessions.length})` }
             ].map(tab => (
@@ -3241,264 +3505,712 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         )}
 
         {/* ===================================================================
-            TAB 5: ENTRENAMIENTO DE SOFÍA IA Y CATÁLOGO DE AGENTES
+            TAB 5: CENTRO DE ENTRENAMIENTO MULTI-AGENTE DE IA CONDO
+            (Sofía Comercialización, Agente de Implementación, Amanda Servicio al Cliente,
+             Agente de los Condominios y Nuevos Agentes Personalizados)
             =================================================================== */}
         {!isAgentAppMode && activeTab === 'ia' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
-            <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '16px', padding: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginTop: 0 }}>
-                🧠 Entrenamiento en Vivo de Sofía IA (WhatsApp 0422-2537239 y Web)
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-                Sofía IA envía automáticamente el enlace oficial del demo (<code>{DEMO_URL}</code>) cuando un usuario solicita ver el sistema y asigna los leads a tus agentes comerciales.
-              </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 370px) 1fr', gap: '1.25rem', alignItems: 'start' }}>
+            {/* COLUMNA IZQUIERDA: SELECTOR DE AGENTES DE IA CONDO */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* 1. AGENTES FIJOS DE IA CONDO */}
+              <div style={{ background: 'rgba(15, 23, 42, 0.92)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '16px', padding: '1.1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '800', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.14)', border: '1px solid rgba(56, 189, 248, 0.35)', padding: '0.18rem 0.6rem', borderRadius: '999px' }}>
+                    🏢 AGENTES FIJOS DE IACONDO
+                  </span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: '0 0 0.85rem 0', lineHeight: 1.45 }}>
+                  Selecciona cualquiera de los agentes corporativos de <strong>IA Condo</strong> para entrenarlo y configurar cómo responde:
+                </p>
 
-              <form onSubmit={handleSavePlaybook} method="POST" action="/api/sofia-whatsapp/playbook">
-                <fieldset style={{ border: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem' }}>
-                  <legend style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
-                    Parámetros de entrenamiento de Sofía IA
-                  </legend>
+                <div style={{ display: 'grid', gap: '0.65rem' }}>
+                  {catalogAiAgents
+                    .filter(ag => ag.id !== 'agent_condominios_base' && ag.isFixedCore)
+                    .map(ag => {
+                      const isSelected = selectedAiAgentId === ag.id;
+                      const icon =
+                        ag.id === 'agent_comercial_sofia'
+                          ? '💼'
+                          : ag.id === 'agent_implementacion'
+                          ? '🚀'
+                          : '🎧';
+                      return (
+                        <button
+                          key={ag.id}
+                          type="button"
+                          onClick={() => handleSelectAiAgentForTraining(ag)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '0.85rem',
+                            borderRadius: '12px',
+                            border: isSelected ? '2px solid #0ea5e9' : '1px solid rgba(148, 163, 184, 0.22)',
+                            background: isSelected ? 'rgba(14, 165, 233, 0.16)' : 'rgba(6, 13, 24, 0.85)',
+                            color: '#f8fafc',
+                            cursor: 'pointer',
+                            display: 'grid',
+                            gap: '0.28rem'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem' }}>
+                            <strong style={{ fontSize: '0.9rem', color: isSelected ? '#38bdf8' : '#f8fafc' }}>
+                              {icon} {ag.name}
+                            </strong>
+                            <span style={{ fontSize: '0.66rem', padding: '0.14rem 0.45rem', borderRadius: '999px', background: ag.active !== false ? 'rgba(74, 222, 128, 0.16)' : 'rgba(245, 158, 11, 0.16)', color: ag.active !== false ? '#4ade80' : '#fbbf24', fontWeight: '800', flexShrink: 0 }}>
+                              {isSelected ? '✎ Entrenando' : ag.active !== false ? 'Activo' : 'Pausa'}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#cbd5e1', fontWeight: '600' }}>{ag.role}</div>
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    <div>
-                      <label htmlFor="pb-name" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                        Nombre del Agente
-                      </label>
-                      <input
-                        id="pb-name"
-                        name="agentName"
-                        type="text"
-                        value={playbookForm.agentName}
-                        onChange={e => setPlaybookForm({ ...playbookForm, agentName: e.target.value })}
-                        style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="pb-wa" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                        WhatsApp Principal de Respaldo
-                      </label>
-                      <input
-                        id="pb-wa"
-                        name="humanAgentWhatsapp"
-                        type="tel"
-                        value={playbookForm.humanAgentWhatsapp}
-                        onChange={e => setPlaybookForm({ ...playbookForm, humanAgentWhatsapp: e.target.value })}
-                        style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
-                      />
-                    </div>
+              {/* 2. AGENTE DE LOS CONDOMINIOS (PLANTILLA MAESTRA MULTI-CONDOMINIO) */}
+              {(() => {
+                const condoMasterAg =
+                  catalogAiAgents.find(a => a.id === 'agent_condominios_base') ||
+                  FIXED_CORE_AGENTS_FALLBACK[3];
+                const isSelected = selectedAiAgentId === 'agent_condominios_base';
+                return (
+                  <div style={{ background: 'rgba(15, 23, 42, 0.92)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '16px', padding: '1.1rem' }}>
+                    <span style={{ display: 'inline-block', fontSize: '0.7rem', fontWeight: '800', color: '#34d399', background: 'rgba(16, 185, 129, 0.16)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '0.18rem 0.6rem', borderRadius: '999px', marginBottom: '0.45rem' }}>
+                      🏘️ AGENTE DE LOS CONDOMINIOS (MULTI-CONDOMINIO)
+                    </span>
+                    <p style={{ color: '#94a3b8', fontSize: '0.77rem', margin: '0 0 0.75rem 0', lineHeight: 1.45 }}>
+                      Es el agente que atiende a los vecinos de cada conjunto. Aquí entrenas su <strong>cerebro maestro global</strong>, y cada condominio le asigna su propio nombre (ej. <strong>Carlos</strong> en Semeruco, <strong>Pepe</strong> en otro) y sus indicaciones locales:
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectAiAgentForTraining(condoMasterAg)}
+                      style={{
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '0.9rem',
+                        borderRadius: '12px',
+                        border: isSelected ? '2px solid #10b981' : '1px solid rgba(16, 185, 129, 0.3)',
+                        background: isSelected ? 'rgba(16, 185, 129, 0.18)' : 'rgba(6, 13, 24, 0.85)',
+                        color: '#f8fafc',
+                        cursor: 'pointer',
+                        display: 'grid',
+                        gap: '0.3rem'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem' }}>
+                        <strong style={{ fontSize: '0.92rem', color: '#34d399' }}>
+                          🏘️ Agente de los Condominios
+                        </strong>
+                        <span style={{ fontSize: '0.68rem', padding: '0.16rem 0.5rem', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.22)', color: '#34d399', fontWeight: '800' }}>
+                          {isSelected ? '✎ Entrenando' : 'Plantilla Maestra'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#cbd5e1', fontWeight: '600' }}>
+                        Normas Globales IA Condo + Indicaciones de cada Condominio
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                        Ej: &ldquo;Carlos&rdquo; en Semeruco • &ldquo;Pepe&rdquo; en otro conjunto
+                      </div>
+                    </button>
                   </div>
+                );
+              })()}
 
-                  <div>
-                    <label htmlFor="pb-cal" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                      Correos de Agenda Principal (.ics Copia Ejecutiva)
-                    </label>
-                    <input
-                      id="pb-cal"
-                      name="humanAgentCalendarEmail"
-                      type="text"
-                      value={playbookForm.humanAgentCalendarEmail}
-                      onChange={e => setPlaybookForm({ ...playbookForm, humanAgentCalendarEmail: e.target.value })}
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem' }}
-                    />
+              {/* 3. AGENTES PERSONALIZADOS ADICIONALES + CREAR NUEVO AGENTE */}
+              <div style={{ background: 'rgba(15, 23, 42, 0.92)', border: '1px solid rgba(192, 132, 252, 0.3)', borderRadius: '16px', padding: '1.1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '800', color: '#e9d5ff', background: 'rgba(192, 132, 252, 0.16)', border: '1px solid rgba(192, 132, 252, 0.35)', padding: '0.18rem 0.6rem', borderRadius: '999px' }}>
+                    ✨ NUEVOS AGENTES ESPECIALIZADOS
+                  </span>
+                </div>
+                <p style={{ color: '#94a3b8', fontSize: '0.76rem', margin: '0 0 0.75rem 0', lineHeight: 1.45 }}>
+                  Crea y entrena nuevos agentes de IA para futuras áreas o automatizaciones de IA Condo:
+                </p>
+
+                {catalogAiAgents.filter(ag => !ag.isFixedCore).length > 0 && (
+                  <div style={{ display: 'grid', gap: '0.55rem', marginBottom: '0.75rem' }}>
+                    {catalogAiAgents
+                      .filter(ag => !ag.isFixedCore)
+                      .map(ag => {
+                        const isSelected = selectedAiAgentId === ag.id;
+                        return (
+                          <div
+                            key={ag.id}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              padding: '0.7rem 0.8rem',
+                              borderRadius: '10px',
+                              border: isSelected ? '2px solid #c084fc' : '1px solid rgba(148,163,184,0.2)',
+                              background: isSelected ? 'rgba(192, 132, 252, 0.16)' : 'rgba(6, 13, 24, 0.85)',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleSelectAiAgentForTraining(ag)}
+                          >
+                            <div style={{ minWidth: 0 }}>
+                              <strong style={{ display: 'block', fontSize: '0.85rem', color: '#e9d5ff' }}>
+                                🤖 {ag.name}
+                              </strong>
+                              <span style={{ fontSize: '0.73rem', color: '#94a3b8' }}>{ag.role}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={e => {
+                                e.stopPropagation();
+                                handleDeleteAiAgent(ag.id, ag.name);
+                              }}
+                              title="Eliminar este agente"
+                              style={{ background: 'rgba(239,68,68,0.16)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', padding: '0.25rem 0.5rem', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        );
+                      })}
                   </div>
+                )}
 
-                  <div>
-                    <label htmlFor="pb-instructions" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                      Directrices de Personalidad de Sofía IA (Ventas / Demos {DEMO_URL})
-                    </label>
-                    <textarea
-                      id="pb-instructions"
-                      name="customInstructions"
-                      rows={8}
-                      value={playbookForm.customInstructions}
-                      onChange={e => setPlaybookForm({ ...playbookForm, customInstructions: e.target.value })}
-                      style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.84rem', lineHeight: '1.5' }}
-                    />
-                  </div>
-
-                  {/* NORMAS MAESTRAS DEL AGENTE DE CONDOMINIO (CARLOS) APLICABLES A TODOS LOS CONDOMINIOS DE IA CONDO */}
-                  <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.75rem' }}>
-                    <div>
-                      <span style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.45)', borderRadius: '999px', padding: '0.18rem 0.6rem', fontSize: '0.7rem', fontWeight: '800', marginBottom: '0.35rem' }}>
-                        🌐 ESTÁNDAR GLOBAL PARA TODOS LOS CONDOMINIOS
-                      </span>
-                      <h3 style={{ margin: 0, fontSize: '0.96rem', color: '#f8fafc' }}>
-                        🧠 Entrenamiento Maestro del Agente de Condominio (Carlos IA)
-                      </h3>
-                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.77rem', color: '#94a3b8', lineHeight: 1.45 }}>
-                        Determina cómo piensa el agente de soporte al vecino y qué datos obligatorios exige antes de ejecutar tareas (Invitaciones de Visita, Pases de Delivery 2h, Portón y Pagos) en todos los condominios que operan con IA Condo.
-                      </p>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
-                        1️⃣ Comprensión Semántica y Regla de &ldquo;Preguntar hasta Entender&rdquo;
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || ''}
-                        onChange={e =>
-                          setPlaybookForm({
-                            ...playbookForm,
-                            carlosGlobalConfig: {
-                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
-                              globalPersonalityAndTone: e.target.value
-                            }
-                          })
-                        }
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#34d399', marginBottom: '0.25rem' }}>
-                        2️⃣ Campos Obligatorios para Invitaciones de Visita (Nombre Real, Duración, Carro/Moto/A pie, Cédula y Placa)
-                      </label>
-                      <textarea
-                        rows={6}
-                        value={playbookForm.carlosGlobalConfig?.taskRules?.guestInvitation || ''}
-                        onChange={e =>
-                          setPlaybookForm({
-                            ...playbookForm,
-                            carlosGlobalConfig: {
-                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
-                              taskRules: {
-                                ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                guestInvitation: e.target.value
-                              }
-                            }
-                          })
-                        }
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#fbbf24', marginBottom: '0.25rem' }}>
-                        3️⃣ Reglas para Pases de Delivery / Encomiendas (Vigencia 2h + Consulta antes de vencer)
-                      </label>
-                      <textarea
-                        rows={4}
-                        value={playbookForm.carlosGlobalConfig?.taskRules?.deliveryPass || ''}
-                        onChange={e =>
-                          setPlaybookForm({
-                            ...playbookForm,
-                            carlosGlobalConfig: {
-                              ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
-                              taskRules: {
-                                ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
-                                deliveryPass: e.target.value
-                              }
-                            }
-                          })
-                        }
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: '1.45' }}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    style={{
-                      padding: '0.8rem',
-                      borderRadius: '10px',
-                      border: 'none',
-                      background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
-                      color: '#fff',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    🚀 Aplicar Entrenamiento en Vivo a Sofía y Carlos IA (Global)
-                  </button>
-                </fieldset>
-              </form>
+                <button
+                  type="button"
+                  onClick={() => handleSelectAiAgentForTraining('__new__')}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '10px',
+                    border: selectedAiAgentId === '__new__' ? '2px solid #c084fc' : '1px dashed rgba(192, 132, 252, 0.5)',
+                    background: selectedAiAgentId === '__new__' ? 'rgba(147, 51, 234, 0.28)' : 'rgba(147, 51, 234, 0.12)',
+                    color: '#f3e8ff',
+                    fontWeight: '800',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ➕ Crear Nuevo Agente de IA
+                </button>
+              </div>
             </div>
 
-            <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginTop: 0 }}>
-                🤖 Catálogo de Agentes de IA — IA Condo
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>
-                Agentes autónomos que asisten en cada etapa de la cadena: Captación (Sofía IA), Implementación y Carga de Datos (Diego IA), Soporte Técnico (Marcos IA) y Cobranzas (Elena IA).
-              </p>
-
-              <div style={{ display: 'grid', gap: '0.85rem', marginBottom: '1.5rem' }}>
-                {aiAgents.map(ag => (
-                  <div key={ag.id || ag._id} style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148,163,184,0.2)', borderRadius: '12px', padding: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <strong style={{ fontSize: '1rem', color: '#38bdf8' }}>🤖 {ag.name}</strong>
-                      <span style={{ fontSize: '0.74rem', padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(74, 222, 128, 0.15)', color: '#4ade80', fontWeight: '700' }}>
-                        {ag.active !== false ? 'Activo' : 'En Pausa'} • {Array.isArray(ag.channels) ? ag.channels.join(', ') : (ag.channels || ag.channel || 'WhatsApp')}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.25rem', fontWeight: '600' }}>{ag.role}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '0.35rem' }}>🎯 {ag.description || ag.Objective}</div>
+            {/* COLUMNA DERECHA: MESA DE ENTRENAMIENTO DEL AGENTE SELECCIONADO */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.94)',
+                border:
+                  selectedAiAgentId === 'agent_condominios_base'
+                    ? '1px solid rgba(16, 185, 129, 0.45)'
+                    : selectedAiAgentId === '__new__'
+                    ? '1px solid rgba(192, 132, 252, 0.45)'
+                    : '1px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: '16px',
+                padding: '1.5rem'
+              }}>
+                {/* ENCABEZADO DEL AGENTE EN ENTRENAMIENTO */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem', paddingBottom: '0.85rem', borderBottom: '1px solid rgba(148, 163, 184, 0.18)' }}>
+                  <div>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '0.2rem 0.65rem',
+                      borderRadius: '999px',
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      marginBottom: '0.4rem',
+                      background:
+                        selectedAiAgentId === 'agent_condominios_base'
+                          ? 'rgba(16, 185, 129, 0.2)'
+                          : selectedAiAgentId === '__new__'
+                          ? 'rgba(192, 132, 252, 0.2)'
+                          : 'rgba(56, 189, 248, 0.18)',
+                      color:
+                        selectedAiAgentId === 'agent_condominios_base'
+                          ? '#34d399'
+                          : selectedAiAgentId === '__new__'
+                          ? '#e9d5ff'
+                          : '#38bdf8'
+                    }}>
+                      {selectedAiAgentId === 'agent_condominios_base'
+                        ? '🏘️ PLANTILLA MAESTRA PARA TODOS LOS CONDOMINIOS'
+                        : selectedAiAgentId === '__new__'
+                        ? '➕ CREACIÓN Y ENTRENAMIENTO DE NUEVO AGENTE'
+                        : '🏢 AGENTE FIJO CORPORATIVO DE IA CONDO'}
+                    </span>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: '#fff' }}>
+                      {selectedAiAgentId === '__new__'
+                        ? '➕ Crear y Entrenar Nuevo Agente de IA'
+                        : `🧠 Centro de Entrenamiento: ${agentForm.name}`}
+                    </h2>
+                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', margin: '0.3rem 0 0 0', lineHeight: 1.5 }}>
+                      {selectedAiAgentId === 'agent_condominios_base'
+                        ? 'Configura aquí las normas maestras y campos obligatorios del Agente de los Condominios. Cada conjunto residencial define su propio nombre (ej. "Carlos" en Semeruco, "Pepe" en otro) y añade sus indicaciones particulares sobre esta base.'
+                        : selectedAiAgentId === 'agent_comercial_sofia'
+                        ? `Entrena a Sofía (Agente de Comercialización) para atender prospectos, enviar el Demo Personalizado (${DEMO_URL}) y agendar llamadas a tus ejecutivos.`
+                        : selectedAiAgentId === 'agent_implementacion'
+                        ? 'Entrena al Agente de Implementación para guiar a los nuevos condominios aprobados en la entrega de su censo de inmuebles, propietarios, alícuotas y bancos.'
+                        : selectedAiAgentId === 'agent_servicio_amanda'
+                        ? 'Entrena a Amanda (nuestra Agente de Servicio al Cliente) para atender consultas operativas y tickets de soporte de las Juntas de Condominio.'
+                        : 'Define la identidad, especialidad e instrucciones maestras de entrenamiento para este agente.'}
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(192, 132, 252, 0.25)', borderRadius: '14px', padding: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginTop: 0 }}>➕ Crear Nuevo Agente de IA para IA Condo</h3>
-                <form onSubmit={handleSaveAiAgent} method="POST" action="/api/iacondo-panel/ai-agents">
-                  <fieldset style={{ border: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
-                    <legend style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
-                      Crear nuevo agente IA
-                    </legend>
+                {/* FORMULARIO DE ENTRENAMIENTO DEL AGENTE SELECCIONADO */}
+                <form onSubmit={handleSaveAiAgent} style={{ display: 'grid', gap: '1rem' }}>
+                  {/* Datos de Identidad del Agente */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
                     <div>
-                      <label htmlFor="ag-name" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
-                        Nombre del Agente IA *
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                        {selectedAiAgentId === 'agent_condominios_base'
+                          ? 'Título de la Plantilla en el Panel'
+                          : 'Nombre del Agente IA *'}
                       </label>
                       <input
-                        id="ag-name"
-                        name="name"
                         type="text"
                         required
-                        placeholder="Ej. Diego IA — Onboarding e Implementación"
+                        placeholder="Ej. Amanda — Agente de Servicio al Cliente"
                         value={agentForm.name}
                         onChange={e => setAgentForm({ ...agentForm, name: e.target.value })}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                        style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontWeight: '700' }}
                       />
                     </div>
+
                     <div>
-                      <label htmlFor="ag-role" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
-                        Especialidad / Departamento *
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                        Especialidad / Rol del Agente *
                       </label>
                       <input
-                        id="ag-role"
-                        name="role"
                         type="text"
                         required
-                        placeholder="Ej. Solicitud de Censo, Alícuotas y Bancos para Arranque"
+                        placeholder="Ej. Servicio al Cliente y Soporte IA Condo"
                         value={agentForm.role}
                         onChange={e => setAgentForm({ ...agentForm, role: e.target.value })}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                        style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
+
                     <div>
-                      <label htmlFor="ag-obj" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
-                        Objetivo Específico e Instrucciones *
+                      <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                        Canales Activos
                       </label>
-                      <textarea
-                        id="ag-obj"
-                        name="description"
-                        rows={3}
-                        required
-                        placeholder="Describe qué datos debe solicitar y cómo debe actuar..."
-                        value={agentForm.description}
-                        onChange={e => setAgentForm({ ...agentForm, description: e.target.value })}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                      <input
+                        type="text"
+                        value={agentForm.channels}
+                        onChange={e => setAgentForm({ ...agentForm, channels: e.target.value })}
+                        style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#38bdf8', border: '1px solid rgba(148,163,184,0.3)' }}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                      Descripción de Funciones y Propósito
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={agentForm.description}
+                      onChange={e => setAgentForm({ ...agentForm, description: e.target.value })}
+                      placeholder="Resumen de qué hace este agente dentro de IA Condo..."
+                      style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#e2e8f0', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem' }}
+                    />
+                  </div>
+
+                  {/* CAMPOS ESPECÍFICOS DE SOFÍA (COMERCIALIZACIÓN) */}
+                  {selectedAiAgentId === 'agent_comercial_sofia' && (
+                    <div style={{ background: 'rgba(14, 165, 233, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.85rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                            WhatsApp Principal de Respaldo Comercial
+                          </label>
+                          <input
+                            type="tel"
+                            value={playbookForm.humanAgentWhatsapp}
+                            onChange={e => setPlaybookForm({ ...playbookForm, humanAgentWhatsapp: e.target.value })}
+                            style={{ width: '100%', padding: '0.58rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                            Correos de Agenda Principal (.ics Copia Ejecutiva)
+                          </label>
+                          <input
+                            type="text"
+                            value={playbookForm.humanAgentCalendarEmail}
+                            onChange={e => setPlaybookForm({ ...playbookForm, humanAgentCalendarEmail: e.target.value })}
+                            style={{ width: '100%', padding: '0.58rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.3rem' }}>
+                          📜 Directrices de Entrenamiento de Sofía — Agente de Comercialización (Ventas y Demos {DEMO_URL})
+                        </label>
+                        <textarea
+                          rows={10}
+                          value={playbookForm.customInstructions}
+                          onChange={e => setPlaybookForm({ ...playbookForm, customInstructions: e.target.value })}
+                          style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.83rem', lineHeight: 1.5 }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CAMPOS ESPECÍFICOS DEL AGENTE DE LOS CONDOMINIOS (PLANTILLA MAESTRA MULTI-CONDOMINIO) */}
+                  {selectedAiAgentId === 'agent_condominios_base' && (
+                    <div style={{ background: 'rgba(16, 185, 129, 0.07)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '12px', padding: '1.1rem', display: 'grid', gap: '0.9rem' }}>
+                      <div style={{ background: 'rgba(6, 13, 24, 0.75)', border: '1px solid rgba(56, 189, 248, 0.28)', borderRadius: '10px', padding: '0.85rem', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+                        <strong style={{ color: '#38bdf8', display: 'block', marginBottom: '0.25rem' }}>
+                          💡 ¿Cómo se combina este entrenamiento con cada Condominio?
+                        </strong>
+                        1️⃣ <strong>Entrenamiento Global (Aquí en el Panel IA Condo):</strong> Define cómo razona el agente y qué datos exige en todos los condominios (Invitaciones, Delivery 2h, Portón, Pagos).<br />
+                        2️⃣ <strong>Identidad e Indicaciones de cada Condominio (En la App de cada Conjunto):</strong> Cada condominio elige el nombre de su agente (ej. <strong>&ldquo;Carlos&rdquo;</strong> en Semeruco, <strong>&ldquo;Pepe&rdquo;</strong> en otro condominio) e imparte sus propias normas particulares sin afectar a los demás conjuntos.
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.25rem' }}>
+                          1️⃣ Comprensión Semántica, Tono Humano y Regla de &ldquo;Preguntar hasta Entender&rdquo;
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={playbookForm.carlosGlobalConfig?.globalPersonalityAndTone || ''}
+                          onChange={e =>
+                            setPlaybookForm({
+                              ...playbookForm,
+                              carlosGlobalConfig: {
+                                ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                globalPersonalityAndTone: e.target.value
+                              }
+                            })
+                          }
+                          style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem', lineHeight: 1.45 }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#34d399', marginBottom: '0.25rem' }}>
+                            2️⃣ Invitaciones de Visita (Nombre Real, Duración, Carro/Moto/A pie, Cédula y Placa)
+                          </label>
+                          <textarea
+                            rows={7}
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.guestInvitation || ''}
+                            onChange={e =>
+                              setPlaybookForm({
+                                ...playbookForm,
+                                carlosGlobalConfig: {
+                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  taskRules: {
+                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    guestInvitation: e.target.value
+                                  }
+                                }
+                              })
+                            }
+                            style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.25rem' }}>
+                            3️⃣ Pases de Delivery y Servicios (Vigencia 2h + Aviso antes de vencer)
+                          </label>
+                          <textarea
+                            rows={7}
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.deliveryPass || ''}
+                            onChange={e =>
+                              setPlaybookForm({
+                                ...playbookForm,
+                                carlosGlobalConfig: {
+                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  taskRules: {
+                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    deliveryPass: e.target.value
+                                  }
+                                }
+                              })
+                            }
+                            style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#c4b5fd', marginBottom: '0.25rem' }}>
+                            4️⃣ Acceso Fijo al Portón y Personas Autorizadas (Permisos 1 al 6)
+                          </label>
+                          <textarea
+                            rows={5}
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.gateAndAuthorized || ''}
+                            onChange={e =>
+                              setPlaybookForm({
+                                ...playbookForm,
+                                carlosGlobalConfig: {
+                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  taskRules: {
+                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    gateAndAuthorized: e.target.value
+                                  }
+                                }
+                              })
+                            }
+                            style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#7dd3fc', marginBottom: '0.25rem' }}>
+                            5️⃣ Pagos, Bancos Oficiales, Recibos PDF y Conciliación
+                          </label>
+                          <textarea
+                            rows={5}
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.paymentsAndReceipts || ''}
+                            onChange={e =>
+                              setPlaybookForm({
+                                ...playbookForm,
+                                carlosGlobalConfig: {
+                                  ...(playbookForm.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  taskRules: {
+                                    ...(playbookForm.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    paymentsAndReceipts: e.target.value
+                                  }
+                                }
+                              })
+                            }
+                            style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CAMPOS DE ENTRENAMIENTO PARA AGENTE DE IMPLEMENTACIÓN, AMANDA (SERVICIO AL CLIENTE) O NUEVOS AGENTES */}
+                  {selectedAiAgentId !== 'agent_comercial_sofia' &&
+                    selectedAiAgentId !== 'agent_condominios_base' && (
+                      <div style={{ background: 'rgba(14, 165, 233, 0.07)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.35rem' }}>
+                          📜 Directrices e Instrucciones de Entrenamiento del Agente (Prompt Maestro) *
+                        </label>
+                        <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.76rem', color: '#94a3b8' }}>
+                          Indícale paso a paso cómo debe expresarse, qué preguntas debe hacer, qué datos debe recabar y cómo debe resolver las solicitudes:
+                        </p>
+                        <textarea
+                          rows={10}
+                          required
+                          placeholder="Escribe aquí las instrucciones detalladas de entrenamiento para este agente..."
+                          value={agentForm.trainingInstructions}
+                          onChange={e => setAgentForm({ ...agentForm, trainingInstructions: e.target.value })}
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.35)', fontSize: '0.83rem', lineHeight: 1.5 }}
+                        />
+                      </div>
+                    )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    {selectedAiAgentId === 'agent_condominios_base' && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPlaybookForm({
+                            ...playbookForm,
+                            carlosGlobalConfig: DEFAULT_CARLOS_GLOBAL_CONFIG
+                          })
+                        }
+                        style={{
+                          padding: '0.65rem 1rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(148, 163, 184, 0.3)',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          color: '#cbd5e1',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ↺ Restaurar Normas Maestras por Defecto
+                      </button>
+                    )}
+
                     <button
                       type="submit"
-                      style={{ padding: '0.65rem', borderRadius: '8px', border: 'none', background: '#9333ea', color: '#fff', fontWeight: '700', cursor: 'pointer' }}
+                      style={{
+                        flex: 1,
+                        padding: '0.85rem 1.2rem',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background:
+                          selectedAiAgentId === 'agent_condominios_base'
+                            ? 'linear-gradient(135deg, #10b981 0%, #0284c7 100%)'
+                            : selectedAiAgentId === '__new__'
+                            ? 'linear-gradient(135deg, #9333ea 0%, #6366f1 100%)'
+                            : 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+                        color: '#fff',
+                        fontWeight: '800',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer'
+                      }}
                     >
-                      ➕ Registrar Agente en IA Condo
+                      {selectedAiAgentId === '__new__'
+                        ? '➕ Crear y Guardar Nuevo Agente en IA Condo'
+                        : `💾 Guardar Entrenamiento de ${agentForm.shortName || agentForm.name}`}
                     </button>
-                  </fieldset>
+                  </div>
                 </form>
               </div>
+
+              {/* SIMULADOR INTERACTIVO EN VIVO DEL AGENTE SELECCIONADO */}
+              {selectedAiAgentId !== '__new__' && (
+                <div style={{ background: 'rgba(15, 23, 42, 0.94)', border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '16px', padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: '#38bdf8' }}>
+                        🧪 Simulador de Entrenamiento en Vivo — Prueba a {agentForm.shortName || agentForm.name}
+                      </h3>
+                      <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.77rem', color: '#94a3b8' }}>
+                        Conversa aquí en tiempo real para comprobar cómo responde con el entrenamiento actual.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSendAgentSimMessage(null, true)}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        color: '#fca5a5',
+                        borderRadius: '8px',
+                        padding: '0.35rem 0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🔄 Reiniciar Chat de Prueba
+                    </button>
+                  </div>
+
+                  {/* Botones de ejemplo según el agente seleccionado */}
+                  <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                    {(selectedAiAgentId === 'agent_condominios_base'
+                      ? [
+                          'Hola, viene mi hermano a visitarme',
+                          'Se llama Gabriel Sáez, viene en carro placa AB123CD por hoy, cédula 14567890',
+                          '¿Tengo algún delivery o invitado activo?',
+                          'Viene un delivery de Farmatodo'
+                        ]
+                      : selectedAiAgentId === 'agent_comercial_sofia'
+                      ? [
+                          'Hola, quiero información para mi condominio',
+                          'Me gustaría ver el Demo, somos Residencias Los Mangos, 48 apartamentos con garita',
+                          '¿Cuánto cuesta el servicio?'
+                        ]
+                      : selectedAiAgentId === 'agent_implementacion'
+                      ? [
+                          'Hola, ya aprobamos contratar IA Condo en la Junta, ¿qué datos necesitan para arrancar?',
+                          'Manejamos cuota fija de $25 y tenemos cuenta en Banco Activo'
+                        ]
+                      : [
+                          'Hola Amanda, escribo de la Junta de mi condominio, tengo una duda con la conciliación bancaria',
+                          '¿Cómo configuro la frecuencia para pedir el extracto bancario?'
+                        ]
+                    ).map((sample, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        disabled={agentSimLoading}
+                        onClick={() => handleSendAgentSimMessage(sample, false)}
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.12)',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          color: '#bae6fd',
+                          borderRadius: '999px',
+                          padding: '0.28rem 0.7rem',
+                          fontSize: '0.74rem',
+                          cursor: agentSimLoading ? 'wait' : 'pointer'
+                        }}
+                      >
+                        💬 &ldquo;{sample}&rdquo;
+                      </button>
+                    ))}
+                  </div>
+
+                  <div style={{
+                    maxHeight: '260px',
+                    overflowY: 'auto',
+                    background: 'rgba(6, 13, 24, 0.85)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '10px',
+                    padding: '0.85rem',
+                    marginBottom: '0.75rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.55rem'
+                  }}>
+                    {agentSimMessages.length === 0 ? (
+                      <div style={{ color: '#64748b', fontSize: '0.8rem', textAlign: 'center', padding: '1rem 0' }}>
+                        Toca uno de los mensajes de prueba arriba o escribe abajo para probar a <strong>{agentForm.shortName || agentForm.name}</strong>.
+                      </div>
+                    ) : (
+                      agentSimMessages.map((m, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                            maxWidth: '85%',
+                            background: m.role === 'user' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(30, 41, 59, 0.95)',
+                            border: m.role === 'user' ? '1px solid rgba(56, 189, 248, 0.45)' : '1px solid rgba(148, 163, 184, 0.25)',
+                            color: '#f8fafc',
+                            padding: '0.55rem 0.8rem',
+                            borderRadius: '10px',
+                            fontSize: '0.82rem',
+                            whiteSpace: 'pre-wrap',
+                            lineHeight: 1.45
+                          }}
+                        >
+                          <div style={{ fontSize: '0.7rem', fontWeight: '800', color: m.role === 'user' ? '#38bdf8' : '#34d399', marginBottom: '0.2rem' }}>
+                            {m.role === 'user' ? '👤 Tú (Prueba)' : `🤖 ${agentForm.shortName || agentForm.name}`}
+                          </div>
+                          {m.text}
+                        </div>
+                      ))
+                    )}
+                    {agentSimLoading && (
+                      <div style={{ color: '#38bdf8', fontSize: '0.78rem', fontStyle: 'italic' }}>
+                        ⏳ {agentForm.shortName || agentForm.name} está respondiendo...
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input
+                      type="text"
+                      placeholder={`Escribe un mensaje para probar a ${agentForm.shortName || agentForm.name}...`}
+                      value={agentSimInput}
+                      onChange={e => setAgentSimInput(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSendAgentSimMessage(null, false);
+                        }
+                      }}
+                      style={{ flex: 1, padding: '0.65rem 0.85rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.35)', fontSize: '0.84rem' }}
+                    />
+                    <button
+                      type="button"
+                      disabled={agentSimLoading || !agentSimInput.trim()}
+                      onClick={() => handleSendAgentSimMessage(null, false)}
+                      style={{
+                        padding: '0.65rem 1.1rem',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: '#0ea5e9',
+                        color: '#fff',
+                        fontWeight: '800',
+                        fontSize: '0.84rem',
+                        cursor: agentSimLoading ? 'wait' : 'pointer'
+                      }}
+                    >
+                      Enviar Prueba
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
