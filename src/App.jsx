@@ -135,53 +135,83 @@ function App() {
       {/* HERO SECTION */}
       <section style={{ 
         position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '8.5rem 5% 4.5rem 5%', overflow: 'hidden'
+        padding: '6.5rem 3% 3.5rem 3%', overflow: 'hidden', backgroundColor: '#030914'
       }}>
-        {/* Background Image & Overlay */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -2 }}>
-          <img src="/hero-bg-notext.png" alt="IACondo Background" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+        {/* Background Image & Overlay: Cerebro IA conectado a los 6 Servicios */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img
+            src="/hero-cerebro-ia.jpg?v=2"
+            alt="Cerebro IA conectado a Barrera de Acceso, Finanzas, Reserva Áreas Comunes, Mejoras y Reparaciones, Presupuestos y Agente de WhatsApp"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center' }}
+          />
         </div>
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(6,13,24,0.45) 0%, rgba(6,13,24,0.92) 100%)', zIndex: -1 }}></div>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at center, rgba(6,13,24,0.22) 0%, rgba(6,13,24,0.12) 60%, rgba(6,13,24,0.72) 100%), linear-gradient(to bottom, rgba(6,13,24,0.25) 0%, rgba(6,13,24,0.05) 75%, rgba(6,13,24,0.95) 100%)',
+          zIndex: 0
+        }}></div>
 
-        <div style={{ maxWidth: '900px', width: '100%', minWidth: 0, textAlign: 'center', zIndex: 1 }} className="fade-in-up">
-          <span style={{ display: 'inline-block', padding: '0.45rem 1.1rem', background: 'rgba(16, 185, 129, 0.16)', color: '#34d399', borderRadius: '999px', fontWeight: '800', fontSize: 'clamp(0.75rem, 0.7rem + 0.3vw, 0.9rem)', marginBottom: '1.25rem', border: '1px solid rgba(16, 185, 129, 0.45)', maxWidth: '100%' }}>
+        <div
+          style={{
+            maxWidth: 'clamp(320px, 44vw, 600px)',
+            width: '100%',
+            minWidth: 0,
+            textAlign: 'center',
+            zIndex: 1,
+            marginTop: 'clamp(2rem, 9vh, 5.5rem)',
+            background: 'rgba(6, 13, 24, 0.74)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(56, 189, 248, 0.28)',
+            borderRadius: '22px',
+            padding: 'clamp(1.25rem, 2.4vw, 2rem) clamp(1.1rem, 2.2vw, 1.85rem)',
+            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.72), 0 0 40px rgba(14, 165, 233, 0.14)'
+          }}
+          className="fade-in-up"
+        >
+          <span style={{ display: 'inline-block', padding: '0.38rem 0.95rem', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', borderRadius: '999px', fontWeight: '800', fontSize: 'clamp(0.68rem, 0.62rem + 0.25vw, 0.8rem)', marginBottom: '0.95rem', border: '1px solid rgba(16, 185, 129, 0.5)', maxWidth: '100%' }}>
             🎁 ALTA 100% GRATIS + 30 DÍAS CON TODAS LAS FUNCIONES PREMIUM
           </span>
-          <h1 style={{ fontSize: 'clamp(1.9rem, 1.3rem + 3.6vw, 4.15rem)', fontWeight: '900', marginBottom: '1.25rem', wordBreak: 'break-word', lineHeight: 1.14 }}>
+          <h1 style={{ fontSize: 'clamp(1.65rem, 1.1rem + 2.2vw, 2.85rem)', fontWeight: '900', marginBottom: '0.9rem', wordBreak: 'break-word', lineHeight: 1.15 }}>
             Descubre cómo la <span className="text-gradient">Inteligencia Artificial</span> <br />
             puede gestionar tu Condominio.
           </h1>
-          <p style={{ fontSize: 'clamp(1rem, 0.92rem + 0.45vw, 1.24rem)', color: '#e2e8f0', maxWidth: '740px', margin: '0 auto 1.4rem auto', lineHeight: '1.68' }}>
+          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1.02rem)', color: '#e2e8f0', maxWidth: '540px', margin: '0 auto 1.1rem auto', lineHeight: '1.58' }}>
             Da de alta tu condominio <strong>totalmente gratis</strong> y disfruta durante <strong>30 días de todas las funciones Premium</strong> para que descubras cómo gestionar tu condominio de forma inteligente: control de acceso, conciliación bancaria con IA, cobros automatizados y reserva de áreas comunes.
           </p>
 
           {/* Píldoras de Confianza de la Promoción de 30 Días */}
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '2rem' }}>
-            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(52, 211, 153, 0.4)', color: '#6ee7b7', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.35rem' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(52, 211, 153, 0.4)', color: '#6ee7b7', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
               ✓ Registro Gratis en 2 minutos
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#7dd3fc', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#7dd3fc', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
               ⭐ 30 días de Plan Premium incluidos
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.78)', border: '1px solid rgba(255, 255, 255, 0.18)', color: '#cbd5e1', padding: '0.35rem 0.85rem', borderRadius: '999px', fontSize: '0.82rem', fontWeight: '700' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.18)', color: '#cbd5e1', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
               🔓 Sin compromiso (Plan Gratuito permanente disponible)
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', alignItems: 'center', width: '100%' }}>
             <button
               type="button"
               onClick={() => setShowOnboardingModal(true)}
               className="btn btn-primary"
               style={{
-                padding: 'clamp(0.95rem, 2.5vw, 1.15rem) clamp(1.5rem, 4vw, 2.4rem)',
-                fontSize: 'clamp(0.96rem, 0.9rem + 0.4vw, 1.12rem)',
+                width: '100%',
+                padding: '0.92rem 1.4rem',
+                fontSize: 'clamp(0.9rem, 0.84rem + 0.3vw, 1.02rem)',
                 fontWeight: '900',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 boxShadow: '0 10px 28px rgba(16, 185, 129, 0.42)',
                 whiteSpace: 'normal',
                 textAlign: 'center',
-                maxWidth: '100%',
+                borderRadius: '999px',
                 border: 'none'
               }}
             >
@@ -191,14 +221,15 @@ function App() {
               href="#features"
               className="btn btn-secondary"
               style={{
-                padding: 'clamp(0.95rem, 2.5vw, 1.15rem) clamp(1.3rem, 3.5vw, 2rem)',
-                fontSize: 'clamp(0.92rem, 0.86rem + 0.35vw, 1.05rem)',
+                width: '100%',
+                padding: '0.78rem 1.3rem',
+                fontSize: 'clamp(0.86rem, 0.8rem + 0.25vw, 0.96rem)',
                 fontWeight: '700',
-                background: 'rgba(15, 23, 42, 0.65)',
+                background: 'rgba(15, 23, 42, 0.72)',
                 borderColor: 'rgba(56, 189, 248, 0.4)',
                 whiteSpace: 'normal',
                 textAlign: 'center',
-                maxWidth: '100%'
+                borderRadius: '999px'
               }}
             >
               📖 Ver Todas las Funcionalidades
