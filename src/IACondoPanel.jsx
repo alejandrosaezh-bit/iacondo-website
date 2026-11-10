@@ -137,9 +137,14 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 - Acceso frecuente al portón: requiere el nombre/parentesco y el número de teléfono celular para asignarle posición en el portón y notificar a vigilancia.
 - Personas autorizadas (familiares, pareja, inquilinos): requiere nombre completo, teléfono celular y parentesco/rol, para luego mostrar el Cuadro de Selección de Permisos (1 al 6) y enviarle su invitación a la App.`,
       paymentsAndReceipts: `REGLAS PARA PAGOS, BANCOS, ESTADOS DE CUENTA Y RECIBOS:
-- Datos bancarios: entrega únicamente las cuentas oficiales registradas en el condominio en burbujas separadas fáciles de copiar (Banco, Titular, Cédula/RIF, Cuenta y Monto exacto en Bs a tasa BCV). Prohibido inventar bancos.
-- Reporte de pagos: acepta capturas/fotos del comprobante (vía visión IA) o texto con Monto y Referencia. Regístralo en Proceso de Conciliación, descuéntalo de la deuda visible y notifica a la Junta.`
-    }
+- Datos bancarios: entrega únicamente las cuentas oficiales registradas en el condominio en burbujas separadas fáciles de copiar (Banco, Titular, Cédula/RIF, Cuenta e Importe exacto en Bs a tasa BCV calculado SIEMPRE en función a la DEUDA TOTAL acumulada del inmueble, nunca por 1 sola cuota si debe varios meses). Prohibido inventar bancos.
+- Reporte de pagos: acepta capturas/fotos del comprobante (vía visión IA) o texto con Monto y Referencia. Regístralo en Proceso de Conciliación, descuéntalo de la deuda visible y notifica a la Junta.`,
+      agendaAndProviders: `REGLAS PARA AGENDA DE CONTACTOS DEL CONDOMINIO Y DESPACHO A PROVEEDORES (JARDINERO, PLOMERO, ELECTRICISTA, EMERGENCIAS):
+- El condominio cuenta con una Agenda de Contactos y Proveedores oficial (Jardinero, Plomero, Electricista, Técnico de Portón, Conserje, etc.).
+- REGLA DE ORO DE AUTORIZACIÓN: El Agente SOLO puede escribir por WhatsApp y despachar directamente un requerimiento o solicitud a un proveedor de la Agenda cuando quien lo solicita u ordena es un MIEMBRO DE LA JUNTA DIRECTIVA.
+- Si un vecino que NO es miembro de la Junta reporta un requerimiento (ej. podar áreas verdes, revisar jardín o avería), el Agente registra la solicitud y notifica a la Junta para que un miembro de la Junta autorice u ordene el envío al proveedor.`
+    },
+    customSkills: []
   };
 
   // Playbook Form State
@@ -180,6 +185,26 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       description:
         'Atiende en tiempo real a juntas de condominio y administradores interesados en IA Condo. Explica beneficios, solicita los 3 datos para el Demo Personalizado, agenda llamadas (.ics) y asigna el lead.',
       trainingInstructions: '',
+      skills: [
+        {
+          id: 'sofia_skill_demo',
+          icon: '🎯',
+          title: 'Generación de Demo Personalizado',
+          triggerWhen: 'Cuando un miembro de Junta o administrador pide ver cómo funciona IA Condo.',
+          requiredData: 'Nombre del condominio, ciudad/zona y cantidad de inmuebles (casas o apartamentos).',
+          instructions: 'Genera el enlace del Demo Personalizado con el nombre del conjunto y preséntalo con entusiasmo.',
+          active: true
+        },
+        {
+          id: 'sofia_skill_agenda',
+          icon: '📅',
+          title: 'Agendamiento de Llamada Ejecutiva (.ics)',
+          triggerWhen: 'Cuando el prospecto desea hablar con un especialista o ver una demostración guiada.',
+          requiredData: 'Nombre del contacto, día/hora preferida y correo o WhatsApp.',
+          instructions: 'Crea la cita en el túnel comercial, envía invitación .ics y asigna el ejecutivo según la zona.',
+          active: true
+        }
+      ],
       active: true
     },
     {
@@ -201,6 +226,26 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
    - Paso 3: Solicita los datos de las cuentas bancarias oficiales del condominio (Banco, 20 dígitos, RIF/Cédula, Pago Móvil, Zelle/Efectivo) y la frecuencia deseada de conciliación bancaria.
    - Paso 4: Confirma cómo desean llamar al Agente de su Condominio (ej. "Carlos", "Pepe", etc.), qué miembro de la Junta recibirá los reportes de incidencias y cuál es el teléfono de la Garita de Vigilancia y del motor del portón.
 3. Estilo de Comunicación: Claro, organizado, paciente y resolutivo. Mensajes breves por WhatsApp (máximo 2 párrafos cortos por turno).`,
+      skills: [
+        {
+          id: 'impl_skill_censo',
+          icon: '🏘️',
+          title: 'Levantamiento de Censo de Inmuebles y Propietarios',
+          triggerWhen: 'Al iniciar la implementación de un nuevo condominio.',
+          requiredData: 'Listado de casas/apartamentos, nombre del propietario, WhatsApp, correo y alícuota o cuota fija.',
+          instructions: 'Solicita la planilla en Excel, PDF o foto y confirma cada bloque antes de pasar al siguiente paso.',
+          active: true
+        },
+        {
+          id: 'impl_skill_bancos',
+          icon: '🏦',
+          title: 'Configuración de Cuentas Oficiales y Garita',
+          triggerWhen: 'Una vez recibido el censo de inmuebles del condominio.',
+          requiredData: 'Cuentas bancarias (20 dígitos, RIF/Cédula), nombre del Agente del Condominio y WhatsApp de Garita.',
+          instructions: 'Verifica que los datos bancarios estén completos y deja configurado el Agente del Condominio.',
+          active: true
+        }
+      ],
       active: true
     },
     {
@@ -221,6 +266,17 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
    - Si aún no lo ha indicado, pregúntale amablemente de qué condominio escribe y qué desea realizar o qué inconveniente presenta.
    - Oriéntalo paso a paso sobre cómo usar los módulos de IA Condo (emisión de recibos USD/Bs a tasa BCV, conciliación bancaria con IA, configuración de cuentas y frecuencia de extractos, pases QR y control de acceso).
    - Si requiere ajuste técnico o revisión de programación, confirma que su ticket ya quedó registrado y priorizado para nuestro equipo técnico.`,
+      skills: [
+        {
+          id: 'amanda_skill_soporte',
+          icon: '🛠️',
+          title: 'Diagnóstico y Registro de Ticket de Soporte',
+          triggerWhen: 'Cuando una Junta o administrador reporta una duda operativa o ajuste técnico.',
+          requiredData: 'Nombre del condominio, módulo involucrado y descripción o captura del caso.',
+          instructions: 'Orienta paso a paso sobre el módulo consultado y, si requiere ajuste técnico, registra el ticket priorizado.',
+          active: true
+        }
+      ],
       active: true
     },
     {
@@ -252,6 +308,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     description:
       'Agente base entrenado desde este Panel para operar en todos los conjuntos residenciales de IA Condo. Cada condominio define el nombre propio de su agente (ej. "Carlos", "Pepe") y sus indicaciones locales, heredando automáticamente estas normas maestras.',
     trainingInstructions: DEFAULT_CARLOS_GLOBAL_CONFIG.globalPersonalityAndTone,
+    skills: [],
     active: true,
     isFixedCore: true,
     agentCategory: 'condominium_master'
@@ -380,8 +437,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                 gateAndAuthorized:
                   cfg.taskRules?.gateAndAuthorized ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.gateAndAuthorized,
                 paymentsAndReceipts:
-                  cfg.taskRules?.paymentsAndReceipts ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.paymentsAndReceipts
-              }
+                  cfg.taskRules?.paymentsAndReceipts ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.paymentsAndReceipts,
+                agendaAndProviders:
+                  cfg.taskRules?.agendaAndProviders ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.agendaAndProviders
+              },
+              customSkills: Array.isArray(cfg.customSkills) ? cfg.customSkills : []
             }
           });
         }
@@ -1067,6 +1127,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       byId.set(ag.id, {
         ...existing,
         ...ag,
+        skills: Array.isArray(ag.skills) && ag.skills.length > 0 ? ag.skills : existing.skills || [],
         trainingInstructions:
           ag.id === 'agent_comercial_sofia'
             ? ag.trainingInstructions || playbookForm.customInstructions || existing.trainingInstructions || ''
@@ -1089,6 +1150,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         channels: 'WhatsApp (0422-2537239), Correo',
         description: '',
         trainingInstructions: '',
+        skills: [],
         active: true,
         isFixedCore: false,
         agentCategory: 'iacondo_custom'
@@ -1115,6 +1177,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       channels: Array.isArray(ag.channels) ? ag.channels.join(', ') : ag.channels || 'WhatsApp (0422-2537239)',
       description: ag.description || '',
       trainingInstructions: resolvedSofiaInstructions,
+      skills: Array.isArray(ag.skills) ? ag.skills : [],
       active: ag.active !== false,
       isFixedCore: Boolean(ag.isFixedCore),
       agentCategory: ag.agentCategory || 'iacondo_custom'
@@ -3857,6 +3920,50 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                     />
                   </div>
 
+                  {/* GUÍA VISUAL UNIVERSAL: ¿QUÉ ES UNA HABILIDAD (SKILL) DEL AGENTE? */}
+                  <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.07))', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: '12px', padding: '0.95rem 1.05rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.55rem' }}>
+                      <div>
+                        <span style={{ display: 'inline-block', background: 'rgba(99, 102, 241, 0.22)', border: '1px solid rgba(129, 140, 248, 0.45)', color: '#a5b4fc', padding: '0.16rem 0.55rem', borderRadius: '999px', fontSize: '0.68rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                          ⚡ ARQUITECTURA DE HABILIDADES (SKILLS) IA CONDO
+                        </span>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#f8fafc' }}>
+                          🧩 ¿Qué es una Habilidad (Skill) del Agente?
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#cbd5e1', marginTop: '0.15rem' }}>
+                          Una <strong>Habilidad</strong> es una competencia específica que le enseñas al Agente para que sepa atender y resolver una gestión de principio a fin mediante <strong>3 pilares</strong>:
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.55rem' }}>
+                      <div style={{ background: 'rgba(6, 13, 24, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '9px', padding: '0.65rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.2rem' }}>
+                          🎯 1. Disparador (¿Cuándo se activa?)
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                          Qué solicitud o situación activa la habilidad (ej. pedir invitación de visita, reservar salón, pedir demo).
+                        </div>
+                      </div>
+                      <div style={{ background: 'rgba(6, 13, 24, 0.8)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '9px', padding: '0.65rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.2rem' }}>
+                          📋 2. Datos que Solicita (Requisitos)
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                          Qué preguntas obligatorias debe hacer el agente antes de ejecutar la tarea (ej. nombre, placa, fecha).
+                        </div>
+                      </div>
+                      <div style={{ background: 'rgba(6, 13, 24, 0.8)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '9px', padding: '0.65rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#34d399', marginBottom: '0.2rem' }}>
+                          ⚡ 3. Acción que Ejecuta (Reglas)
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                          Cómo procesa la solicitud, qué reglas valida y a quién notifica por WhatsApp o en el sistema.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* CAMPOS ESPECÍFICOS DE SOFÍA (COMERCIALIZACIÓN) */}
                   {selectedAiAgentId === 'agent_comercial_sofia' && (
                     <div style={{ background: 'rgba(14, 165, 233, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.85rem' }}>
@@ -3917,15 +4024,15 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                     <div style={{ background: 'rgba(16, 185, 129, 0.07)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '12px', padding: '1.1rem', display: 'grid', gap: '0.9rem' }}>
                       <div style={{ background: 'rgba(6, 13, 24, 0.75)', border: '1px solid rgba(56, 189, 248, 0.28)', borderRadius: '10px', padding: '0.85rem', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.5 }}>
                         <strong style={{ color: '#38bdf8', display: 'block', marginBottom: '0.25rem' }}>
-                          💡 ¿Cómo se combina este entrenamiento con cada Condominio?
+                          💡 ¿Cómo se combina este entrenamiento de Habilidades Maestras con cada Condominio?
                         </strong>
-                        1️⃣ <strong>Entrenamiento Global (Aquí en el Panel IA Condo):</strong> Define cómo razona el agente y qué datos exige en todos los condominios (Invitaciones, Delivery 2h, Portón, Pagos).<br />
-                        2️⃣ <strong>Identidad e Indicaciones de cada Condominio (En la App de cada Conjunto):</strong> Cada condominio elige el nombre de su agente (ej. <strong>&ldquo;Carlos&rdquo;</strong> en Semeruco, <strong>&ldquo;Pepe&rdquo;</strong> en otro condominio) e imparte sus propias normas particulares sin afectar a los demás conjuntos.
+                        1️⃣ <strong>Habilidades Maestras Globales (Aquí en el Panel IA Condo):</strong> Define cómo razona el agente y qué habilidades operativas tiene en todos los condominios (Invitaciones, Delivery 2h, Portón, Pagos por Deuda Total, Agenda de Proveedores y cualquier habilidad nueva que agregues abajo).<br />
+                        2️⃣ <strong>Habilidades e Indicaciones Locales (En la App de cada Conjunto):</strong> Cada condominio elige el nombre de su agente (ej. <strong>&ldquo;Carlos&rdquo;</strong> en Semeruco) y puede sumarle sus propias habilidades locales desde <em>Configuración &rarr; Agente</em>.
                       </div>
 
                       <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.25rem' }}>
-                          1️⃣ Comprensión Semántica, Tono Humano y Regla de &ldquo;Preguntar hasta Entender&rdquo;
+                          🧠 Personalidad Base, Comprensión Semántica y Regla de &ldquo;Preguntar hasta Entender&rdquo;
                         </label>
                         <textarea
                           rows={4}
@@ -3946,9 +4053,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
-                        <div>
+                        <div style={{ background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '10px', padding: '0.75rem' }}>
+                          <span style={{ display: 'inline-block', background: 'rgba(52, 211, 153, 0.16)', color: '#34d399', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                            ⚡ HABILIDAD BASE #1
+                          </span>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#34d399', marginBottom: '0.25rem' }}>
-                            2️⃣ Invitaciones de Visita (Nombre Real, Duración, Carro/Moto/A pie, Cédula y Placa)
+                            🎟️ Invitaciones de Visita (Nombre Real, Duración, Carro/Moto/A pie, Cédula y Placa)
                           </label>
                           <textarea
                             rows={7}
@@ -3971,9 +4081,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           />
                         </div>
 
-                        <div>
+                        <div style={{ background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(251, 191, 36, 0.3)', borderRadius: '10px', padding: '0.75rem' }}>
+                          <span style={{ display: 'inline-block', background: 'rgba(251, 191, 36, 0.16)', color: '#fbbf24', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                            ⚡ HABILIDAD BASE #2
+                          </span>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.25rem' }}>
-                            3️⃣ Pases de Delivery y Servicios (Vigencia 2h + Aviso antes de vencer)
+                            🛵 Pases de Delivery y Servicios (Vigencia 2h + Aviso antes de vencer)
                           </label>
                           <textarea
                             rows={7}
@@ -3996,9 +4109,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           />
                         </div>
 
-                        <div>
+                        <div style={{ background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(167, 139, 250, 0.3)', borderRadius: '10px', padding: '0.75rem' }}>
+                          <span style={{ display: 'inline-block', background: 'rgba(167, 139, 250, 0.16)', color: '#c4b5fd', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                            ⚡ HABILIDAD BASE #3
+                          </span>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#c4b5fd', marginBottom: '0.25rem' }}>
-                            4️⃣ Acceso Fijo al Portón y Personas Autorizadas (Permisos 1 al 6)
+                            🔑 Acceso Fijo al Portón y Personas Autorizadas (Permisos 1 al 6)
                           </label>
                           <textarea
                             rows={5}
@@ -4021,9 +4137,12 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           />
                         </div>
 
-                        <div>
+                        <div style={{ background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '0.75rem' }}>
+                          <span style={{ display: 'inline-block', background: 'rgba(56, 189, 248, 0.16)', color: '#7dd3fc', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                            ⚡ HABILIDAD BASE #4
+                          </span>
                           <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#7dd3fc', marginBottom: '0.25rem' }}>
-                            5️⃣ Pagos, Bancos Oficiales, Recibos PDF y Conciliación
+                            🏦 Pagos por Deuda Total, Bancos Oficiales, Recibos PDF y Conciliación
                           </label>
                           <textarea
                             rows={5}
@@ -4045,34 +4164,452 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                             style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
                           />
                         </div>
+
+                        <div style={{ gridColumn: '1 / -1', background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(16, 185, 129, 0.35)', borderRadius: '10px', padding: '0.75rem' }}>
+                          <span style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.16)', color: '#6ee7b7', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
+                            ⚡ HABILIDAD BASE #5
+                          </span>
+                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '800', color: '#6ee7b7', marginBottom: '0.25rem' }}>
+                            📒 Agenda de Contactos y Proveedores del Condominio (Solo con Autorización de un Miembro de la Junta)
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={playbookForm.carlosGlobalConfig?.taskRules?.agendaAndProviders ?? DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules.agendaAndProviders}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setPlaybookForm(prev => ({
+                                ...prev,
+                                carlosGlobalConfig: {
+                                  ...(prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG),
+                                  taskRules: {
+                                    ...(prev.carlosGlobalConfig?.taskRules || DEFAULT_CARLOS_GLOBAL_CONFIG.taskRules),
+                                    agendaAndProviders: val
+                                  }
+                                }
+                              }));
+                            }}
+                            style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.8rem', lineHeight: 1.45 }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* CONSTRUCTOR DINÁMICO DE NUEVAS HABILIDADES MAESTRAS DEL AGENTE DE CONDOMINIOS */}
+                      <div style={{ background: 'rgba(6, 13, 24, 0.85)', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: '11px', padding: '0.95rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#a5b4fc' }}>
+                              ⚡ Habilidades Maestras Adicionales del Agente de Condominios
+                            </div>
+                            <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                              Agrega aquí nuevas habilidades operativas que se activarán en todos los condominios de IA Condo:
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playbookDirtyRef.current = true;
+                              setPlaybookForm(prev => {
+                                const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                const list = Array.isArray(currentCfg.customSkills) ? currentCfg.customSkills : [];
+                                return {
+                                  ...prev,
+                                  carlosGlobalConfig: {
+                                    ...currentCfg,
+                                    customSkills: [
+                                      ...list,
+                                      {
+                                        id: `global_skill_${Date.now()}`,
+                                        icon: '⚡',
+                                        title: 'Nueva Habilidad Global',
+                                        triggerWhen: '',
+                                        requiredData: '',
+                                        instructions: '',
+                                        active: true
+                                      }
+                                    ]
+                                  }
+                                };
+                              });
+                            }}
+                            style={{
+                              background: 'linear-gradient(135deg, #6366f1, #10b981)',
+                              border: 'none',
+                              color: '#fff',
+                              borderRadius: '8px',
+                              padding: '0.45rem 0.85rem',
+                              fontSize: '0.76rem',
+                              fontWeight: '800',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ➕ Agregar Nueva Habilidad Maestra
+                          </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.7rem' }}>
+                          {[
+                            {
+                              icon: '🎉',
+                              title: 'Reserva de Salón de Fiesta / Caney',
+                              triggerWhen: 'Cuando un vecino solicita reservar el Salón de Fiesta, Caney o Parrillera.',
+                              requiredData: 'Fecha del evento, horario y cantidad de invitados.',
+                              instructions: 'Verifica que el inmueble esté al día, informa las normas de uso y envía la solicitud al miembro de la Junta.'
+                            },
+                            {
+                              icon: '🚚',
+                              title: 'Permiso de Mudanza o Camión de Carga',
+                              triggerWhen: 'Cuando un vecino solicita autorización para mudanza o ingreso de flete.',
+                              requiredData: 'Fecha y hora, nombre/cédula del chofer y placa del vehículo.',
+                              instructions: 'Valida horario permitido de mudanzas, crea el pase y avisa a garita y a la Junta.'
+                            },
+                            {
+                              icon: '💧',
+                              title: 'Reporte de Avería / Emergencia en Áreas Comunes',
+                              triggerWhen: 'Cuando reportan bote de agua, falla eléctrica o avería del portón.',
+                              requiredData: 'Ubicación exacta y descripción de la falla.',
+                              instructions: 'Notifica de inmediato a la Junta y, si lo ordena un miembro de la Junta, contacta al proveedor de la Agenda.'
+                            }
+                          ].map((tpl, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                playbookDirtyRef.current = true;
+                                setPlaybookForm(prev => {
+                                  const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                  const list = Array.isArray(currentCfg.customSkills) ? currentCfg.customSkills : [];
+                                  return {
+                                    ...prev,
+                                    carlosGlobalConfig: {
+                                      ...currentCfg,
+                                      customSkills: [
+                                        ...list,
+                                        {
+                                          id: `global_skill_${Date.now()}_${idx}`,
+                                          icon: tpl.icon,
+                                          title: tpl.title,
+                                          triggerWhen: tpl.triggerWhen,
+                                          requiredData: tpl.requiredData,
+                                          instructions: tpl.instructions,
+                                          active: true
+                                        }
+                                      ]
+                                    }
+                                  };
+                                });
+                              }}
+                              style={{
+                                background: 'rgba(99, 102, 241, 0.15)',
+                                border: '1px solid rgba(99, 102, 241, 0.35)',
+                                color: '#c7d2fe',
+                                borderRadius: '999px',
+                                padding: '0.24rem 0.6rem',
+                                fontSize: '0.72rem',
+                                fontWeight: '700',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              + {tpl.icon} {tpl.title}
+                            </button>
+                          ))}
+                        </div>
+
+                        {(playbookForm.carlosGlobalConfig?.customSkills || []).length === 0 ? (
+                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                            El agente opera con sus 5 Habilidades Base (#1 a #5). Usa los botones de arriba para añadir nuevas habilidades globales.
+                          </div>
+                        ) : (
+                          <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            {(playbookForm.carlosGlobalConfig?.customSkills || []).map((sk, sIdx) => (
+                              <div key={sk.id || sIdx} style={{ background: '#060d18', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: '9px', padding: '0.75rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
+                                    <input
+                                      type="text"
+                                      value={sk.icon || '⚡'}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setPlaybookForm(prev => {
+                                          const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                          const list = [...(currentCfg.customSkills || [])];
+                                          list[sIdx] = { ...list[sIdx], icon: val };
+                                          return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                        });
+                                      }}
+                                      style={{ width: '38px', textAlign: 'center', padding: '0.35rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                                    />
+                                    <input
+                                      type="text"
+                                      placeholder="Nombre de la Habilidad..."
+                                      value={sk.title || ''}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setPlaybookForm(prev => {
+                                          const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                          const list = [...(currentCfg.customSkills || [])];
+                                          list[sIdx] = { ...list[sIdx], title: val };
+                                          return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                        });
+                                      }}
+                                      style={{ flex: 1, padding: '0.4rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem', fontWeight: '700' }}
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      playbookDirtyRef.current = true;
+                                      setPlaybookForm(prev => {
+                                        const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                        const list = (currentCfg.customSkills || []).filter((_, i) => i !== sIdx);
+                                        return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                      });
+                                    }}
+                                    style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', borderRadius: '6px', padding: '0.25rem 0.55rem', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}
+                                  >
+                                    🗑️ Quitar
+                                  </button>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                                  <input
+                                    type="text"
+                                    placeholder="🎯 ¿Cuándo se activa? (Disparador)"
+                                    value={sk.triggerWhen || ''}
+                                    onChange={e => {
+                                      playbookDirtyRef.current = true;
+                                      const val = e.target.value;
+                                      setPlaybookForm(prev => {
+                                        const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                        const list = [...(currentCfg.customSkills || [])];
+                                        list[sIdx] = { ...list[sIdx], triggerWhen: val };
+                                        return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                      });
+                                    }}
+                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="📋 ¿Qué datos obligatorios solicita?"
+                                    value={sk.requiredData || ''}
+                                    onChange={e => {
+                                      playbookDirtyRef.current = true;
+                                      const val = e.target.value;
+                                      setPlaybookForm(prev => {
+                                        const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                        const list = [...(currentCfg.customSkills || [])];
+                                        list[sIdx] = { ...list[sIdx], requiredData: val };
+                                        return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                      });
+                                    }}
+                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                  />
+                                </div>
+                                <textarea
+                                  rows={2}
+                                  placeholder="⚡ Acción y reglas que ejecuta el Agente..."
+                                  value={sk.instructions || ''}
+                                  onChange={e => {
+                                    playbookDirtyRef.current = true;
+                                    const val = e.target.value;
+                                    setPlaybookForm(prev => {
+                                      const currentCfg = prev.carlosGlobalConfig || DEFAULT_CARLOS_GLOBAL_CONFIG;
+                                      const list = [...(currentCfg.customSkills || [])];
+                                      list[sIdx] = { ...list[sIdx], instructions: val };
+                                      return { ...prev, carlosGlobalConfig: { ...currentCfg, customSkills: list } };
+                                    });
+                                  }}
+                                  style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.79rem' }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
 
-                  {/* CAMPOS DE ENTRENAMIENTO PARA AGENTE DE IMPLEMENTACIÓN, AMANDA (SERVICIO AL CLIENTE) O NUEVOS AGENTES */}
-                  {selectedAiAgentId !== 'agent_comercial_sofia' &&
-                    selectedAiAgentId !== 'agent_condominios_base' && (
-                      <div style={{ background: 'rgba(14, 165, 233, 0.07)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem' }}>
-                        <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.35rem' }}>
-                          📜 Directrices e Instrucciones de Entrenamiento del Agente (Prompt Maestro) *
-                        </label>
-                        <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.76rem', color: '#94a3b8' }}>
-                          Indícale paso a paso cómo debe expresarse, qué preguntas debe hacer, qué datos debe recabar y cómo debe resolver las solicitudes:
-                        </p>
-                        <textarea
-                          rows={10}
-                          required
-                          placeholder="Escribe aquí las instrucciones detalladas de entrenamiento para este agente..."
-                          value={agentForm.trainingInstructions ?? ''}
-                          onChange={e => {
-                            playbookDirtyRef.current = true;
-                            const val = e.target.value;
-                            setAgentForm(prev => ({ ...prev, trainingInstructions: val }));
-                          }}
-                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.35)', fontSize: '0.83rem', lineHeight: 1.5 }}
-                        />
+                  {/* CAMPOS DE ENTRENAMIENTO Y HABILIDADES PARA SOFÍA, IMPLEMENTACIÓN, AMANDA Y NUEVOS AGENTES */}
+                  {selectedAiAgentId !== 'agent_condominios_base' && (
+                    <div style={{ display: 'grid', gap: '0.9rem' }}>
+                      {selectedAiAgentId !== 'agent_comercial_sofia' && (
+                        <div style={{ background: 'rgba(14, 165, 233, 0.07)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem' }}>
+                          <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.35rem' }}>
+                            📜 Directrices e Instrucciones de Entrenamiento del Agente (Prompt Maestro) *
+                          </label>
+                          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.76rem', color: '#94a3b8' }}>
+                            Indícale paso a paso cómo debe expresarse, qué preguntas debe hacer, qué datos debe recabar y cómo debe resolver las solicitudes:
+                          </p>
+                          <textarea
+                            rows={8}
+                            required
+                            placeholder="Escribe aquí las instrucciones detalladas de entrenamiento para este agente..."
+                            value={agentForm.trainingInstructions ?? ''}
+                            onChange={e => {
+                              playbookDirtyRef.current = true;
+                              const val = e.target.value;
+                              setAgentForm(prev => ({ ...prev, trainingInstructions: val }));
+                            }}
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.35)', fontSize: '0.83rem', lineHeight: 1.5 }}
+                          />
+                        </div>
+                      )}
+
+                      {/* CONSTRUCTOR DE HABILIDADES (SKILLS) PARA AGENTES DEL PANEL (SOFÍA, IMPLEMENTACIÓN, AMANDA Y PERSONALIZADOS) */}
+                      <div style={{ background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.38)', borderRadius: '12px', padding: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#a5b4fc' }}>
+                              ⚡ Habilidades (Skills) de {agentForm.shortName || agentForm.name || 'este Agente'}
+                            </div>
+                            <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
+                              Agrega habilidades específicas definiendo cuándo se activan, qué datos solicitan y qué acción ejecutan:
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playbookDirtyRef.current = true;
+                              setAgentForm(prev => ({
+                                ...prev,
+                                skills: [
+                                  ...(Array.isArray(prev.skills) ? prev.skills : []),
+                                  {
+                                    id: `agent_skill_${Date.now()}`,
+                                    icon: '⚡',
+                                    title: 'Nueva Habilidad del Agente',
+                                    triggerWhen: '',
+                                    requiredData: '',
+                                    instructions: '',
+                                    active: true
+                                  }
+                                ]
+                              }));
+                            }}
+                            style={{
+                              background: 'linear-gradient(135deg, #6366f1, #0ea5e9)',
+                              border: 'none',
+                              color: '#fff',
+                              borderRadius: '8px',
+                              padding: '0.45rem 0.85rem',
+                              fontSize: '0.76rem',
+                              fontWeight: '800',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ➕ Agregar Habilidad a {agentForm.shortName || 'este Agente'}
+                          </button>
+                        </div>
+
+                        {(agentForm.skills || []).length === 0 ? (
+                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                            Haz clic en &ldquo;➕ Agregar Habilidad&rdquo; para sumarle nuevas capacidades modulares a este agente.
+                          </div>
+                        ) : (
+                          <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            {(agentForm.skills || []).map((sk, sIdx) => (
+                              <div key={sk.id || sIdx} style={{ background: '#060d18', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: '9px', padding: '0.75rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
+                                    <input
+                                      type="text"
+                                      value={sk.icon || '⚡'}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setAgentForm(prev => {
+                                          const list = [...(prev.skills || [])];
+                                          list[sIdx] = { ...list[sIdx], icon: val };
+                                          return { ...prev, skills: list };
+                                        });
+                                      }}
+                                      style={{ width: '38px', textAlign: 'center', padding: '0.35rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+                                    />
+                                    <input
+                                      type="text"
+                                      placeholder="Nombre de la Habilidad..."
+                                      value={sk.title || ''}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setAgentForm(prev => {
+                                          const list = [...(prev.skills || [])];
+                                          list[sIdx] = { ...list[sIdx], title: val };
+                                          return { ...prev, skills: list };
+                                        });
+                                      }}
+                                      style={{ flex: 1, padding: '0.4rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem', fontWeight: '700' }}
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      playbookDirtyRef.current = true;
+                                      setAgentForm(prev => ({
+                                        ...prev,
+                                        skills: (prev.skills || []).filter((_, i) => i !== sIdx)
+                                      }));
+                                    }}
+                                    style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', borderRadius: '6px', padding: '0.25rem 0.55rem', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}
+                                  >
+                                    🗑️ Quitar
+                                  </button>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                                  <input
+                                    type="text"
+                                    placeholder="🎯 ¿Cuándo se activa? (Disparador)"
+                                    value={sk.triggerWhen || ''}
+                                    onChange={e => {
+                                      playbookDirtyRef.current = true;
+                                      const val = e.target.value;
+                                      setAgentForm(prev => {
+                                        const list = [...(prev.skills || [])];
+                                        list[sIdx] = { ...list[sIdx], triggerWhen: val };
+                                        return { ...prev, skills: list };
+                                      });
+                                    }}
+                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="📋 ¿Qué datos obligatorios solicita?"
+                                    value={sk.requiredData || ''}
+                                    onChange={e => {
+                                      playbookDirtyRef.current = true;
+                                      const val = e.target.value;
+                                      setAgentForm(prev => {
+                                        const list = [...(prev.skills || [])];
+                                        list[sIdx] = { ...list[sIdx], requiredData: val };
+                                        return { ...prev, skills: list };
+                                      });
+                                    }}
+                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                  />
+                                </div>
+                                <textarea
+                                  rows={2}
+                                  placeholder="⚡ Acción y reglas que ejecuta el Agente..."
+                                  value={sk.instructions || ''}
+                                  onChange={e => {
+                                    playbookDirtyRef.current = true;
+                                    const val = e.target.value;
+                                    setAgentForm(prev => {
+                                      const list = [...(prev.skills || [])];
+                                      list[sIdx] = { ...list[sIdx], instructions: val };
+                                      return { ...prev, skills: list };
+                                    });
+                                  }}
+                                  style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.79rem' }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
                     {selectedAiAgentId === 'agent_condominios_base' && (
