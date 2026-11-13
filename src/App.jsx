@@ -3,6 +3,13 @@ import './index.css';
 
 const WEBSITE_FEATURES = [
   {
+    icon: '📂',
+    badge: 'MIGRACIÓN IA EN SEGUNDOS',
+    title: 'Sube tus Archivos y la IA Configura tu Condominio e Históricos',
+    desc: '¿Tienes meses o años de cuadros en Excel, extractos bancarios, recibos antiguos o fotos de facturas? Súbelos todos juntos sin ordenarlos: nuestra IA los clasifica, extrae propietarios, deudas, pagos y gastos, y arma tu condominio completo con su historial en segundos.',
+    highlights: ['Lee Excel, PDF, CSV y Fotos', 'Carga saldos e históricos al instante', 'Cero transcripción manual']
+  },
+  {
     icon: '🚪',
     badge: 'SEGURIDAD Y CAPTACIÓN',
     title: 'Control de Acceso, Garita y Portón GSM',
@@ -52,18 +59,11 @@ const WEBSITE_FEATURES = [
     highlights: ['Tickets con evidencia fotográfica', 'Seguimiento de estatus en vivo', 'Historial de mantenimiento']
   },
   {
-    icon: '🔄',
-    badge: 'EXPERIENCIA DUAL',
-    title: 'Cambio de Pantalla Junta ↔ Propietario en 1 Clic',
-    desc: 'Si eres miembro de la Junta Directiva y también propietario en la comunidad, alterna instantáneamente entre el Panel de Administración y tu Vista de Vecino sin cerrar sesión ni mezclar cuentas.',
-    highlights: ['Interruptor Junta / Vecino (🔄)', 'También modo Solo Administrador', 'App móvil rápida e intuitiva']
-  },
-  {
     icon: '🎧',
-    badge: 'ACOMPAÑAMIENTO TOTAL',
-    title: 'Equipo de Soporte por WhatsApp + Agentes IA',
-    desc: 'Inicia hoy mismo con los datos básicos de tu comunidad y recibe acompañamiento directo de nuestro Equipo de Soporte por WhatsApp y correo para completar tus bancos, saldos iniciales y listado de vecinos.',
-    highlights: ['Alta rápida en 2 minutos', 'Soporte humano por WhatsApp', 'Agentes IA 24/7 (Sofía y Carlos)']
+    badge: 'PLAN GRATUITO + SOPORTE',
+    title: 'Programa Gratis Permanente + Soporte por WhatsApp',
+    desc: 'Instala y usa el programa gratis sin límite de tiempo ni cobros automáticos. Si lo deseas, envíanos tus archivos por WhatsApp y nuestro equipo junto con Sofía IA dejará tu comunidad lista en minutos.',
+    highlights: ['Plan Gratuito Permanente ($0)', 'Soporte humano por WhatsApp', 'Agentes IA 24/7 (Sofía y Carlos)']
   }
 ];
 
@@ -92,6 +92,12 @@ const ONBOARDING_AREAS = [
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [onboardingInitialMode, setOnboardingInitialMode] = useState('wizard'); // 'wizard' | 'ai_files'
+
+  const openOnboarding = (mode = 'wizard') => {
+    setOnboardingInitialMode(mode);
+    setShowOnboardingModal(true);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,6 +106,12 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const whatsappFilesUrl =
+    'https://wa.me/584222537239?text=' +
+    encodeURIComponent(
+      'Hola Sofía, quiero instalar el programa GRATIS de IACondo y enviarles nuestros archivos (Excel, extractos bancarios y facturas) para configurar nuestro condominio e históricos.'
+    );
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -119,14 +131,15 @@ function App() {
           <span>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <div className="site-nav-actions">
+          <a href="#migracion-ia" className="btn btn-secondary site-nav-btn">📂 Subir Archivos IA</a>
           <a href="#features" className="btn btn-secondary site-nav-btn">Funcionalidades</a>
           <button
             type="button"
-            onClick={() => setShowOnboardingModal(true)}
+            onClick={() => openOnboarding('wizard')}
             className="btn btn-primary site-nav-btn"
             style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none' }}
           >
-            🚀 Dar de Alta mi Condominio
+            📲 Instalar Programa GRATIS
           </button>
           <a href="https://app.iacondo.com" className="btn btn-secondary site-nav-btn">Iniciar Sesión</a>
         </div>
@@ -157,83 +170,232 @@ function App() {
 
         <div
           style={{
-            maxWidth: 'clamp(320px, 44vw, 600px)',
+            maxWidth: 'clamp(320px, 46vw, 620px)',
             width: '100%',
             minWidth: 0,
             textAlign: 'center',
             zIndex: 1,
-            marginTop: 'clamp(2rem, 9vh, 5.5rem)',
-            background: 'rgba(6, 13, 24, 0.74)',
+            marginTop: 'clamp(2rem, 8vh, 5rem)',
+            background: 'rgba(6, 13, 24, 0.78)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(56, 189, 248, 0.28)',
+            border: '1px solid rgba(56, 189, 248, 0.32)',
             borderRadius: '22px',
             padding: 'clamp(1.25rem, 2.4vw, 2rem) clamp(1.1rem, 2.2vw, 1.85rem)',
             boxShadow: '0 24px 60px rgba(0, 0, 0, 0.72), 0 0 40px rgba(14, 165, 233, 0.14)'
           }}
           className="fade-in-up"
         >
-          <span style={{ display: 'inline-block', padding: '0.38rem 0.95rem', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', borderRadius: '999px', fontWeight: '800', fontSize: 'clamp(0.68rem, 0.62rem + 0.25vw, 0.8rem)', marginBottom: '0.95rem', border: '1px solid rgba(16, 185, 129, 0.5)', maxWidth: '100%' }}>
-            🎁 ALTA 100% GRATIS + 30 DÍAS CON TODAS LAS FUNCIONES PREMIUM
+          <span style={{ display: 'inline-block', padding: '0.38rem 0.95rem', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '999px', fontWeight: '900', fontSize: 'clamp(0.68rem, 0.62rem + 0.25vw, 0.8rem)', marginBottom: '0.9rem', border: '1px solid rgba(16, 185, 129, 0.55)', maxWidth: '100%' }}>
+            ✅ PROGRAMA 100% GRATIS PARA SIEMPRE — SIN TARJETA NI COBROS SORPRESA
           </span>
-          <h1 style={{ fontSize: 'clamp(1.65rem, 1.1rem + 2.2vw, 2.85rem)', fontWeight: '900', marginBottom: '0.9rem', wordBreak: 'break-word', lineHeight: 1.15 }}>
-            Descubre cómo la <span className="text-gradient">Inteligencia Artificial</span> <br />
-            puede gestionar tu Condominio.
+          <h1 style={{ fontSize: 'clamp(1.6rem, 1.1rem + 2.1vw, 2.75rem)', fontWeight: '900', marginBottom: '0.85rem', wordBreak: 'break-word', lineHeight: 1.15 }}>
+            Instala <span style={{ color: '#34d399' }}>Gratis</span> el Programa con <span className="text-gradient">Inteligencia Artificial</span> para tu Condominio.
           </h1>
-          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1.02rem)', color: '#e2e8f0', maxWidth: '540px', margin: '0 auto 1.1rem auto', lineHeight: '1.58' }}>
-            Da de alta tu condominio <strong>totalmente gratis</strong> y disfruta durante <strong>30 días de todas las funciones Premium</strong> para que descubras cómo gestionar tu condominio de forma inteligente: control de acceso, conciliación bancaria con IA, cobros automatizados y reserva de áreas comunes.
+          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1rem)', color: '#e2e8f0', maxWidth: '550px', margin: '0 auto 1.05rem auto', lineHeight: '1.56' }}>
+            Instala y usa <strong>IACondo gratis de forma permanente</strong> ($0 para siempre, sin vencimiento ni cobros automáticos). ¿Tienes Excels, extractos bancarios o facturas? <strong>Súbelos todos juntos y nuestra IA ordenará todo y configurará tu condominio e históricos en segundos.</strong>
           </p>
 
-          {/* Píldoras de Confianza de la Promoción de 30 Días */}
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.35rem' }}>
-            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(52, 211, 153, 0.4)', color: '#6ee7b7', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
-              ✓ Registro Gratis en 2 minutos
+          {/* Píldoras de Confianza: Gratis Permanente + Migración IA */}
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(52, 211, 153, 0.5)', color: '#6ee7b7', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
+              ✅ Plan Gratuito Permanente ($0 siempre)
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#7dd3fc', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
-              ⭐ 30 días de Plan Premium incluidos
+            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(56, 189, 248, 0.5)', color: '#7dd3fc', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
+              📂 Carga tus archivos e históricos en segundos
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid rgba(255, 255, 255, 0.18)', color: '#cbd5e1', padding: '0.28rem 0.7rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
-              🔓 Sin compromiso (Plan Gratuito permanente disponible)
+            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#cbd5e1', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
+              🚫 Sin tarjeta ni cobros automáticos nunca
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.68rem', alignItems: 'center', width: '100%' }}>
             <button
               type="button"
-              onClick={() => setShowOnboardingModal(true)}
+              onClick={() => openOnboarding('wizard')}
               className="btn btn-primary"
               style={{
                 width: '100%',
-                padding: '0.92rem 1.4rem',
-                fontSize: 'clamp(0.9rem, 0.84rem + 0.3vw, 1.02rem)',
+                padding: '0.95rem 1.4rem',
+                fontSize: 'clamp(0.92rem, 0.86rem + 0.3vw, 1.05rem)',
                 fontWeight: '900',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                boxShadow: '0 10px 28px rgba(16, 185, 129, 0.42)',
+                boxShadow: '0 10px 28px rgba(16, 185, 129, 0.45)',
                 whiteSpace: 'normal',
                 textAlign: 'center',
                 borderRadius: '999px',
                 border: 'none'
               }}
             >
-              🚀 Dar de Alta mi Condominio Gratis (30 Días Premium)
+              📲 Instalar el Programa 100% GRATIS Ahora
             </button>
-            <a
-              href="#features"
+            <button
+              type="button"
+              onClick={() => openOnboarding('ai_files')}
               className="btn btn-secondary"
               style={{
                 width: '100%',
-                padding: '0.78rem 1.3rem',
-                fontSize: 'clamp(0.86rem, 0.8rem + 0.25vw, 0.96rem)',
-                fontWeight: '700',
-                background: 'rgba(15, 23, 42, 0.72)',
-                borderColor: 'rgba(56, 189, 248, 0.4)',
+                padding: '0.82rem 1.3rem',
+                fontSize: 'clamp(0.84rem, 0.8rem + 0.25vw, 0.95rem)',
+                fontWeight: '800',
+                background: 'rgba(14, 165, 233, 0.16)',
+                borderColor: 'rgba(56, 189, 248, 0.55)',
+                color: '#7dd3fc',
                 whiteSpace: 'normal',
                 textAlign: 'center',
                 borderRadius: '999px'
               }}
             >
-              📖 Ver Todas las Funcionalidades
-            </a>
+              📂 Subir mis Archivos (Excel, PDFs, Bancos) y Configurar en Segundos
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCIÓN ESTRELLA: SUBE TODOS TUS ARCHIVOS Y LA IA CONFIGURA TU CONDOMINIO E HISTÓRICOS EN SEGUNDOS */}
+      <section
+        id="migracion-ia"
+        style={{
+          padding: 'clamp(3.5rem, 7vw, 5.5rem) 5%',
+          background: 'linear-gradient(180deg, #030914 0%, #071326 50%, var(--bg-main) 100%)',
+          borderTop: '1px solid rgba(56, 189, 248, 0.18)',
+          borderBottom: '1px solid rgba(16, 185, 129, 0.18)',
+          width: '100%',
+          overflowX: 'clip'
+        }}
+      >
+        <div style={{ maxWidth: '1180px', width: '100%', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.4rem' }}>
+            <span style={{
+              display: 'inline-block',
+              padding: '0.38rem 1rem',
+              borderRadius: '999px',
+              background: 'rgba(16, 185, 129, 0.15)',
+              border: '1px solid rgba(16, 185, 129, 0.45)',
+              color: '#34d399',
+              fontSize: '0.78rem',
+              fontWeight: '900',
+              letterSpacing: '0.5px',
+              marginBottom: '0.85rem'
+            }}>
+              ⚡ MIGRACIÓN Y PUESTA EN MARCHA AUTOMÁTICA CON IA
+            </span>
+            <h2 style={{ fontSize: 'clamp(1.65rem, 1.25rem + 2.1vw, 2.65rem)', fontWeight: '900', color: '#ffffff', maxWidth: '900px', margin: '0 auto 0.9rem auto', lineHeight: 1.18 }}>
+              ¿Tienes archivos en Excel, extractos bancarios y facturas? <span className="text-gradient">Súbelos todos juntos</span> y armamos tu condominio e históricos en segundos.
+            </h2>
+            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.96rem, 0.9rem + 0.3vw, 1.12rem)', maxWidth: '780px', margin: '0 auto', lineHeight: 1.65 }}>
+              No pierdas semanas pasando saldos ni recibos viejos a mano. Arrastra toda la documentación de tu comunidad sin importar cómo esté ordenada: nuestra Inteligencia Artificial lee cada documento, cruza la información y deja todo tu condominio y su historial contable configurados al instante.
+            </p>
+          </div>
+
+          {/* 3 Pasos Visuales de la Carga Masiva IA */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 290px), 1fr))', gap: '1.35rem', marginBottom: '2rem' }}>
+            <div className="glass-panel" style={{ borderColor: 'rgba(56, 189, 248, 0.35)', background: 'rgba(15, 23, 42, 0.65)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(56, 189, 248, 0.16)', color: '#38bdf8', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
+                PASO 1 • SUBE TODO SIN ORDENAR
+              </div>
+              <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
+                📥 Arrastra tus Excels, PDFs y Fotos
+              </h3>
+              <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
+                Sube de una sola vez tus cuadros de morosidad en Excel, estados de cuenta bancarios, recibos anteriores, fotos de facturas y las reglas de tu comunidad (ej. cuota fija o alícuotas).
+              </p>
+            </div>
+
+            <div className="glass-panel" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(15, 23, 42, 0.65)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
+                PASO 2 • EXTRACCIÓN Y AUDITORÍA IA
+              </div>
+              <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
+                🧠 Ordenamos y Cruzamos Cada Dato
+              </h3>
+              <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
+                La IA identifica cada casa o apartamento, propietarios, deudas acumuladas, pagos históricos, proveedores y saldos bancarios, separando cualquier discrepancia para tu revisión.
+              </p>
+            </div>
+
+            <div className="glass-panel" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: 'rgba(15, 23, 42, 0.65)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(168, 85, 247, 0.18)', color: '#d8b4fe', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
+                PASO 3 • LISTO EN SEGUNDOS
+              </div>
+              <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
+                🚀 Condominio e Históricos Activos
+              </h3>
+              <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
+                Tu condominio queda instalado gratis con todas sus viviendas, propietarios, saldos iniciales e historial contable listos para consultar desde computadora o celular.
+              </p>
+            </div>
+          </div>
+
+          {/* Caja de Acción: Hazlo tú mismo en segundos con IA o envíalos por WhatsApp */}
+          <div
+            className="glass-panel"
+            style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(14, 165, 233, 0.16) 100%)',
+              border: '1.5px solid rgba(52, 211, 153, 0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '1.25rem',
+              padding: 'clamp(1.35rem, 3.5vw, 2rem)'
+            }}
+          >
+            <div style={{ maxWidth: '620px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.6rem' }}>
+                {['📊 Excel (.xlsx / .csv)', '🏦 Extractos PDF', '🧾 Facturas y Recibos', '🏘️ Saldos Históricos'].map((tag, i) => (
+                  <span key={i} style={{ fontSize: '0.73rem', fontWeight: '800', padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(6, 13, 24, 0.7)', color: '#7dd3fc', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h3 style={{ fontSize: 'clamp(1.15rem, 1rem + 0.9vw, 1.45rem)', color: '#ffffff', marginBottom: '0.35rem', fontWeight: '900' }}>
+                Tú eliges: súbelos directo al Constructor IA o envíanos tus archivos por WhatsApp
+              </h3>
+              <p style={{ color: '#e2e8f0', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>
+                Puedes cargar tus documentos directamente en el programa ahora mismo, o enviárnoslos por WhatsApp para que nuestro equipo los procese y te entregue el condominio listo.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', minWidth: 'min(100%, 300px)' }}>
+              <button
+                type="button"
+                onClick={() => openOnboarding('ai_files')}
+                className="btn btn-primary"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  border: 'none',
+                  padding: '0.9rem 1.4rem',
+                  fontWeight: '900',
+                  fontSize: '0.95rem',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 24px rgba(16, 185, 129, 0.38)',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
+                }}
+              >
+                📂 Subir mis Archivos y Configurar en Segundos →
+              </button>
+              <a
+                href={whatsappFilesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                style={{
+                  background: 'rgba(6, 13, 24, 0.75)',
+                  borderColor: 'rgba(37, 211, 102, 0.6)',
+                  color: '#6ee7b7',
+                  padding: '0.78rem 1.25rem',
+                  fontWeight: '800',
+                  fontSize: '0.88rem',
+                  borderRadius: '12px',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
+                }}
+              >
+                💬 Enviar Archivos por WhatsApp a Nuestro Equipo
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -254,13 +416,13 @@ function App() {
               letterSpacing: '0.5px',
               marginBottom: '0.85rem'
             }}>
-              ⚡ UN PROGRAMA INTELIGENTE PARA UNA COMUNIDAD ORGANIZADA
+              ⚡ UN PROGRAMA INTELIGENTE Y GRATUITO PARA TU COMUNIDAD
             </span>
             <h2 style={{ fontSize: 'clamp(1.7rem, 1.3rem + 2.2vw, 2.75rem)', fontWeight: '800', color: '#ffffff' }}>
               Todo lo que tu gestión necesita para una <span className="text-gradient">Comunidad Organizada</span>
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.98rem, 0.92rem + 0.35vw, 1.15rem)', maxWidth: '720px', margin: '0.9rem auto 0 auto', lineHeight: 1.65 }}>
-              Conoce todas las bondades que tendrás activas desde el primer día durante tus 30 días de prueba Premium gratuita para ahorrar horas de trabajo administrativo y brindar total claridad financiera a tus vecinos.
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.98rem, 0.92rem + 0.35vw, 1.15rem)', maxWidth: '740px', margin: '0.9rem auto 0 auto', lineHeight: 1.65 }}>
+              Instala el programa gratis en tu condominio sin fechas de corte ni pagos obligatorios, ahorra horas de trabajo administrativo y brinda total transparencia financiera a tus vecinos desde el primer día.
             </p>
           </div>
 
@@ -277,7 +439,7 @@ function App() {
             ))}
           </div>
 
-          {/* Banner Intermedio de Alta Rápida */}
+          {/* Banner Intermedio de Instalación Gratis Permanente */}
           <div
             className="glass-panel"
             style={{
@@ -293,32 +455,32 @@ function App() {
             }}
           >
             <div style={{ maxWidth: '680px' }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#34d399', letterSpacing: '0.4px', marginBottom: '0.35rem' }}>
-                🎁 ALTA GRATIS + 30 DÍAS DE PLAN PREMIUM INCLUIDOS
+              <div style={{ fontSize: '0.78rem', fontWeight: '900', color: '#34d399', letterSpacing: '0.4px', marginBottom: '0.35rem' }}>
+                ✅ PLAN GRATUITO PERMANENTE ($0 SIEMPRE • SIN COBROS SORPRESA)
               </div>
               <h3 style={{ fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.65rem)', color: '#ffffff', marginBottom: '0.45rem', fontWeight: '800' }}>
-                Descubre hoy mismo cómo la Inteligencia Artificial gestiona tu condominio
+                Instala IACondo gratis hoy y úsalo sin límite de tiempo
               </h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.95rem', margin: 0, lineHeight: 1.55 }}>
-                Registra tu condominio gratis en 2 minutos y disfruta durante <strong>30 días de todas las funciones Premium sin costo</strong>. Nuestro <strong>Equipo de Soporte por WhatsApp</strong> te acompañará paso a paso en la puesta en marcha.
+                Sin tarjetas de crédito ni cargos ocultos al pasar el primer mes: cuentas con un <strong>Plan Gratuito Permanente</strong> para gestionar tu condominio con tranquilidad, y puedes cargar tus archivos históricos en segundos con ayuda de nuestra IA.
               </p>
             </div>
             <button
               type="button"
-              onClick={() => setShowOnboardingModal(true)}
+              onClick={() => openOnboarding('wizard')}
               className="btn btn-primary"
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
                 border: 'none',
                 padding: '1rem 1.75rem',
-                fontWeight: '800',
+                fontWeight: '900',
                 fontSize: '1rem',
                 boxShadow: '0 8px 24px rgba(16, 185, 129, 0.35)',
                 whiteSpace: 'normal',
                 textAlign: 'center'
               }}
             >
-              🚀 Dar de Alta mi Condominio Gratis →
+              📲 Instalar el Programa GRATIS →
             </button>
           </div>
         </div>
@@ -333,10 +495,10 @@ function App() {
               <span style={{ color: 'var(--accent-primary)' }}>🛡️</span> Para una Gestión Impecable (Junta y Administración)
             </h3>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <BenefitItem text="Sube tus Excels, extractos y facturas para armar tu condominio e históricos en segundos." />
               <BenefitItem text="Ahorra hasta un 85% del tiempo con conciliación bancaria y lectura de facturas con IA." />
               <BenefitItem text="Configura cobros por cuota fija mensual, alícuotas (%) o gastos en partes iguales." />
               <BenefitItem text="Controla saldos multimoneda en Dólares ($ USD) y Bolívares a tasa BCV automática." />
-              <BenefitItem text="Cambia en 1 clic entre tu Vista de Junta Directiva y tu Vista de Propietario (🔄)." />
               <BenefitItem text="19 indicadores gerenciales (KPIs) para presentar cuentas claras y auditables." />
             </ul>
           </div>
@@ -362,25 +524,40 @@ function App() {
         <div style={{ maxInlineSize: '640px', inlineSize: '100%', marginInline: 'auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: 'clamp(1.55rem, 1.2rem + 2vw, 2.4rem)', marginBottom: '0.75rem' }}>
-              Comienza Hoy Mismo o Conversa con Nuestro Equipo
+              Instala el Programa Gratis Hoy o Envíanos tus Archivos
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.92rem, 0.86rem + 0.35vw, 1.05rem)', lineHeight: 1.6 }}>
-              Puedes <strong>dar de alta tu condominio directamente en 2 minutos</strong> para entrar al programa ahora mismo, o dejarnos tus datos abajo para que <strong>Sofía IA y nuestro Equipo de Soporte</strong> te asistan por WhatsApp y correo.
+              Puedes <strong>instalar tu condominio gratis ahora mismo</strong> (desde cero o subiendo tus archivos Excel/PDF para que la IA cargue todo tu historial en segundos), o dejarnos tus datos abajo para asistirte por WhatsApp.
             </p>
-            <div style={{ marginTop: '1.1rem' }}>
+            <div style={{ marginTop: '1.1rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
                 type="button"
-                onClick={() => setShowOnboardingModal(true)}
+                onClick={() => openOnboarding('wizard')}
                 className="btn btn-primary"
                 style={{
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   border: 'none',
-                  padding: '0.85rem 1.5rem',
-                  fontWeight: '800',
-                  fontSize: '0.96rem'
+                  padding: '0.85rem 1.4rem',
+                  fontWeight: '900',
+                  fontSize: '0.94rem'
                 }}
               >
-                🚀 Dar de Alta mi Condominio en 4 Pasos Rápidos
+                📲 Instalar Programa GRATIS
+              </button>
+              <button
+                type="button"
+                onClick={() => openOnboarding('ai_files')}
+                className="btn btn-secondary"
+                style={{
+                  borderColor: 'rgba(56, 189, 248, 0.5)',
+                  color: '#7dd3fc',
+                  background: 'rgba(14, 165, 233, 0.14)',
+                  padding: '0.85rem 1.3rem',
+                  fontWeight: '800',
+                  fontSize: '0.9rem'
+                }}
+              >
+                📂 Subir Archivos e Históricos con IA
               </button>
             </div>
           </div>
@@ -403,13 +580,14 @@ function App() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem', flexWrap: 'wrap' }}>
           <a href="mailto:hola@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>📧 hola@iacondo.com</a>
           <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>🛠️ soporte@iacondo.com</a>
+          <a href="#migracion-ia" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Carga de Archivos IA</a>
           <a href="#features" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Funcionalidades</a>
           <button
             type="button"
-            onClick={() => setShowOnboardingModal(true)}
-            style={{ background: 'none', border: 'none', color: '#38bdf8', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' }}
+            onClick={() => openOnboarding('wizard')}
+            style={{ background: 'none', border: 'none', color: '#34d399', fontWeight: '800', cursor: 'pointer', fontSize: '0.9rem' }}
           >
-            Dar de Alta mi Condominio
+            Instalar Programa Gratis
           </button>
         </div>
       </footer>
@@ -417,7 +595,10 @@ function App() {
       <WhatsAppFloatingButton />
 
       {showOnboardingModal && (
-        <WebsiteOnboardingModal onClose={() => setShowOnboardingModal(false)} />
+        <WebsiteOnboardingModal
+          initialMode={onboardingInitialMode}
+          onClose={() => setShowOnboardingModal(false)}
+        />
       )}
     </div>
   );
@@ -482,7 +663,8 @@ function BenefitItem({ text }) {
   );
 }
 
-function WebsiteOnboardingModal({ onClose }) {
+function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
+  const [modalMode, setModalMode] = useState(initialMode === 'ai_files' ? 'ai_files' : 'wizard'); // 'wizard' | 'ai_files'
   const [step, setStep] = useState(1);
   const [condoName, setCondoName] = useState('');
   const [unitType, setUnitType] = useState('Casa');
@@ -507,14 +689,14 @@ function WebsiteOnboardingModal({ onClose }) {
     setSelectedAreas(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  const buildLaunchAppUrl = () => {
+  const buildLaunchAppUrl = (useAiBuilder = false) => {
     const cleanUnits = Math.min(300, Math.max(2, parseInt(totalUnits, 10) || 24));
     const hasAccess = accessControlType !== 'none';
-    const initialView = userRoleType === 'admin_only' ? 'admin' : 'owner';
+    const initialView = useAiBuilder ? 'admin' : (userRoleType === 'admin_only' ? 'admin' : 'owner');
     const params = new URLSearchParams({
       demo: '1',
       onboarding: '1',
-      condo: (condoName || 'Mi Comunidad').trim(),
+      condo: (condoName || 'Mi Condominio').trim(),
       units: String(cleanUnits),
       type: unitType,
       access: hasAccess ? '1' : '0',
@@ -530,9 +712,36 @@ function WebsiteOnboardingModal({ onClose }) {
       areas: selectedAreas.join(','),
       view: initialView
     });
+    if (useAiBuilder) {
+      params.set('aiBuilder', '1');
+    }
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseApp = isLocal ? 'http://localhost:5173/demo' : 'https://app.iacondo.com/demo';
+    const targetRoute = useAiBuilder ? '/admin/inicio' : '/demo';
+    const baseApp = isLocal ? `http://localhost:5173${targetRoute}` : `https://app.iacondo.com${targetRoute}`;
     return `${baseApp}?${params.toString()}`;
+  };
+
+  const handleLaunchAiFilesMode = (e) => {
+    e.preventDefault();
+    if (!condoName.trim()) {
+      alert('Ingresa el nombre de tu condominio o comunidad para crear tu espacio.');
+      return;
+    }
+    try {
+      fetch('https://condopro-api.onrender.com/api/public/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientName || 'Usuario Carga Masiva IA',
+          email: clientEmail || 'alta@iacondo.com',
+          phone: clientPhone || '',
+          condominium: condoName || 'Nuevo Condominio',
+          message: `INSTALACIÓN GRATIS CON CARGA MASIVA DE ARCHIVOS IA: ${condoName}`
+        })
+      }).catch(() => {});
+    } catch (err) {}
+
+    window.location.href = buildLaunchAppUrl(true);
   };
 
   const handleLaunchNow = async (e) => {
@@ -556,13 +765,19 @@ function WebsiteOnboardingModal({ onClose }) {
           email: clientEmail || 'alta@iacondo.com',
           phone: clientPhone || '',
           condominium: condoName || 'Nuevo Condominio',
-          message: `ALTA DIRECTA DESDE WEB: ${totalUnits} ${unitType}s | Rol: ${roleLabel} | Cobro: ${billingMethod} (${baseCurrency}) | Bancos: ${bankNames} | Áreas: ${areaNames} | Acceso: ${accessControlType}`
+          message: `INSTALACIÓN GRATIS DESDE WEB: ${totalUnits} ${unitType}s | Rol: ${roleLabel} | Cobro: ${billingMethod} (${baseCurrency}) | Bancos: ${bankNames} | Áreas: ${areaNames} | Acceso: ${accessControlType}`
         })
       }).catch(() => {});
     } catch (err) {}
 
-    window.location.href = buildLaunchAppUrl();
+    window.location.href = buildLaunchAppUrl(false);
   };
+
+  const whatsappDirectUploadUrl =
+    'https://wa.me/584222537239?text=' +
+    encodeURIComponent(
+      `Hola Sofía, quiero instalar IACondo GRATIS para *${condoName || 'mi condominio'}* y enviarles nuestros archivos (Excel, extractos bancarios y facturas) para que configuren nuestro condominio e históricos.`
+    );
 
   return (
     <div
@@ -595,13 +810,13 @@ function WebsiteOnboardingModal({ onClose }) {
           overflowY: 'auto'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9rem' }}>
           <div>
-            <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#34d399', letterSpacing: '0.4px' }}>
-              🎁 ALTA GRATIS + 30 DÍAS PREMIUM INCLUIDOS — PASO {step} DE 4
+            <span style={{ fontSize: '0.72rem', fontWeight: '900', color: '#34d399', letterSpacing: '0.4px' }}>
+              ✅ PROGRAMA 100% GRATIS PARA SIEMPRE • SIN TARJETA NI COBROS SORPRESA
             </span>
             <h3 style={{ margin: '0.2rem 0 0 0', fontSize: '1.3rem', fontWeight: '900', color: '#ffffff' }}>
-              Da de Alta tu Condominio y Comienza Ahora
+              Instala IACondo Gratis en tu Comunidad
             </h3>
           </div>
           <button
@@ -613,21 +828,164 @@ function WebsiteOnboardingModal({ onClose }) {
           </button>
         </div>
 
-        {/* Barra de progreso */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem', marginBottom: '1.35rem' }}>
-          {[1, 2, 3, 4].map(n => (
-            <div
-              key={n}
-              style={{
-                height: '6px',
-                borderRadius: '999px',
-                background: n <= step ? 'linear-gradient(90deg, #38bdf8, #10b981)' : 'rgba(255,255,255,0.1)'
-              }}
-            />
-          ))}
+        {/* Selector de Modo: Subir Archivos con IA en Segundos vs Paso a Paso */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.55rem', marginBottom: '1.2rem' }}>
+          <button
+            type="button"
+            onClick={() => setModalMode('ai_files')}
+            style={{
+              padding: '0.75rem 0.9rem',
+              borderRadius: '12px',
+              border: modalMode === 'ai_files' ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.12)',
+              background: modalMode === 'ai_files' ? 'rgba(14, 165, 233, 0.18)' : '#1e293b',
+              color: '#ffffff',
+              cursor: 'pointer',
+              textAlign: 'left'
+            }}
+          >
+            <div style={{ fontWeight: '900', fontSize: '0.86rem', color: modalMode === 'ai_files' ? '#7dd3fc' : '#ffffff' }}>
+              📂 Subir mis Archivos con IA (En Segundos)
+            </div>
+            <div style={{ fontSize: '0.73rem', color: '#cbd5e1', marginTop: '0.18rem' }}>
+              Sube tus Excels, extractos y facturas: la IA arma el condominio e históricos.
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setModalMode('wizard')}
+            style={{
+              padding: '0.75rem 0.9rem',
+              borderRadius: '12px',
+              border: modalMode === 'wizard' ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
+              background: modalMode === 'wizard' ? 'rgba(16, 185, 129, 0.16)' : '#1e293b',
+              color: '#ffffff',
+              cursor: 'pointer',
+              textAlign: 'left'
+            }}
+          >
+            <div style={{ fontWeight: '900', fontSize: '0.86rem', color: modalMode === 'wizard' ? '#6ee7b7' : '#ffffff' }}>
+              🛠️ Configuración Guiada desde Cero (2 min)
+            </div>
+            <div style={{ fontSize: '0.73rem', color: '#cbd5e1', marginTop: '0.18rem' }}>
+              Configura propiedades, bancos y áreas comunes en 4 pasos simples.
+            </div>
+          </button>
         </div>
 
-        <form onSubmit={handleLaunchNow} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+        {modalMode === 'ai_files' ? (
+          <form onSubmit={handleLaunchAiFilesMode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(16, 185, 129, 0.14))',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              borderRadius: '14px',
+              padding: '1rem 1.1rem'
+            }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: '900', color: '#7dd3fc', marginBottom: '0.35rem' }}>
+                ⚡ Constructor Automático de Condominio e Históricos con IA
+              </div>
+              <p style={{ margin: 0, fontSize: '0.83rem', color: '#e2e8f0', lineHeight: 1.5 }}>
+                Indica el nombre de tu comunidad y entra directo al <strong>Cargador Masivo IA</strong>. Podrás arrastrar todos tus archivos juntos (<strong>cuadros de Excel, estados de cuenta en PDF/CSV, recibos anteriores y fotos de facturas</strong>) para que Sofía IA ordene todo y configure tu condominio e historial en segundos.
+              </p>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: '800', color: '#cbd5e1', marginBottom: '0.4rem' }}>
+                🏘️ Nombre de tu Condominio o Comunidad *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Ej: Conjunto Residencial Los Naranjos"
+                value={condoName}
+                onChange={e => setCondoName(e.target.value)}
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', background: '#1e293b', border: '1.5px solid #38bdf8', color: '#fff', fontSize: '0.95rem' }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.35rem' }}>
+                  👤 Tu Nombre (Opcional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Ing. Roberto Méndez"
+                  value={clientName}
+                  onChange={e => setClientName(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.9rem' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.35rem' }}>
+                  📱 Tu WhatsApp (Opcional, para soporte)
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Ej: 0414-1234567"
+                  value={clientPhone}
+                  onChange={e => setClientPhone(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.9rem' }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{
+                width: '100%',
+                padding: '0.95rem 1.4rem',
+                fontSize: '0.96rem',
+                fontWeight: '900',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                border: 'none',
+                borderRadius: '12px',
+                whiteSpace: 'normal',
+                textAlign: 'center'
+              }}
+            >
+              📂 Abrir el Programa GRATIS y Subir mis Archivos Ahora →
+            </button>
+
+            <a
+              href={whatsappDirectUploadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{
+                width: '100%',
+                padding: '0.8rem 1.2rem',
+                fontSize: '0.86rem',
+                fontWeight: '800',
+                borderColor: 'rgba(37, 211, 102, 0.5)',
+                color: '#6ee7b7',
+                background: 'rgba(6, 13, 24, 0.65)',
+                borderRadius: '12px',
+                whiteSpace: 'normal',
+                textAlign: 'center'
+              }}
+            >
+              💬 O enviarles mis archivos por WhatsApp para que el equipo lo arme
+            </a>
+          </form>
+        ) : (
+          <>
+            {/* Barra de progreso */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem', marginBottom: '1.35rem' }}>
+              {[1, 2, 3, 4].map(n => (
+                <div
+                  key={n}
+                  style={{
+                    height: '6px',
+                    borderRadius: '999px',
+                    background: n <= step ? 'linear-gradient(90deg, #38bdf8, #10b981)' : 'rgba(255,255,255,0.1)'
+                  }}
+                />
+              ))}
+            </div>
+
+            <form onSubmit={handleLaunchNow} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
           {step === 1 && (
             <>
               <div>
@@ -968,11 +1326,13 @@ function WebsiteOnboardingModal({ onClose }) {
                   border: 'none'
                 }}
               >
-                🚀 Crear mi Comunidad y Entrar al Programa Ahora
+                📲 Instalar mi Comunidad GRATIS Ahora
               </button>
             )}
           </div>
-        </form>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
