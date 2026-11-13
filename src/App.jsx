@@ -131,8 +131,8 @@ function App() {
           <span>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <div className="site-nav-actions">
-          <a href="#migracion-ia" className="btn btn-secondary site-nav-btn">🤖 Migración IA</a>
-          <a href="#planes" className="btn btn-secondary site-nav-btn">Gratis vs IA</a>
+          <a href="#migracion-ia" className="btn btn-secondary site-nav-btn hide-on-mobile">🤖 Migración IA</a>
+          <a href="#planes" className="btn btn-secondary site-nav-btn hide-on-mobile">Gratis vs IA</a>
           <button
             type="button"
             onClick={() => openOnboarding('wizard')}
@@ -141,83 +141,65 @@ function App() {
           >
             ✨ Empezar Gratis
           </button>
-          <a href="https://app.iacondo.com" className="btn btn-secondary site-nav-btn">Iniciar Sesión</a>
+          <a href="https://app.iacondo.com" className="btn btn-secondary site-nav-btn">
+            <span className="hide-on-mobile">Iniciar Sesión</span>
+            <span className="show-on-mobile-inline">Entrar</span>
+          </a>
         </div>
       </nav>
 
       {/* HERO SECTION */}
-      <section style={{ 
-        position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '6.5rem 3% 3.5rem 3%', overflow: 'hidden', backgroundColor: '#030914'
-      }}>
-        {/* Background Image & Overlay: Cerebro IA conectado a los 6 Servicios */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <section className="hero-section">
+        {/* Desktop Full-Bleed Background Image & Overlay: Cerebro IA conectado a los 6 Servicios */}
+        <div className="hero-bg-desktop">
           <img
             src="/hero-cerebro-ia.jpg?v=2"
             alt="Cerebro IA conectado a Barrera de Acceso, Finanzas, Reserva Áreas Comunes, Mejoras y Reparaciones, Presupuestos y Agente de WhatsApp"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center' }}
           />
         </div>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          background: 'radial-gradient(circle at center, rgba(6,13,24,0.22) 0%, rgba(6,13,24,0.12) 60%, rgba(6,13,24,0.72) 100%), linear-gradient(to bottom, rgba(6,13,24,0.25) 0%, rgba(6,13,24,0.05) 75%, rgba(6,13,24,0.95) 100%)',
-          zIndex: 0
-        }}></div>
+        <div className="hero-bg-overlay" />
 
-        <div
-          style={{
-            maxWidth: 'clamp(320px, 46vw, 630px)',
-            width: '100%',
-            minWidth: 0,
-            textAlign: 'center',
-            zIndex: 1,
-            marginTop: 'clamp(2rem, 8vh, 5rem)',
-            background: 'rgba(6, 13, 24, 0.78)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(56, 189, 248, 0.32)',
-            borderRadius: '22px',
-            padding: 'clamp(1.25rem, 2.4vw, 2rem) clamp(1.1rem, 2.2vw, 1.85rem)',
-            boxShadow: '0 24px 60px rgba(0, 0, 0, 0.72), 0 0 40px rgba(14, 165, 233, 0.14)'
-          }}
-          className="fade-in-up"
-        >
-          <span style={{ display: 'inline-block', padding: '0.38rem 0.95rem', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '999px', fontWeight: '900', fontSize: 'clamp(0.68rem, 0.62rem + 0.25vw, 0.8rem)', marginBottom: '0.9rem', border: '1px solid rgba(16, 185, 129, 0.55)', maxWidth: '100%' }}>
-            ✨ LA NUEVA ERA PARA TU COMUNIDAD • EMPIEZA GRATIS EN SEGUNDOS
+        {/* Mobile Panoramic Showcase: Cerebro IA y sus 6 Servicios sin recortes ni huecos negros */}
+        <div className="hero-mobile-artwork">
+          <img
+            src="/hero-cerebro-ia.jpg?v=2"
+            alt="Cerebro IA conectado a Barrera de Acceso, Finanzas, Reserva Áreas Comunes, Mejoras y Reparaciones, Presupuestos y Agente de WhatsApp"
+          />
+        </div>
+
+        <div className="hero-card fade-in-up">
+          <span className="hero-eyebrow">
+            ✨ EMPIEZA GRATIS • LA NUEVA ERA PARA TU COMUNIDAD
           </span>
-          <h1 style={{ fontSize: 'clamp(1.6rem, 1.1rem + 2.15vw, 2.8rem)', fontWeight: '900', marginBottom: '0.85rem', wordBreak: 'break-word', lineHeight: 1.14 }}>
+          <h1 style={{ fontSize: 'clamp(1.38rem, 1rem + 2.2vw, 2.75rem)', fontWeight: '900', marginBottom: '0.65rem', wordBreak: 'break-word', lineHeight: 1.14 }}>
             Ya puedes usar la <span className="text-gradient">Inteligencia Artificial</span> para gestionar tu Condominio.
           </h1>
-          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1.02rem)', color: '#e2e8f0', maxWidth: '560px', margin: '0 auto 1.05rem auto', lineHeight: '1.58' }}>
-            Moderniza las finanzas, la garita y el mantenimiento de tu comunidad con una <strong>plataforma gratuita para siempre</strong>. Y no tienes que cargar nada a mano: <strong>nuestros Agentes de IA crean todo tu condominio e históricos en segundos</strong> a partir de tus archivos actuales.
+          <p style={{ fontSize: 'clamp(0.84rem, 0.79rem + 0.25vw, 1.02rem)', color: '#e2e8f0', maxWidth: '560px', margin: '0 auto 0.85rem auto', lineHeight: '1.5' }}>
+            Moderniza las finanzas, la garita y el mantenimiento de tu comunidad con una <strong>plataforma gratuita para siempre</strong>. Y sin cargar nada a mano: <strong>nuestros Agentes de IA crean tu condominio e históricos en segundos</strong> desde tus archivos actuales.
           </p>
 
           {/* Píldoras de Valor Claras y Sin Fricción */}
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem' }}>
-            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(52, 211, 153, 0.5)', color: '#6ee7b7', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-              ✓ Gestión base Gratis para siempre
+          <div className="hero-pills-wrap">
+            <span className="hero-pill" style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(52, 211, 153, 0.5)', color: '#6ee7b7' }}>
+              ✓ Gestión base Gratis siempre
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(56, 189, 248, 0.5)', color: '#7dd3fc', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-              🤖 Los Agentes IA cargan tus datos por ti
+            <span className="hero-pill" style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(56, 189, 248, 0.5)', color: '#7dd3fc' }}>
+              🤖 Los Agentes IA cargan tus datos
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(251, 191, 36, 0.45)', color: '#fde68a', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-              🎁 Incluye 30 días de Súper Poderes IA de regalo
+            <span className="hero-pill" style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(251, 191, 36, 0.45)', color: '#fde68a' }}>
+              🎁 30 días de IA Premium de regalo
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.68rem', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.58rem', alignItems: 'center', width: '100%' }}>
             <button
               type="button"
               onClick={() => openOnboarding('wizard')}
               className="btn btn-primary"
               style={{
                 width: '100%',
-                padding: '0.95rem 1.4rem',
-                fontSize: 'clamp(0.92rem, 0.86rem + 0.3vw, 1.05rem)',
+                padding: 'clamp(0.78rem, 2vw, 0.95rem) 1.25rem',
+                fontSize: 'clamp(0.88rem, 0.82rem + 0.3vw, 1.05rem)',
                 fontWeight: '900',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 boxShadow: '0 10px 28px rgba(16, 185, 129, 0.45)',
@@ -235,8 +217,8 @@ function App() {
               className="btn btn-secondary"
               style={{
                 width: '100%',
-                padding: '0.82rem 1.3rem',
-                fontSize: 'clamp(0.84rem, 0.8rem + 0.25vw, 0.95rem)',
+                padding: 'clamp(0.7rem, 1.8vw, 0.82rem) 1.15rem',
+                fontSize: 'clamp(0.8rem, 0.76rem + 0.25vw, 0.95rem)',
                 fontWeight: '800',
                 background: 'rgba(14, 165, 233, 0.16)',
                 borderColor: 'rgba(56, 189, 248, 0.55)',
@@ -644,7 +626,9 @@ function App() {
                   border: 'none',
                   padding: '0.85rem 1.4rem',
                   fontWeight: '900',
-                  fontSize: '0.94rem'
+                  fontSize: '0.94rem',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
                 }}
               >
                 🚀 Activar mi Condominio Gratis
@@ -659,7 +643,9 @@ function App() {
                   background: 'rgba(14, 165, 233, 0.14)',
                   padding: '0.85rem 1.3rem',
                   fontWeight: '800',
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
                 }}
               >
                 🤖 Que la IA arme todo con mis Archivos
@@ -671,7 +657,7 @@ function App() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: '#030712', padding: '3rem 5%', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+      <footer style={{ background: '#030712', padding: '3rem 5% 4.8rem 5%', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'var(--text-secondary)' }}>
         <div style={{ fontSize: '1.5rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
           <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
           <span style={{ color: 'white' }}>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
@@ -911,7 +897,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
           padding: 'clamp(1.25rem, 4vw, 2rem)',
           color: '#f8fafc',
           boxShadow: '0 25px 60px rgba(0,0,0,0.75)',
-          maxHeight: '92vh',
+          maxHeight: '92dvh',
           overflowY: 'auto'
         }}
       >
@@ -1107,7 +1093,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0.85rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.4rem' }}>
                     Tipo de Propiedades
@@ -1255,7 +1241,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0.85rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.35rem' }}>
                     Moneda Principal
@@ -1388,7 +1374,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
             </>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.5rem' }}>
             {step > 1 ? (
               <button
                 type="button"
@@ -1424,11 +1410,14 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
                 type="submit"
                 className="btn btn-primary"
                 style={{
-                  padding: '0.85rem 1.6rem',
-                  fontSize: '0.95rem',
+                  padding: '0.85rem 1.4rem',
+                  fontSize: '0.92rem',
                   fontWeight: '900',
                   background: 'linear-gradient(135deg, #10b981, #059669)',
-                  border: 'none'
+                  border: 'none',
+                  whiteSpace: 'normal',
+                  textAlign: 'center',
+                  flex: '1 1 220px'
                 }}
               >
                 🚀 Activar mi Condominio Gratis Ahora
@@ -1534,7 +1523,9 @@ function ContactForm() {
               textDecoration: 'none',
               fontWeight: '800',
               borderRadius: '10px',
-              fontSize: '0.98rem',
+              fontSize: '0.95rem',
+              whiteSpace: 'normal',
+              textAlign: 'center',
               boxShadow: '0 8px 20px rgba(37, 211, 102, 0.3)'
             }}
           >
@@ -1667,30 +1658,11 @@ function WhatsAppFloatingButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Comunicarse por WhatsApp con IA Condo"
-      style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        zIndex: 9999,
-        background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-        color: 'white',
-        textDecoration: 'none',
-        borderRadius: '999px',
-        padding: '0.78rem 1.25rem',
-        fontWeight: '700',
-        fontSize: 'clamp(0.84rem, 0.8rem + 0.25vw, 0.95rem)',
-        boxShadow: '0 8px 25px rgba(37, 211, 102, 0.4)',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.55rem',
-        border: '1px solid rgba(255, 255, 255, 0.25)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        maxWidth: 'calc(100vw - 32px)'
-      }}
+      className="wa-floating-btn"
     >
       <svg
-        width="22"
-        height="22"
+        width="19"
+        height="19"
         viewBox="0 0 24 24"
         fill="currentColor"
         aria-hidden="true"
