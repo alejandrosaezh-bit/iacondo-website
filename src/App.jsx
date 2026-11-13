@@ -3,67 +3,67 @@ import './index.css';
 
 const WEBSITE_FEATURES = [
   {
-    icon: '📂',
-    badge: 'MIGRACIÓN IA EN SEGUNDOS',
-    title: 'Sube tus Archivos y la IA Configura tu Condominio e Históricos',
-    desc: '¿Tienes meses o años de cuadros en Excel, extractos bancarios, recibos antiguos o fotos de facturas? Súbelos todos juntos sin ordenarlos: nuestra IA los clasifica, extrae propietarios, deudas, pagos y gastos, y arma tu condominio completo con su historial en segundos.',
-    highlights: ['Lee Excel, PDF, CSV y Fotos', 'Carga saldos e históricos al instante', 'Cero transcripción manual']
+    icon: '🤖',
+    badge: 'CERO TRABAJO MANUAL',
+    title: 'Nuestros Agentes de IA Crean tu Condominio por Ti',
+    desc: 'Entréganos tus hojas de Excel, extractos bancarios, recibos antiguos o fotos de facturas tal como estén. Nuestros Agentes de IA ordenan todo, extraen propietarios, deudas y movimientos, y te entregan tu condominio e históricos listos en segundos.',
+    highlights: ['Lee Excel, PDF, CSV y Fotos', 'Históricos listos al instante', 'No transcribes nada a mano']
   },
   {
     icon: '🚪',
-    badge: 'SEGURIDAD Y CAPTACIÓN',
-    title: 'Control de Acceso, Garita y Portón GSM',
-    desc: 'Pases de visita con código QR enviados por WhatsApp en 3 segundos, notificación en vivo cuando llega tu invitado, anuncio de Deliverys, lectura OCR de placas/cédulas en garita y apertura telefónica de portón identificando qué familiar autorizó cada número.',
-    highlights: ['Pases QR por WhatsApp', 'Aviso de llegada en tiempo real', 'Garita + Apertura GSM']
-  },
-  {
-    icon: '🤖',
-    badge: 'INTELIGENCIA FINANCIERA',
-    title: 'Contabilidad con IA y Conciliación Automática',
-    desc: 'Olvídate de revisar transferencias a mano. Escanea facturas con Inteligencia Artificial (detecta RIF, proveedor y monto automáticamente) y cruza en segundos los pagos reportados por los vecinos con el extracto bancario en PDF, Excel o CSV.',
-    highlights: ['Lectura de facturas con IA', 'Cruce bancario automático', 'Auditoría de extractos']
+    badge: 'ACCESO Y GARITA',
+    title: 'Control de Acceso, Avisos a Garita y Portón GSM',
+    desc: 'Anuncia visitas y deliverys a la garita gratis desde el celular. Además, genera pases QR por WhatsApp, recibe notificaciones en tiempo real cuando llega tu invitado y abre el portón telefónico identificando qué familiar autorizó cada número.',
+    highlights: ['Aviso digital a garita incluido', 'Pases QR por WhatsApp', 'Notificación de llegada en vivo']
   },
   {
     icon: '💳',
-    badge: 'MULTIMONEDA USD / BCV',
-    title: 'Cobros Flexibles: Cuota Fija, Alícuotas o Partes Iguales',
-    desc: 'Se adapta a cualquier conjunto residencial, urbanización o condominio. Configura cobros por monto fijo mensual, división exacta por alícuota (%) o partes iguales, con conversión automática a tasa BCV y avisos de cobro por WhatsApp.',
-    highlights: ['Monto Fijo o Alícuotas (%)', 'Dólares ($ USD) y Bs (BCV)', 'Recibos digitales en PDF']
-  },
-  {
-    icon: '📈',
-    badge: 'GESTIÓN EJECUTIVA',
-    title: 'Panel Directivo con 19 Indicadores KPI en Vivo',
-    desc: 'Toma decisiones con datos claros: monitorea la velocidad de recaudación, semáforo de morosidad, meses de reserva operativa, ejecución presupuestaria y salud financiera desde un panel interactivo 100% personalizable.',
-    highlights: ['19 KPIs financieros y operativos', 'Configuración en 1 toque', 'Transparencia al centavo']
-  },
-  {
-    icon: '🏊',
-    badge: 'CONVIVENCIA ORGANIZADA',
-    title: 'Reserva de Áreas Comunes y Eventos',
-    desc: 'Calendario inteligente para Salón de Fiesta, Caney, Parrillera, Piscina, Canchas o Gimnasio. Automatiza reglas de uso, bloqueo opcional para inmuebles con deuda, control de horarios y lista de invitados para vigilancia.',
-    highlights: ['Salón, Caney, Piscina y Canchas', 'Validación automática de solvencia', 'Control de aforo y horarios']
-  },
-  {
-    icon: '🗳️',
-    badge: 'DECISIONES LEGALES LPH',
-    title: 'Cartas Consulta Digitales y Presupuestos',
-    desc: 'Consulta a tu comunidad desde el celular con total validez legal: lanza sondeos de factibilidad, compara hasta 3 presupuestos de proveedores y ejecuta votaciones vinculantes con conteo automático por propiedad o alícuota.',
-    highlights: ['Sondeo → Presupuestos → Votación', 'Quórum automático en vivo', 'Resultados auditables']
+    badge: 'CONTABILIDAD GRATUITA',
+    title: 'Gestión Contable, Extractos y Multimoneda USD / BCV',
+    desc: 'Lleva las cuentas claras de tu comunidad gratis: cobra por cuota fija, alícuotas (%) o partes iguales en Dólares ($ USD) y Bolívares (BCV), sube tus extractos bancarios y deja que la IA sugiera automáticamente de qué vivienda es cada pago.',
+    highlights: ['Contabilidad y carga de extractos', 'Sugerencia automática con IA', 'Recibos digitales claros']
   },
   {
     icon: '🛠️',
-    badge: 'ATENCIÓN AL PROPIETARIO',
-    title: 'Reporte de Averías, Mejoras y Tickets',
-    desc: 'Sustituye el caos de los grupos de WhatsApp por un canal organizado. Los vecinos reportan averías con fotos, apoyan solicitudes comunitarias y consultan el avance de cada reparación en tiempo real.',
-    highlights: ['Tickets con evidencia fotográfica', 'Seguimiento de estatus en vivo', 'Historial de mantenimiento']
+    badge: '+100 PROFESIONALES',
+    title: 'Reparaciones Conectadas con Cientos de Profesionales',
+    desc: '¿Se dañó la bomba hidroneumática, el portón, un ascensor o hay filtraciones? Reporta la avería en segundos y conecta de inmediato con cientos de profesionales y técnicos verificados listos para presupuestar y resolver el problema.',
+    highlights: ['Red de cientos de especialistas', 'Comparador de presupuestos', 'Seguimiento en tiempo real']
   },
   {
-    icon: '🎧',
-    badge: 'PLAN GRATUITO + SOPORTE',
-    title: 'Programa Gratis Permanente + Soporte por WhatsApp',
-    desc: 'Instala y usa el programa gratis sin límite de tiempo ni cobros automáticos. Si lo deseas, envíanos tus archivos por WhatsApp y nuestro equipo junto con Sofía IA dejará tu comunidad lista en minutos.',
-    highlights: ['Plan Gratuito Permanente ($0)', 'Soporte humano por WhatsApp', 'Agentes IA 24/7 (Sofía y Carlos)']
+    icon: '🏊',
+    badge: 'VIDA EN COMUNIDAD',
+    title: 'Reserva de Áreas Comunes y Calendario Digital',
+    desc: 'Organiza sin conflictos el uso del Salón de Fiesta, Caney, Parrillera, Piscina, Canchas o Gimnasio con reglas automáticas, control de horarios, validación opcional de solvencia y lista de invitados para vigilancia.',
+    highlights: ['Salón, Caney, Piscina y Canchas', 'Reglas automáticas de uso', 'Lista directa para vigilancia']
+  },
+  {
+    icon: '🗳️',
+    badge: 'DECISIONES LPH',
+    title: 'Cartas Consulta Digitales y Aprobación de Presupuestos',
+    desc: 'Toma decisiones comunitarias desde el celular con respaldo legal: realiza sondeos rápidos, compara propuestas de proveedores y ejecuta votaciones auditables por inmueble o alícuota sin reuniones interminables.',
+    highlights: ['Sondeo → Presupuestos → Votación', 'Quórum automático en vivo', 'Resultados transparentes']
+  },
+  {
+    icon: '📈',
+    badge: 'VISIÓN DIRECTIVA',
+    title: 'Panel Ejecutivo con 19 Indicadores KPI en Vivo',
+    desc: 'Visualiza al instante la salud financiera de tu condominio: velocidad de recaudación, semáforo de morosidad, ejecución presupuestaria, meses de reserva operativa y respaldo histórico de hasta 5 años.',
+    highlights: ['19 KPIs en tiempo real', 'Respaldo histórico hasta 5 años', 'Cuentas auditables al centavo']
+  },
+  {
+    icon: '🔄',
+    badge: 'DOBLE EXPERIENCIA',
+    title: 'Cambio Instantáneo Junta ↔ Vecino en 1 Clic',
+    desc: 'Si formas parte de la Junta Directiva y también vives en la comunidad, alterna en un toque entre tu Panel Administrativo y tu Vista personal de Propietario sin cerrar sesión ni mezclar perfiles.',
+    highlights: ['Interruptor Junta / Vecino (🔄)', 'Modo Administrador Externo', 'Funciona en celular y PC']
+  },
+  {
+    icon: '💬',
+    badge: 'ASISTENTE 24/7',
+    title: 'Agente de IA Exclusivo para tu Condominio en WhatsApp',
+    desc: 'Tu comunidad puede contar con su propio Agente de Inteligencia Artificial atendiendo dudas de vecinos 24/7, recibiendo comprobantes, asistiendo a la Junta Directiva y auditando cada documento automáticamente.',
+    highlights: ['Atención automática 24/7', 'Lectura inteligente de soportes', 'Acompañamiento humano incluido']
   }
 ];
 
@@ -110,7 +110,7 @@ function App() {
   const whatsappFilesUrl =
     'https://wa.me/584222537239?text=' +
     encodeURIComponent(
-      'Hola Sofía, quiero instalar el programa GRATIS de IACondo y enviarles nuestros archivos (Excel, extractos bancarios y facturas) para configurar nuestro condominio e históricos.'
+      'Hola Sofía, quiero empezar a gestionar mi condominio gratis con IACondo y enviarles nuestros archivos (Excel, extractos y facturas) para que sus Agentes de IA creen toda nuestra información.'
     );
 
   return (
@@ -131,15 +131,15 @@ function App() {
           <span>IACONDO<span style={{ color: 'var(--accent-primary)' }}>.COM</span></span>
         </div>
         <div className="site-nav-actions">
-          <a href="#migracion-ia" className="btn btn-secondary site-nav-btn">📂 Subir Archivos IA</a>
-          <a href="#features" className="btn btn-secondary site-nav-btn">Funcionalidades</a>
+          <a href="#migracion-ia" className="btn btn-secondary site-nav-btn">🤖 Migración IA</a>
+          <a href="#planes" className="btn btn-secondary site-nav-btn">Gratis vs IA</a>
           <button
             type="button"
             onClick={() => openOnboarding('wizard')}
             className="btn btn-primary site-nav-btn"
             style={{ background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none' }}
           >
-            📲 Instalar Programa GRATIS
+            ✨ Empezar Gratis
           </button>
           <a href="https://app.iacondo.com" className="btn btn-secondary site-nav-btn">Iniciar Sesión</a>
         </div>
@@ -170,7 +170,7 @@ function App() {
 
         <div
           style={{
-            maxWidth: 'clamp(320px, 46vw, 620px)',
+            maxWidth: 'clamp(320px, 46vw, 630px)',
             width: '100%',
             minWidth: 0,
             textAlign: 'center',
@@ -187,25 +187,25 @@ function App() {
           className="fade-in-up"
         >
           <span style={{ display: 'inline-block', padding: '0.38rem 0.95rem', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '999px', fontWeight: '900', fontSize: 'clamp(0.68rem, 0.62rem + 0.25vw, 0.8rem)', marginBottom: '0.9rem', border: '1px solid rgba(16, 185, 129, 0.55)', maxWidth: '100%' }}>
-            ✅ PROGRAMA 100% GRATIS PARA SIEMPRE — SIN TARJETA NI COBROS SORPRESA
+            ✨ LA NUEVA ERA PARA TU COMUNIDAD • EMPIEZA GRATIS EN SEGUNDOS
           </span>
-          <h1 style={{ fontSize: 'clamp(1.6rem, 1.1rem + 2.1vw, 2.75rem)', fontWeight: '900', marginBottom: '0.85rem', wordBreak: 'break-word', lineHeight: 1.15 }}>
-            Instala <span style={{ color: '#34d399' }}>Gratis</span> el Programa con <span className="text-gradient">Inteligencia Artificial</span> para tu Condominio.
+          <h1 style={{ fontSize: 'clamp(1.6rem, 1.1rem + 2.15vw, 2.8rem)', fontWeight: '900', marginBottom: '0.85rem', wordBreak: 'break-word', lineHeight: 1.14 }}>
+            Ya puedes usar la <span className="text-gradient">Inteligencia Artificial</span> para gestionar tu Condominio.
           </h1>
-          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1rem)', color: '#e2e8f0', maxWidth: '550px', margin: '0 auto 1.05rem auto', lineHeight: '1.56' }}>
-            Instala y usa <strong>IACondo gratis de forma permanente</strong> ($0 para siempre, sin vencimiento ni cobros automáticos). ¿Tienes Excels, extractos bancarios o facturas? <strong>Súbelos todos juntos y nuestra IA ordenará todo y configurará tu condominio e históricos en segundos.</strong>
+          <p style={{ fontSize: 'clamp(0.88rem, 0.82rem + 0.25vw, 1.02rem)', color: '#e2e8f0', maxWidth: '560px', margin: '0 auto 1.05rem auto', lineHeight: '1.58' }}>
+            Moderniza las finanzas, la garita y el mantenimiento de tu comunidad con una <strong>plataforma gratuita para siempre</strong>. Y no tienes que cargar nada a mano: <strong>nuestros Agentes de IA crean todo tu condominio e históricos en segundos</strong> a partir de tus archivos actuales.
           </p>
 
-          {/* Píldoras de Confianza: Gratis Permanente + Migración IA */}
+          {/* Píldoras de Valor Claras y Sin Fricción */}
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.45rem', marginBottom: '1.25rem' }}>
             <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(52, 211, 153, 0.5)', color: '#6ee7b7', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-              ✅ Plan Gratuito Permanente ($0 siempre)
+              ✓ Gestión base Gratis para siempre
             </span>
             <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(56, 189, 248, 0.5)', color: '#7dd3fc', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-              📂 Carga tus archivos e históricos en segundos
+              🤖 Los Agentes IA cargan tus datos por ti
             </span>
-            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#cbd5e1', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '700' }}>
-              🚫 Sin tarjeta ni cobros automáticos nunca
+            <span style={{ background: 'rgba(15, 23, 42, 0.88)', border: '1px solid rgba(251, 191, 36, 0.45)', color: '#fde68a', padding: '0.28rem 0.72rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
+              🎁 Incluye 30 días de Súper Poderes IA de regalo
             </span>
           </div>
 
@@ -227,7 +227,7 @@ function App() {
                 border: 'none'
               }}
             >
-              📲 Instalar el Programa 100% GRATIS Ahora
+              🚀 Activar mi Condominio Gratis Ahora
             </button>
             <button
               type="button"
@@ -246,13 +246,13 @@ function App() {
                 borderRadius: '999px'
               }}
             >
-              📂 Subir mis Archivos (Excel, PDFs, Bancos) y Configurar en Segundos
+              🤖 Subir mis Archivos y que la IA cree todo en Segundos
             </button>
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN ESTRELLA: SUBE TODOS TUS ARCHIVOS Y LA IA CONFIGURA TU CONDOMINIO E HISTÓRICOS EN SEGUNDOS */}
+      {/* SECCIÓN ESTRELLA: NUESTROS AGENTES DE IA CREAN TODOS TUS DATOS EN SEGUNDOS */}
       <section
         id="migracion-ia"
         style={{
@@ -278,13 +278,13 @@ function App() {
               letterSpacing: '0.5px',
               marginBottom: '0.85rem'
             }}>
-              ⚡ MIGRACIÓN Y PUESTA EN MARCHA AUTOMÁTICA CON IA
+              🤖 CERO COMPLICACIONES • NUESTROS AGENTES DE IA HACEN EL TRABAJO POR TI
             </span>
-            <h2 style={{ fontSize: 'clamp(1.65rem, 1.25rem + 2.1vw, 2.65rem)', fontWeight: '900', color: '#ffffff', maxWidth: '900px', margin: '0 auto 0.9rem auto', lineHeight: 1.18 }}>
-              ¿Tienes archivos en Excel, extractos bancarios y facturas? <span className="text-gradient">Súbelos todos juntos</span> y armamos tu condominio e históricos en segundos.
+            <h2 style={{ fontSize: 'clamp(1.65rem, 1.25rem + 2.1vw, 2.65rem)', fontWeight: '900', color: '#ffffff', maxWidth: '920px', margin: '0 auto 0.9rem auto', lineHeight: 1.18 }}>
+              No transcribas nada a mano: <span className="text-gradient">sube tus archivos</span> y nuestros Agentes de IA arman tu condominio en segundos.
             </h2>
-            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.96rem, 0.9rem + 0.3vw, 1.12rem)', maxWidth: '780px', margin: '0 auto', lineHeight: 1.65 }}>
-              No pierdas semanas pasando saldos ni recibos viejos a mano. Arrastra toda la documentación de tu comunidad sin importar cómo esté ordenada: nuestra Inteligencia Artificial lee cada documento, cruza la información y deja todo tu condominio y su historial contable configurados al instante.
+            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.96rem, 0.9rem + 0.3vw, 1.12rem)', maxWidth: '790px', margin: '0 auto', lineHeight: 1.65 }}>
+              Cambiar a una gestión moderna ya no es una tarea pesada. Entréganos tus cuadros de Excel, estados de cuenta bancarios, recibos anteriores o facturas sin ordenarlos: nuestros Agentes de IA extraen toda la información y dejan tu condominio listo para operar de inmediato.
             </p>
           </div>
 
@@ -292,37 +292,37 @@ function App() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 290px), 1fr))', gap: '1.35rem', marginBottom: '2rem' }}>
             <div className="glass-panel" style={{ borderColor: 'rgba(56, 189, 248, 0.35)', background: 'rgba(15, 23, 42, 0.65)' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(56, 189, 248, 0.16)', color: '#38bdf8', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
-                PASO 1 • SUBE TODO SIN ORDENAR
+                1 • ENTREGA TUS ARCHIVOS
               </div>
               <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
-                📥 Arrastra tus Excels, PDFs y Fotos
+                📥 Sube todo tal como lo tengas
               </h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
-                Sube de una sola vez tus cuadros de morosidad en Excel, estados de cuenta bancarios, recibos anteriores, fotos de facturas y las reglas de tu comunidad (ej. cuota fija o alícuotas).
+                Arrastra de una sola vez tus hojas de Excel de vecinos o deudas, extractos bancarios en PDF/CSV, recibos antiguos y fotos de facturas.
               </p>
             </div>
 
             <div className="glass-panel" style={{ borderColor: 'rgba(16, 185, 129, 0.4)', background: 'rgba(15, 23, 42, 0.65)' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
-                PASO 2 • EXTRACCIÓN Y AUDITORÍA IA
+                2 • LOS AGENTES IA TRABAJAN POR TI
               </div>
               <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
-                🧠 Ordenamos y Cruzamos Cada Dato
+                🧠 Crean Propietarios, Cuentas e Historial
               </h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
-                La IA identifica cada casa o apartamento, propietarios, deudas acumuladas, pagos históricos, proveedores y saldos bancarios, separando cualquier discrepancia para tu revisión.
+                Nuestros Agentes de IA ordenan cada documento, crean todas las viviendas, registran saldos e históricos y te avisan si algún número requiere revisión.
               </p>
             </div>
 
             <div className="glass-panel" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: 'rgba(15, 23, 42, 0.65)' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(168, 85, 247, 0.18)', color: '#d8b4fe', padding: '0.28rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '900', marginBottom: '0.85rem' }}>
-                PASO 3 • LISTO EN SEGUNDOS
+                3 • GESTIONA CON IA HOY MISMO
               </div>
               <h3 style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '800', marginBottom: '0.55rem' }}>
-                🚀 Condominio e Históricos Activos
+                ✨ Tu Comunidad Lista en Segundos
               </h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: 1.58, margin: 0 }}>
-                Tu condominio queda instalado gratis con todas sus viviendas, propietarios, saldos iniciales e historial contable listos para consultar desde computadora o celular.
+                Comienzas de inmediato con tu plataforma gratuita activa y disfrutas además de 30 días de regalo con todas las automatizaciones Premium de IA.
               </p>
             </div>
           </div>
@@ -343,17 +343,17 @@ function App() {
           >
             <div style={{ maxWidth: '620px' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.6rem' }}>
-                {['📊 Excel (.xlsx / .csv)', '🏦 Extractos PDF', '🧾 Facturas y Recibos', '🏘️ Saldos Históricos'].map((tag, i) => (
+                {['📊 Excel (.xlsx / .csv)', '🏦 Extractos Bancarios PDF', '🧾 Facturas y Recibos', '🏘️ Históricos Completos'].map((tag, i) => (
                   <span key={i} style={{ fontSize: '0.73rem', fontWeight: '800', padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(6, 13, 24, 0.7)', color: '#7dd3fc', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
                     {tag}
                   </span>
                 ))}
               </div>
               <h3 style={{ fontSize: 'clamp(1.15rem, 1rem + 0.9vw, 1.45rem)', color: '#ffffff', marginBottom: '0.35rem', fontWeight: '900' }}>
-                Tú eliges: súbelos directo al Constructor IA o envíanos tus archivos por WhatsApp
+                Deja que nuestros Agentes de IA carguen todo por ti ahora mismo
               </h3>
               <p style={{ color: '#e2e8f0', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>
-                Puedes cargar tus documentos directamente en el programa ahora mismo, o enviárnoslos por WhatsApp para que nuestro equipo los procese y te entregue el condominio listo.
+                Sube tus archivos directamente al asistente inteligente en segundos o envíanoslos por WhatsApp para entregarte tu condominio completamente configurado.
               </p>
             </div>
 
@@ -374,7 +374,7 @@ function App() {
                   textAlign: 'center'
                 }}
               >
-                📂 Subir mis Archivos y Configurar en Segundos →
+                🤖 Que la IA arme mi Condominio ahora →
               </button>
               <a
                 href={whatsappFilesUrl}
@@ -416,13 +416,13 @@ function App() {
               letterSpacing: '0.5px',
               marginBottom: '0.85rem'
             }}>
-              ⚡ UN PROGRAMA INTELIGENTE Y GRATUITO PARA TU COMUNIDAD
+              ⚡ ECOSISTEMA COMPLETO DE GESTIÓN Y CONVIVENCIA
             </span>
             <h2 style={{ fontSize: 'clamp(1.7rem, 1.3rem + 2.2vw, 2.75rem)', fontWeight: '800', color: '#ffffff' }}>
-              Todo lo que tu gestión necesita para una <span className="text-gradient">Comunidad Organizada</span>
+              Convierte la administración de tu comunidad en una <span className="text-gradient">Experiencia Inteligente</span>
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.98rem, 0.92rem + 0.35vw, 1.15rem)', maxWidth: '740px', margin: '0.9rem auto 0 auto', lineHeight: 1.65 }}>
-              Instala el programa gratis en tu condominio sin fechas de corte ni pagos obligatorios, ahorra horas de trabajo administrativo y brinda total transparencia financiera a tus vecinos desde el primer día.
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.98rem, 0.92rem + 0.35vw, 1.15rem)', maxWidth: '760px', margin: '0.9rem auto 0 auto', lineHeight: 1.65 }}>
+              Desde llevar las cuentas y avisar a la garita sin costo, hasta conectar con cientos de profesionales para cualquier reparación o delegar el trabajo operativo en tu propio Agente de IA.
             </p>
           </div>
 
@@ -438,50 +438,155 @@ function App() {
               />
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Banner Intermedio de Instalación Gratis Permanente */}
-          <div
-            className="glass-panel"
-            style={{
-              marginTop: '3.2rem',
-              background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.16) 0%, rgba(16, 185, 129, 0.14) 100%)',
-              border: '1px solid rgba(56, 189, 248, 0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '1.5rem',
-              padding: 'clamp(1.5rem, 4vw, 2.25rem)'
-            }}
-          >
-            <div style={{ maxWidth: '680px' }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: '900', color: '#34d399', letterSpacing: '0.4px', marginBottom: '0.35rem' }}>
-                ✅ PLAN GRATUITO PERMANENTE ($0 SIEMPRE • SIN COBROS SORPRESA)
-              </div>
-              <h3 style={{ fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.65rem)', color: '#ffffff', marginBottom: '0.45rem', fontWeight: '800' }}>
-                Instala IACondo gratis hoy y úsalo sin límite de tiempo
-              </h3>
-              <p style={{ color: '#cbd5e1', fontSize: '0.95rem', margin: 0, lineHeight: 1.55 }}>
-                Sin tarjetas de crédito ni cargos ocultos al pasar el primer mes: cuentas con un <strong>Plan Gratuito Permanente</strong> para gestionar tu condominio con tranquilidad, y puedes cargar tus archivos históricos en segundos con ayuda de nuestra IA.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => openOnboarding('wizard')}
-              className="btn btn-primary"
+      {/* SECCIÓN DE PLANES: GRATIS PARA SIEMPRE VS SÚPER PODERES IA (30 DÍAS DE REGALO) */}
+      <section
+        id="planes"
+        style={{
+          padding: 'clamp(3.8rem, 7vw, 6rem) 5%',
+          background: 'linear-gradient(180deg, var(--bg-main) 0%, #081224 55%, var(--bg-main) 100%)',
+          borderTop: '1px solid rgba(56, 189, 248, 0.16)',
+          width: '100%',
+          overflowX: 'clip'
+        }}
+      >
+        <div style={{ maxWidth: '1120px', width: '100%', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.6rem' }}>
+            <span style={{
+              display: 'inline-block',
+              padding: '0.36rem 0.95rem',
+              borderRadius: '999px',
+              background: 'rgba(16, 185, 129, 0.15)',
+              border: '1px solid rgba(16, 185, 129, 0.45)',
+              color: '#34d399',
+              fontSize: '0.78rem',
+              fontWeight: '900',
+              marginBottom: '0.85rem'
+            }}>
+              💎 TRANSPARENCIA TOTAL • TÚ DECIDES CÓMO USARLO
+            </span>
+            <h2 style={{ fontSize: 'clamp(1.65rem, 1.25rem + 2.1vw, 2.6rem)', fontWeight: '900', color: '#ffffff', marginBottom: '0.85rem' }}>
+              Gratis para toda tu Comunidad, o potenciado con <span className="text-gradient">Súper Poderes de IA</span>
+            </h2>
+            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem)', maxWidth: '760px', margin: '0 auto', lineHeight: 1.65 }}>
+              Al activar tu condominio disfrutas durante tus <strong>primeros 30 días de todas las funciones Premium de IA sin costo ni tarjeta</strong>. Al finalizar ese mes de bienvenida, eliges el plan que más te favorezca o continúas usando el <strong>Plan Comunidad Gratis para siempre</strong> sin perder tu cuenta.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 330px), 1fr))', gap: '1.6rem', alignItems: 'stretch' }}>
+            {/* TARJETA 1: PLAN COMUNIDAD GRATIS PARA SIEMPRE */}
+            <div
+              className="glass-panel"
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                border: 'none',
-                padding: '1rem 1.75rem',
-                fontWeight: '900',
-                fontSize: '1rem',
-                boxShadow: '0 8px 24px rgba(16, 185, 129, 0.35)',
-                whiteSpace: 'normal',
-                textAlign: 'center'
+                background: 'rgba(15, 23, 42, 0.72)',
+                border: '1.5px solid rgba(16, 185, 129, 0.45)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
               }}
             >
-              📲 Instalar el Programa GRATIS →
-            </button>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '900', padding: '0.26rem 0.75rem', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+                    🌱 SIEMPRE DISPONIBLE
+                  </span>
+                  <span style={{ fontSize: '1.45rem', fontWeight: '900', color: '#34d399' }}>
+                    $0 / siempre
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.45rem', fontWeight: '900', color: '#ffffff', marginBottom: '0.45rem' }}>
+                  Plan Comunidad Gratis
+                </h3>
+                <p style={{ color: '#94a3b8', fontSize: '0.92rem', marginBottom: '1.25rem', lineHeight: 1.55 }}>
+                  Ideal para comunidades que desean llevar su contabilidad clara, control básico de garita y mantenimiento sin pagar mensualidades.
+                </p>
+
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                  <BenefitItem text="Gestión contable completa, recibos digitales y cobros en USD / BCV." />
+                  <BenefitItem text="Carga de extractos bancarios y registro de hasta 2 cuentas o cajas." />
+                  <BenefitItem text="Aviso digital de visitantes y deliverys a la Garita de Vigilancia." />
+                  <BenefitItem text="Reserva de áreas comunes y conexión con +100 profesionales para reparaciones." />
+                  <BenefitItem text="Respaldo de información y consulta histórica de hasta 1 año." />
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openOnboarding('wizard')}
+                className="btn btn-secondary"
+                style={{
+                  width: '100%',
+                  padding: '0.92rem 1.2rem',
+                  fontWeight: '800',
+                  borderColor: 'rgba(16, 185, 129, 0.55)',
+                  background: 'rgba(16, 185, 129, 0.14)',
+                  color: '#6ee7b7',
+                  borderRadius: '12px',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
+                }}
+              >
+                ✨ Empezar Gratis con mi Comunidad
+              </button>
+            </div>
+
+            {/* TARJETA 2: PLANES CON SÚPER PODERES DE INTELIGENCIA ARTIFICIAL */}
+            <div
+              className="glass-panel"
+              style={{
+                background: 'linear-gradient(160deg, rgba(14, 165, 233, 0.18) 0%, rgba(15, 23, 42, 0.88) 100%)',
+                border: '2px solid rgba(56, 189, 248, 0.6)',
+                boxShadow: '0 20px 50px rgba(14, 165, 233, 0.18)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '900', padding: '0.26rem 0.75rem', borderRadius: '999px', background: 'rgba(56, 189, 248, 0.22)', color: '#7dd3fc', border: '1px solid rgba(56, 189, 248, 0.5)' }}>
+                    🎁 30 DÍAS DE REGALO AL ACTIVAR
+                  </span>
+                  <span style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fde68a' }}>
+                    Luego eliges el plan a tu medida
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.45rem', fontWeight: '900', color: '#ffffff', marginBottom: '0.45rem' }}>
+                  Planes Inteligentes con IA Premium
+                </h3>
+                <p style={{ color: '#cbd5e1', fontSize: '0.92rem', marginBottom: '1.25rem', lineHeight: 1.55 }}>
+                  Todo lo del Plan Gratis más automatización avanzada con Inteligencia Artificial para ahorrar hasta el 90% del trabajo operativo.
+                </p>
+
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                  <BenefitItem text="Agente de IA exclusivo de tu condominio 24/7 en la App y por WhatsApp." />
+                  <BenefitItem text="Conciliación predictiva: la IA te sugiere de qué casa es cada pago del extracto y lee facturas." />
+                  <BenefitItem text="Notificaciones instantáneas al celular cuando llega tu visita o delivery a garita." />
+                  <BenefitItem text="Cuentas bancarias y cajas ilimitadas + Auditoría Forense automática." />
+                  <BenefitItem text="Archivo histórico blindado y auditable de hasta 5 años." />
+                </ul>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openOnboarding('ai_files')}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '0.95rem 1.2rem',
+                  fontWeight: '900',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  whiteSpace: 'normal',
+                  textAlign: 'center'
+                }}
+              >
+                🚀 Activar Ahora y Disfrutar mis 30 Días con IA Gratis
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -492,27 +597,27 @@ function App() {
           
           <div className="glass-panel fade-in-up delay-2">
             <h3 style={{ fontSize: 'clamp(1.25rem, 1.05rem + 1vw, 1.75rem)', color: 'white', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-              <span style={{ color: 'var(--accent-primary)' }}>🛡️</span> Para una Gestión Impecable (Junta y Administración)
+              <span style={{ color: 'var(--accent-primary)' }}>🛡️</span> Para la Junta Directiva y Administración
             </h3>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <BenefitItem text="Sube tus Excels, extractos y facturas para armar tu condominio e históricos en segundos." />
-              <BenefitItem text="Ahorra hasta un 85% del tiempo con conciliación bancaria y lectura de facturas con IA." />
-              <BenefitItem text="Configura cobros por cuota fija mensual, alícuotas (%) o gastos en partes iguales." />
-              <BenefitItem text="Controla saldos multimoneda en Dólares ($ USD) y Bolívares a tasa BCV automática." />
-              <BenefitItem text="19 indicadores gerenciales (KPIs) para presentar cuentas claras y auditables." />
+              <BenefitItem text="Nuestros Agentes de IA crean tu condominio e historial desde tus archivos en segundos." />
+              <BenefitItem text="Conciliación inteligente que identifica pagos por vivienda y escanea facturas con IA." />
+              <BenefitItem text="Conecta en minutos con cientos de profesionales para resolver cualquier reparación." />
+              <BenefitItem text="Control multimoneda en Dólares ($ USD) y Bolívares a tasa BCV automática." />
+              <BenefitItem text="19 indicadores gerenciales (KPIs) para presentar cuentas impecables a la comunidad." />
             </ul>
           </div>
 
           <div className="glass-panel fade-in-up delay-3">
             <h3 style={{ fontSize: 'clamp(1.25rem, 1.05rem + 1vw, 1.75rem)', color: 'white', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-              <span style={{ color: '#10b981' }}>🏘️</span> Para una Comunidad Organizada (Propietarios y Vecinos)
+              <span style={{ color: '#10b981' }}>🏘️</span> Para los Propietarios y Vecinos
             </h3>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <BenefitItem text="Genera Pases QR de invitados por WhatsApp y recibe aviso apenas lleguen a garita." />
-              <BenefitItem text="Gestiona los teléfonos autorizados de tu vivienda viendo qué familiar registró cada número." />
-              <BenefitItem text="Reporta pagos en segundos desde el celular y descarga tus recibos históricos." />
-              <BenefitItem text="Reserva áreas comunes (Salón, Caney, Piscina, Canchas) desde el calendario digital." />
-              <BenefitItem text="Participa activamente en las decisiones de tu comunidad con Cartas Consulta LPH." />
+              <BenefitItem text="Anuncia visitas a garita gratis o recibe alertas en vivo cuando lleguen tus invitados." />
+              <BenefitItem text="Gestiona los teléfonos autorizados del portón viendo qué familiar registró cada número." />
+              <BenefitItem text="Reporta pagos y averías desde el celular con total claridad y seguimiento." />
+              <BenefitItem text="Reserva áreas comunes (Salón, Caney, Piscina, Canchas) sin choques de horarios." />
+              <BenefitItem text="Participa en presupuestos y decisiones de tu comunidad con Cartas Consulta LPH." />
             </ul>
           </div>
 
@@ -524,10 +629,10 @@ function App() {
         <div style={{ maxInlineSize: '640px', inlineSize: '100%', marginInline: 'auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: 'clamp(1.55rem, 1.2rem + 2vw, 2.4rem)', marginBottom: '0.75rem' }}>
-              Instala el Programa Gratis Hoy o Envíanos tus Archivos
+              Empieza a Gestionar tu Condominio con IA Hoy Mismo
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.92rem, 0.86rem + 0.35vw, 1.05rem)', lineHeight: 1.6 }}>
-              Puedes <strong>instalar tu condominio gratis ahora mismo</strong> (desde cero o subiendo tus archivos Excel/PDF para que la IA cargue todo tu historial en segundos), o dejarnos tus datos abajo para asistirte por WhatsApp.
+              Activa tu comunidad gratis en un par de clics, sube tus archivos para que nuestros <strong>Agentes de IA carguen toda tu información por ti</strong>, o escríbenos abajo para acompañarte personalmente.
             </p>
             <div style={{ marginTop: '1.1rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -542,7 +647,7 @@ function App() {
                   fontSize: '0.94rem'
                 }}
               >
-                📲 Instalar Programa GRATIS
+                🚀 Activar mi Condominio Gratis
               </button>
               <button
                 type="button"
@@ -557,7 +662,7 @@ function App() {
                   fontSize: '0.9rem'
                 }}
               >
-                📂 Subir Archivos e Históricos con IA
+                🤖 Que la IA arme todo con mis Archivos
               </button>
             </div>
           </div>
@@ -580,14 +685,14 @@ function App() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.9rem', flexWrap: 'wrap' }}>
           <a href="mailto:hola@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>📧 hola@iacondo.com</a>
           <a href="mailto:soporte@iacondo.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>🛠️ soporte@iacondo.com</a>
-          <a href="#migracion-ia" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Carga de Archivos IA</a>
-          <a href="#features" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Funcionalidades</a>
+          <a href="#migracion-ia" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Migración con IA</a>
+          <a href="#planes" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Planes</a>
           <button
             type="button"
             onClick={() => openOnboarding('wizard')}
             style={{ background: 'none', border: 'none', color: '#34d399', fontWeight: '800', cursor: 'pointer', fontSize: '0.9rem' }}
           >
-            Instalar Programa Gratis
+            Empezar Gratis
           </button>
         </div>
       </footer>
@@ -813,10 +918,10 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.9rem' }}>
           <div>
             <span style={{ fontSize: '0.72rem', fontWeight: '900', color: '#34d399', letterSpacing: '0.4px' }}>
-              ✅ PROGRAMA 100% GRATIS PARA SIEMPRE • SIN TARJETA NI COBROS SORPRESA
+              ✨ EMPIEZA GRATIS EN SEGUNDOS • INCLUYE 30 DÍAS DE REGALO CON IA PREMIUM
             </span>
             <h3 style={{ margin: '0.2rem 0 0 0', fontSize: '1.3rem', fontWeight: '900', color: '#ffffff' }}>
-              Instala IACondo Gratis en tu Comunidad
+              Activa la Inteligencia Artificial en tu Condominio
             </h3>
           </div>
           <button
@@ -945,7 +1050,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
                 textAlign: 'center'
               }}
             >
-              📂 Abrir el Programa GRATIS y Subir mis Archivos Ahora →
+              🤖 Entrar y que la IA arme mi Condominio con mis Archivos →
             </button>
 
             <a
@@ -1326,7 +1431,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
                   border: 'none'
                 }}
               >
-                📲 Instalar mi Comunidad GRATIS Ahora
+                🚀 Activar mi Condominio Gratis Ahora
               </button>
             )}
           </div>
