@@ -818,16 +818,34 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
       alert('Ingresa el nombre de tu condominio o comunidad para crear tu espacio.');
       return;
     }
+    const syncPayload = {
+      condoName: condoName || 'Nuevo Condominio',
+      clientName: clientName || 'Usuario Carga Masiva IA',
+      email: clientEmail || '',
+      phone: clientPhone || '',
+      units: totalUnits || '',
+      unitType: unitType || 'Apartamento',
+      onboardingMode: 'ai_files',
+      communityRole: userRoleType === 'owner_only' ? 'vecino' : 'junta'
+    };
     try {
+      fetch('https://condopro-api.onrender.com/api/iacondo-panel/public-funnel-sync', {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(syncPayload)
+      }).catch(() => {});
+
       fetch('https://condopro-api.onrender.com/api/public/contact', {
         method: 'POST',
+        keepalive: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: clientName || 'Usuario Carga Masiva IA',
           email: clientEmail || 'alta@iacondo.com',
           phone: clientPhone || '',
           condominium: condoName || 'Nuevo Condominio',
-          message: `INSTALACIÓN GRATIS CON CARGA MASIVA DE ARCHIVOS IA: ${condoName}`
+          message: `ALTA GRATIS CON CARGA MASIVA DE ARCHIVOS IA: ${condoName}`
         })
       }).catch(() => {});
     } catch (err) {}
@@ -846,17 +864,37 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
         ? 'Solo Junta / Administrador'
         : `Propietario (${unitType} ${ownerUnitNumber})`;
 
-    // Notificar silenciosamente al backend de contacto para registro del lead
+    // Sincronizar automáticamente con el Túnel PLG de panel.iacondo.com (Etapa 4: Instalado • 30d IA Gratis) y contacto
     try {
+      fetch('https://condopro-api.onrender.com/api/iacondo-panel/public-funnel-sync', {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          condoName: condoName || 'Nuevo Condominio',
+          clientName: clientName || 'Nuevo Usuario Alta Web',
+          email: clientEmail || '',
+          phone: clientPhone || '',
+          units: totalUnits,
+          unitType,
+          hasAccessControl: accessControlType === 'none' ? 'No' : 'Sí (Portón / Garita)',
+          reservableAreas: areaNames,
+          communityRole: userRoleType === 'owner_only' ? 'vecino' : 'junta',
+          onboardingMode: 'wizard',
+          notes: `Rol: ${roleLabel} | Cobro: ${billingMethod} (${baseCurrency}) | Bancos: ${bankNames || 'Por definir'} | Áreas: ${areaNames || 'Por definir'}`
+        })
+      }).catch(() => {});
+
       fetch('https://condopro-api.onrender.com/api/public/contact', {
         method: 'POST',
+        keepalive: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: clientName || 'Nuevo Usuario Alta Web',
           email: clientEmail || 'alta@iacondo.com',
           phone: clientPhone || '',
           condominium: condoName || 'Nuevo Condominio',
-          message: `INSTALACIÓN GRATIS DESDE WEB: ${totalUnits} ${unitType}s | Rol: ${roleLabel} | Cobro: ${billingMethod} (${baseCurrency}) | Bancos: ${bankNames} | Áreas: ${areaNames} | Acceso: ${accessControlType}`
+          message: `ACTIVACIÓN GRATIS + 30D IA DESDE WEB: ${totalUnits} ${unitType}s | Rol: ${roleLabel} | Cobro: ${billingMethod} (${baseCurrency}) | Bancos: ${bankNames} | Áreas: ${areaNames} | Acceso: ${accessControlType}`
         })
       }).catch(() => {});
     } catch (err) {}

@@ -14,47 +14,192 @@ const VENEZUELA_ZONES = [
 ];
 
 const CONTACT_OUTCOME_OPTIONS = [
-  { id: 'acordo_visita_demo', label: '🎯 Se acordó Visita / Demo en vivo (Avanza a Fase 2: Demo)' },
-  { id: 'envio_cotizacion', label: '📊 Se realizó Demo y se envió Cotización (Avanza a Fase 3: Cotización)' },
-  { id: 'espera_asamblea', label: '⏳ En espera de aprobación en Asamblea / Junta (Fase 4: En Espera)' },
-  { id: 'aprobo_contratacion', label: '🚀 ¡Aprobó Contratación! (Pasa a Fase 5: Implementación con Agente de Implementación)' },
-  { id: 'volver_a_contactar', label: '📅 Requiere volver a contactar (Re-agendar en Calendario y Alertas)' },
-  { id: 'no_contesto', label: '📵 No contestó / Buzón de voz (Re-agendar próximo intento)' },
-  { id: 'descartado', label: '❌ Descartado / Sin interés por ahora (Fase 7: Perdido)' }
+  { id: 'envio_demo_junta', label: '🎯 Demo Personalizado enviado / Puente con Junta iniciado → Etapa 2 (Demo / Junta)' },
+  { id: 'inicio_carga_ia', label: '🤖 Aceptó Activar Gratis / Enviará Archivos para Carga IA → Etapa 3 (Carga IA / Alta Gratis)' },
+  { id: 'instalado_prueba_30d', label: '🎁 ¡Condominio Instalado! Inició sus 30 días de IA Premium → Etapa 4 (Prueba 30d IA)' },
+  { id: 'propuesta_cierre_premium', label: '📊 En cierre de Plan IA Premium con la Junta → Etapa 5 (Cierre Plan Premium)' },
+  { id: 'pago_plan_premium', label: '💎 ¡Éxito! Activó y Pagó su Plan IA Premium → Etapa 6 (Cliente Premium Pagado)' },
+  { id: 'quedo_plan_gratis', label: '🌱 Quedó instalado en Plan Comunidad Gratis ($0) → Etapa 7 (Pool Upsell IA)' },
+  { id: 'volver_a_contactar', label: '📅 Seguimiento programado (Mantiene etapa y re-agenda en Calendario)' },
+  { id: 'no_contesto', label: '📵 No contestó / Buzón de voz (Mantiene recordatorio activo en Pendientes)' },
+  { id: 'descartado', label: '❌ Descartado / Sin interés (Archivar fuera del túnel)' }
 ];
 
 const CRM_TUNNEL_COLUMNS = [
-  { id: 'pendiente', match: ['pendiente', 'nuevo'], title: '1. Nuevo / Contacto', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
-  { id: 'visita_demo', match: ['contactado', 'visita_demo'], title: '2. Visita / Demo', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.12)' },
-  { id: 'cotizacion', match: ['demo_realizada', 'cotizacion'], title: '3. Cotización', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.12)' },
-  { id: 'en_espera', match: ['en_espera'], title: '4. Asamblea / Junta', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.12)' },
-  { id: 'implementacion', match: ['implementacion'], title: '5. Implementación', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.12)' },
-  { id: 'ganado', match: ['afiliado', 'ganado'], title: '6. Condominio Activo', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.12)' }
+  {
+    id: 'pendiente',
+    match: ['pendiente', 'nuevo'],
+    title: '1. Lead / Diagnóstico IA',
+    goal: 'Detectar dolor prioritario y saber si es Junta o Vecino',
+    color: '#f59e0b',
+    bg: 'rgba(245, 158, 11, 0.14)'
+  },
+  {
+    id: 'visita_demo',
+    match: ['contactado', 'visita_demo'],
+    title: '2. Demo / Puente a Junta',
+    goal: 'Mostrar Demo Personalizado e invitar a Alta Gratis',
+    color: '#38bdf8',
+    bg: 'rgba(56, 189, 248, 0.14)'
+  },
+  {
+    id: 'carga_ia',
+    match: ['carga_ia', 'implementacion'],
+    title: '3. Carga IA / Alta Gratis',
+    goal: 'Subir Excels/Extractos con IA e instalar condominio',
+    color: '#2dd4bf',
+    bg: 'rgba(45, 212, 191, 0.14)'
+  },
+  {
+    id: 'prueba_ia_30d',
+    match: ['prueba_ia_30d', 'trial_activo'],
+    title: '4. Instalado • 30d IA Gratis',
+    goal: 'Enganchar con Conciliación IA + Agente WhatsApp 24/7',
+    color: '#c084fc',
+    bg: 'rgba(192, 132, 252, 0.14)'
+  },
+  {
+    id: 'cierre_premium',
+    match: ['cierre_premium', 'cotizacion', 'demo_realizada', 'en_espera'],
+    title: '5. Cierre Plan Premium',
+    goal: 'Aprobar Plan IA en Junta antes de vencer sus 30 días',
+    color: '#fbbf24',
+    bg: 'rgba(251, 191, 36, 0.14)'
+  },
+  {
+    id: 'premium_pagado',
+    match: ['premium_pagado', 'afiliado', 'ganado'],
+    title: '6. 💎 Plan Premium Pagado',
+    goal: 'Suscripción IA recurrente activa (MRR Ganado)',
+    color: '#10b981',
+    bg: 'rgba(16, 185, 129, 0.16)'
+  },
+  {
+    id: 'activo_plan_gratis',
+    match: ['activo_plan_gratis', 'plan_gratis'],
+    title: '7. 🌱 Plan Gratis (Upsell IA)',
+    goal: 'Instalado en Gratis ($0) • Re-activar a Plan IA Premium',
+    color: '#60a5fa',
+    bg: 'rgba(96, 165, 250, 0.14)'
+  }
 ];
+
+const PREMIUM_PLAN_OPTIONS = [
+  { id: 'ia_pro_whatsapp', label: '🤖 Plan IA Pro Total (+ Agente WhatsApp 24/7 + Conciliación IA + Alertas)' },
+  { id: 'ia_comunidad', label: '⚡ Plan IA Comunidad (Conciliación IA + Alertas Garita + 5 Años)' },
+  { id: 'ia_enterprise', label: '🏢 Plan IA Corporativo / Multi-Torre (Tarifa a Medida)' },
+  { id: 'plan_gratis_base', label: '🌱 Plan Comunidad Gratis ($0 — Candidato a Upsell)' }
+];
+
+const AI_ADOPTION_MILESTONES = [
+  { key: 'aiDataLoaded', icon: '📂', label: 'Históricos Cargados con IA' },
+  { key: 'aiBankMatchingTested', icon: '🏦', label: 'Conciliación IA por Casa' },
+  { key: 'whatsappAgentTested', icon: '🤖', label: 'Agente WhatsApp 24/7' },
+  { key: 'liveGateAlertsTested', icon: '🔔', label: 'Alertas Garita + Bancos' }
+];
+
+function getTrialStatusInfo(call) {
+  if (!call) return null;
+  const status = call.status || 'pendiente';
+  const isTrialOrClosing = ['prueba_ia_30d', 'trial_activo', 'cierre_premium', 'cotizacion', 'demo_realizada', 'en_espera'].includes(status);
+  const rawStart = call.trialStartedAt || (isTrialOrClosing ? call.installedAt || call.updatedAt || call.scheduledAt : null);
+  if (!rawStart) return null;
+  const startMs = new Date(rawStart).getTime();
+  if (isNaN(startMs)) return null;
+  const elapsedDays = Math.max(1, Math.floor((Date.now() - startMs) / 86400000) + 1);
+  const daysRemaining = 30 - (elapsedDays - 1);
+  const progressPct = Math.min(100, Math.max(5, Math.round((elapsedDays / 30) * 100)));
+
+  if (['premium_pagado', 'ganado', 'afiliado'].includes(status)) {
+    return {
+      isPremium: true,
+      daysElapsed: elapsedDays,
+      daysRemaining,
+      progressPct: 100,
+      badge: '💎 Suscripción IA Premium Activa',
+      color: '#34d399',
+      bg: 'rgba(16, 185, 129, 0.18)'
+    };
+  }
+  if (['activo_plan_gratis', 'plan_gratis'].includes(status)) {
+    return {
+      isFreePlan: true,
+      daysElapsed: elapsedDays,
+      daysRemaining: 0,
+      progressPct: 100,
+      badge: '🌱 Activo en Plan Gratis ($0) • Listo para Upsell IA',
+      color: '#93c5fd',
+      bg: 'rgba(96, 165, 250, 0.18)'
+    };
+  }
+  if (daysRemaining <= 0) {
+    return {
+      isExpiredTrial: true,
+      daysElapsed: elapsedDays,
+      daysRemaining: 0,
+      progressPct: 100,
+      badge: '🔥 30d IA Vencidos — ¡Cerrar Pago Premium Hoy!',
+      color: '#fca5a5',
+      bg: 'rgba(239, 68, 68, 0.22)'
+    };
+  }
+  if (daysRemaining <= 7) {
+    return {
+      isClosingWindow: true,
+      daysElapsed: elapsedDays,
+      daysRemaining,
+      progressPct,
+      badge: `🔥 Quedan ${daysRemaining}d de IA Gratis (Día ${elapsedDays}/30)`,
+      color: '#fde68a',
+      bg: 'rgba(245, 158, 11, 0.24)'
+    };
+  }
+  return {
+    isActiveTrial: true,
+    daysElapsed: elapsedDays,
+    daysRemaining,
+    progressPct,
+    badge: `🎁 Día ${elapsedDays}/30 (${daysRemaining}d IA Gratis)`,
+    color: '#e9d5ff',
+    bg: 'rgba(168, 85, 247, 0.22)'
+  };
+}
+
+function getAiAdoptionCount(call) {
+  const checks = (call && call.aiAdoptionChecks) || {};
+  return AI_ADOPTION_MILESTONES.reduce((acc, m) => acc + (checks[m.key] ? 1 : 0), 0);
+}
 
 const ROLE_LABELS = {
   admin: { label: 'CEO & Dirección General', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  director: { label: 'Director de Operaciones y Comercial', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.15)' },
-  ventas: { label: 'Agente Comercial (Ventas)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
-  ia_implementacion: { label: 'Agente IA de Implementación', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
-  programacion: { label: 'Programación e Implementación', color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.15)' },
+  director: { label: 'Director de Conversión y Operaciones', color: '#818cf8', bg: 'rgba(129, 140, 248, 0.15)' },
+  ventas: { label: 'Asesor de Activación y Planes Premium', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
+  ia_implementacion: { label: 'Agente IA de Carga Masiva e Implementación', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
+  programacion: { label: 'Programación e Integraciones', color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.15)' },
   soporte: { label: 'Departamento de Soporte Técnico', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-  administracion: { label: 'Administración y Facturación', color: '#f472b6', bg: 'rgba(244, 114, 182, 0.15)' }
+  administracion: { label: 'Suscripciones Premium y Facturación', color: '#f472b6', bg: 'rgba(244, 114, 182, 0.15)' }
 };
 
 const CALL_STATUS_LABELS = {
-  pendiente: { label: '1. Nuevo / Contacto Inicial', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-  nuevo: { label: '1. Nuevo / Contacto Inicial', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
-  contactado: { label: '2. Contacto / Visita o Demo', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  visita_demo: { label: '2. Contacto / Visita o Demo', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
-  demo_realizada: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
-  cotizacion: { label: '3. Cotización / Propuesta (% o Fijo)', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
-  en_espera: { label: '4. En Espera (Asamblea / Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)' },
-  implementacion: { label: '5. En Implementación (Agente de Implementación + Programación)', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
-  afiliado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
-  ganado: { label: '6. Ganado (Condominio Activo)', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.15)' },
-  descartado: { label: '7. Perdido / Descartado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
-  perdido: { label: '7. Perdido / Descartado', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
+  pendiente: { label: '1. Lead / Diagnóstico Sofía', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+  nuevo: { label: '1. Lead / Diagnóstico Sofía', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+  contactado: { label: '2. Demo Personalizado / Puente Junta', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+  visita_demo: { label: '2. Demo Personalizado / Puente Junta', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+  carga_ia: { label: '3. Carga IA / Alta Gratis en Curso', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.16)' },
+  implementacion: { label: '3. Carga IA / Alta Gratis en Curso', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.16)' },
+  prueba_ia_30d: { label: '4. Instalado • Prueba 30d IA Activa', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.16)' },
+  trial_activo: { label: '4. Instalado • Prueba 30d IA Activa', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.16)' },
+  cierre_premium: { label: '5. Cierre Plan IA Premium (Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.16)' },
+  demo_realizada: { label: '5. Cierre Plan IA Premium (Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.16)' },
+  cotizacion: { label: '5. Cierre Plan IA Premium (Junta)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.16)' },
+  en_espera: { label: '5. Cierre Plan IA Premium (Asamblea)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.16)' },
+  premium_pagado: { label: '6. 💎 Cliente Plan IA Premium (Pago)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.18)' },
+  afiliado: { label: '6. 💎 Cliente Plan IA Premium (Pago)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.18)' },
+  ganado: { label: '6. 💎 Cliente Plan IA Premium (Pago)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.18)' },
+  activo_plan_gratis: { label: '7. 🌱 Instalado Plan Gratis (Upsell IA)', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.16)' },
+  plan_gratis: { label: '7. 🌱 Instalado Plan Gratis (Upsell IA)', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.16)' },
+  descartado: { label: '8. Descartado / Inactivo', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
+  perdido: { label: '8. Descartado / Inactivo', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' },
   diagnostico: { label: '2. En Diagnóstico Técnico', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
   en_revision: { label: '3. En Solución / Ajuste', color: '#c084fc', bg: 'rgba(192, 132, 252, 0.15)' },
   validacion: { label: '4. Validación con Condominio', color: '#2dd4bf', bg: 'rgba(45, 212, 191, 0.15)' },
@@ -62,14 +207,19 @@ const CALL_STATUS_LABELS = {
 };
 
 const CHAIN_ACTION_LABELS = {
-  pendiente: '✅ Fase 1 Cumplida: Marcar Contactado + Demo Enviado → Pasar a Fase 2 (Demo)',
-  nuevo: '✅ Fase 1 Cumplida: Marcar Contactado + Demo Enviado → Pasar a Fase 2 (Demo)',
-  contactado: '📊 Fase 2 Cumplida: Demo Realizado → Pasar a Fase 3 (Cotización % o Fijo)',
-  visita_demo: '📊 Fase 2 Cumplida: Demo Realizado → Pasar a Fase 3 (Cotización % o Fijo)',
-  demo_realizada: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Agente de Implementación + 💻 Programación',
-  cotizacion: '🚀 Fase 3 Cumplida: Cotización Aprobada → Transferir a 🤖 Agente de Implementación + 💻 Programación',
-  en_espera: '🚀 Asamblea Aprobó → Transferir a 🤖 Agente de Implementación + 💻 Programación (Implementación)',
-  implementacion: '🏁 Fase 4 Cumplida: Datos y Carga Listos → Activar Condominio (Pasar a Facturación)'
+  pendiente: '🎯 Avance Rápido → Pasar a Etapa 2 (Demo Personalizado / Puente Junta)',
+  nuevo: '🎯 Avance Rápido → Pasar a Etapa 2 (Demo Personalizado / Puente Junta)',
+  contactado: '🤖 Avance Rápido → Pasar a Etapa 3 (Carga de Archivos con IA / Alta Gratis)',
+  visita_demo: '🤖 Avance Rápido → Pasar a Etapa 3 (Carga de Archivos con IA / Alta Gratis)',
+  carga_ia: '🎁 ¡Condominio Instalado! → Iniciar Etapa 4 (30 Días de IA Premium Gratis)',
+  implementacion: '🎁 ¡Condominio Instalado! → Iniciar Etapa 4 (30 Días de IA Premium Gratis)',
+  prueba_ia_30d: '📊 Pasar a Etapa 5 → Iniciar Cierre de Plan IA Premium con la Junta',
+  trial_activo: '📊 Pasar a Etapa 5 → Iniciar Cierre de Plan IA Premium con la Junta',
+  cierre_premium: '💎 ¡Cerrar Venta! → Activar Plan IA Premium Pagado (MRR Ganado)',
+  demo_realizada: '💎 ¡Cerrar Venta! → Activar Plan IA Premium Pagado (MRR Ganado)',
+  cotizacion: '💎 ¡Cerrar Venta! → Activar Plan IA Premium Pagado (MRR Ganado)',
+  en_espera: '💎 ¡Junta Aprobó! → Activar Plan IA Premium Pagado (MRR Ganado)',
+  activo_plan_gratis: '🚀 Reactivar Upsell → Pasar a Etapa 5 (Cierre de Plan IA Premium)'
 };
 
 const DEFAULT_CEO_USER = {
@@ -227,40 +377,39 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     },
     {
       id: 'agent_implementacion',
-      name: 'Agente de Implementación',
-      shortName: 'Implementación',
+      name: 'Agente de Implementación y Carga IA',
+      shortName: 'Implementación IA',
       agentCategory: 'iacondo_fixed',
       isFixedCore: true,
       sortOrder: 2,
-      role: 'Agente de Implementación: Onboarding, Censo de Inmuebles, Alícuotas y Puesta en Marcha',
+      role: 'Agente de Implementación: Carga Masiva de Archivos con IA, Alta Gratis y Arranque de Prueba 30 Días Premium',
       channels: ['WhatsApp (0422-2537239)', 'Correo (hola@iacondo.com)', 'panel.iacondo.com'],
       description:
-        'Se activa cuando un condominio aprueba contratar IA Condo. Guía paso a paso a la Junta o Administración para recolectar la planilla de inmuebles y propietarios, alícuotas, saldos iniciales, cuentas bancarias y configuración de garita/portón.',
-      trainingInstructions: `ROL Y OBJETIVO DEL AGENTE DE IMPLEMENTACIÓN DE IA CONDO:
-1. Bienvenida y Onboarding: Da una bienvenida cálida y ejecutiva a la Junta de Condominio o Administración que acaba de aprobar la contratación de IA Condo.
-2. Recolección Estructurada de Datos de Arranque (Paso a Paso):
-   - Paso 1: Solicita el listado o planilla (Excel, PDF o texto) con los inmuebles (casas o apartamentos), nombre del propietario, teléfono WhatsApp, correo electrónico y alícuota (o confirma si manejan cuota fija en USD).
-   - Paso 2: Solicita los saldos iniciales (quiénes están solventes, quiénes tienen deuda acumulada o saldo a favor).
-   - Paso 3: Solicita los datos de las cuentas bancarias oficiales del condominio (Banco, 20 dígitos, RIF/Cédula, Pago Móvil, Zelle/Efectivo) y la frecuencia deseada de conciliación bancaria.
-   - Paso 4: Confirma cómo desean llamar al Agente de su Condominio (ej. "Carlos", "Pepe", etc.), qué miembro de la Junta recibirá los reportes de incidencias y cuál es el teléfono de la Garita de Vigilancia y del motor del portón.
-3. Estilo de Comunicación: Claro, organizado, paciente y resolutivo. Mensajes breves por WhatsApp (máximo 2 párrafos cortos por turno).`,
+        'Se activa apenas un lead decide activar su condominio gratis o subir sus archivos. Recibe Excels, PDFs, extractos bancarios y censos sin ordenar para dejar el condominio e históricos instalados en segundos e iniciar sus 30 días de Súper Poderes IA.',
+      trainingInstructions: `ROL Y OBJETIVO DEL AGENTE DE IMPLEMENTACIÓN Y CARGA IA DE IA CONDO:
+1. Bienvenida sin Fricción: Da una bienvenida entusiasta y ejecutiva a la Junta o Administración que está activando gratis su condominio en IA Condo con 30 días de regalo de Súper Poderes IA.
+2. Carga Automática desde sus Archivos Actuales (Cero Transcripción Manual):
+   - Paso 1: Pídeles que envíen tal como los tengan sus archivos actuales (cuadro Excel/PDF de inmuebles y propietarios, recibos anteriores o relación de deudas/saldos iniciales) para cargarlos con IA en segundos.
+   - Paso 2: Solicita los datos de las cuentas bancarias oficiales del condominio (Banco, 20 dígitos, RIF/Cédula, Pago Móvil, Zelle/Efectivo) y su último extracto para demostrarles cómo la IA sugiere de qué casa es cada pago.
+   - Paso 3: Confirma qué áreas comunes reservables manejan, cómo desean llamar al Agente de WhatsApp 24/7 de su condominio (ej. "Carlos") y el teléfono de la Garita / motor del portón.
+3. Objetivo de Conversión a Premium: Una vez instalado el condominio, asegúrate de que la Junta pruebe en su primera semana las funciones estrella del Plan Premium (Conciliación IA por casa, Agente WhatsApp 24/7 y Alertas en vivo de Garita). Mensajes breves por WhatsApp (máximo 2 párrafos cortos por turno).`,
       skills: [
         {
           id: 'impl_skill_censo',
-          icon: '🏘️',
-          title: 'Levantamiento de Censo de Inmuebles y Propietarios',
-          triggerWhen: 'Al iniciar la implementación de un nuevo condominio.',
-          requiredData: 'Listado de casas/apartamentos, nombre del propietario, WhatsApp, correo y alícuota o cuota fija.',
-          instructions: 'Solicita la planilla en Excel, PDF o foto y confirma cada bloque antes de pasar al siguiente paso.',
+          icon: '📂',
+          title: 'Carga Masiva con IA de Inmuebles, Deudas e Históricos',
+          triggerWhen: 'Al iniciar la activación gratuita o recepción de archivos de un nuevo condominio.',
+          requiredData: 'Excels, PDFs, recibos anteriores o extractos bancarios tal como los tenga la Junta.',
+          instructions: 'Recibe los archivos sin pedirles que transcriban nada a mano y confirma cada bloque cargado por IA.',
           active: true
         },
         {
           id: 'impl_skill_bancos',
-          icon: '🏦',
-          title: 'Configuración de Cuentas Oficiales y Garita',
-          triggerWhen: 'Una vez recibido el censo de inmuebles del condominio.',
-          requiredData: 'Cuentas bancarias (20 dígitos, RIF/Cédula), nombre del Agente del Condominio y WhatsApp de Garita.',
-          instructions: 'Verifica que los datos bancarios estén completos y deja configurado el Agente del Condominio.',
+          icon: '🤖',
+          title: 'Activación de Súper Poderes IA (30 Días de Regalo)',
+          triggerWhen: 'Una vez instalado el condominio con sus propietarios y cuentas.',
+          requiredData: 'Cuentas bancarias oficiales, nombre del Agente WhatsApp 24/7 y teléfono de Garita.',
+          instructions: 'Deja funcionando la Conciliación IA por casa, el Agente de WhatsApp y las Alertas de Garita para maximizar la conversión a Plan Premium.',
           active: true
         }
       ],
@@ -375,6 +524,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     units: '',
     unitType: 'Apartamentos',
     hasAccessControl: 'Sí (Portón / Garita)',
+    reservableAreas: '',
+    communityRole: 'junta',
+    initialStatus: 'pendiente',
+    targetPlan: 'ia_pro_whatsapp',
+    estimatedMonthlyFeeUsd: '',
     city: '',
     zone: '',
     clientName: '',
@@ -382,10 +536,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     email: '',
     contactDate: '',
     contactTime: '',
-    contactChannel: 'llamada',
+    contactChannel: 'whatsapp',
     notes: '',
     assignedAgentEmail: ''
   });
+  const [mrrDraftByLead, setMrrDraftByLead] = useState({});
 
   // Step 5 & Step 6: Contact Outcome + Rescheduling + Live Call Transcription & AI Summary Dialog
   const outcomeDialogRef = useRef(null);
@@ -395,7 +550,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
   const [aiTranscribing, setAiTranscribing] = useState(false);
   const [outcomeForm, setOutcomeForm] = useState({
     contactMethod: 'llamada',
-    outcome: 'acordo_visita_demo',
+    outcome: 'envio_demo_junta',
     notes: '',
     nextContactDate: '',
     nextContactTime: '',
@@ -723,6 +878,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
           units: '',
           unitType: 'Apartamentos',
           hasAccessControl: 'Sí (Portón / Garita)',
+          reservableAreas: '',
+          communityRole: 'junta',
+          initialStatus: 'pendiente',
+          targetPlan: 'ia_pro_whatsapp',
+          estimatedMonthlyFeeUsd: '',
           city: '',
           zone: '',
           clientName: '',
@@ -730,11 +890,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
           email: '',
           contactDate: '',
           contactTime: '',
-          contactChannel: 'llamada',
+          contactChannel: 'whatsapp',
           notes: '',
           assignedAgentEmail: ''
         });
-        showToast(`✅ Nuevo Lead "${data.lead?.condoName || ''}" registrado, asignado por zona (${data.lead?.zoneLabel || 'Venezuela'}) y notificado al celular del agente`);
+        showToast(`✅ Nuevo Lead "${data.lead?.condoName || ''}" registrado en el túnel de conversión (${data.lead?.zoneLabel || 'Venezuela'})`);
       } else {
         showToast(`⚠️ ${data.error || 'Error registrando el lead'}`);
       }
@@ -749,11 +909,22 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     const rawPhone = call.clientPhone || call.phone || '';
     const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
     const clientName = call.clientName || call.contactName || 'Interesado';
+    const curSt = call.status || 'pendiente';
+    const defaultNextOutcome =
+      curSt === 'pendiente' || curSt === 'nuevo'
+        ? 'envio_demo_junta'
+        : curSt === 'visita_demo' || curSt === 'contactado'
+        ? 'inicio_carga_ia'
+        : curSt === 'carga_ia' || curSt === 'implementacion'
+        ? 'instalado_prueba_30d'
+        : curSt === 'prueba_ia_30d' || curSt === 'trial_activo'
+        ? 'propuesta_cierre_premium'
+        : 'pago_plan_premium';
 
     setActiveOutcomeCall(call);
     setOutcomeForm({
       contactMethod: method,
-      outcome: 'acordo_visita_demo',
+      outcome: defaultNextOutcome,
       notes: '',
       nextContactDate: call.nextContactDate || '',
       nextContactTime: call.nextContactTime || '',
@@ -1438,7 +1609,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
   // 1) "urgentPendingLeads": Toca contactar hoy/ahora, nuevos sin primer contacto, o leads que NO FUE POSIBLE CONTACTAR (no_contesto / vencidos) -> siguen apareciendo para recordar hasta lograr contacto.
   // 2) "upcomingScheduledLeads": Próximos eventos, demos, llamadas o asambleas programadas a futuro.
   const nowMs = Date.now();
-  const closedStatuses = ['ganado', 'afiliado', 'perdido', 'descartado'];
+  const closedStatuses = ['premium_pagado', 'ganado', 'afiliado', 'perdido', 'descartado'];
   const activeFollowUpLeads = filteredSalesCalls.filter(
     c => !closedStatuses.includes(c.status || 'pendiente')
   );
@@ -1448,19 +1619,49 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     const targetMs = rawTarget ? new Date(rawTarget).getTime() : NaN;
     const lastContactMs = call.lastContactAt ? new Date(call.lastContactAt).getTime() : NaN;
     const status = call.status || 'pendiente';
+    const trialInfo = getTrialStatusInfo(call);
 
-    // Si se intentó contactar y NO fue posible (no_contesto), y no tiene una fecha futura aún no cumplida, sigue fijo en Pendientes para recordar
+    // 1. Urgencia máxima de conversión: Prueba de 30 días IA por vencer (<= 7 días) o vencida sin pagar aún Plan Premium
+    if (
+      ['prueba_ia_30d', 'trial_activo', 'cierre_premium', 'cotizacion', 'demo_realizada', 'en_espera'].includes(status) &&
+      trialInfo &&
+      (trialInfo.isExpiredTrial || trialInfo.isClosingWindow)
+    ) {
+      return {
+        bucket: 'urgent',
+        reasonBadge: trialInfo.isExpiredTrial
+          ? '🔥 30 DÍAS IA VENCIDOS — Cerrar pago Plan Premium hoy'
+          : `🔥 CIERRE PREMIUM (${trialInfo.daysRemaining}d restantes de IA Gratis) — Contactar Junta`,
+        badgeColor: '#fde68a',
+        badgeBg: 'rgba(245, 158, 11, 0.25)',
+        borderColor: '#f59e0b',
+        sortKey: trialInfo.daysRemaining * 60000
+      };
+    }
+
+    // 2. Si se intentó contactar y NO fue posible (no_contesto), sigue fijo en Pendientes para recordar
     const isUnreachableReminder =
       call.lastOutcomeType === 'no_contesto' &&
       (isNaN(targetMs) || targetMs <= nowMs + 15 * 60 * 1000);
 
-    // Si tenía hora programada y ya llegó o venció sin que se haya registrado un contacto posterior
+    // 3. Si está en Carga Masiva con IA / Alta Gratis sin terminar de instalar y no tiene cita futura lejana
+    const isPendingInstall =
+      (status === 'carga_ia' || status === 'implementacion') &&
+      (isNaN(targetMs) || targetMs <= nowMs + 4 * 60 * 60 * 1000);
+
+    // 4. Si un vecino pidió puente con su Junta Directiva y aún no se ha avanzado
+    const isBoardBridgePending =
+      Boolean(call.wantsBoardReferral) &&
+      (status === 'pendiente' || status === 'nuevo') &&
+      (isNaN(targetMs) || targetMs <= nowMs + 6 * 60 * 60 * 1000);
+
+    // 5. Si tenía hora programada y ya llegó o venció sin que se haya registrado un contacto posterior
     const isDueOrOverdue =
       !isNaN(targetMs) &&
       targetMs <= nowMs + 15 * 60 * 1000 &&
       (isNaN(lastContactMs) || lastContactMs < targetMs);
 
-    // Si es un lead nuevo/pendiente sin fecha futura programada para otro día
+    // 6. Si es un lead nuevo/pendiente sin fecha futura programada para otro día
     const isNewImmediate =
       (status === 'pendiente' || status === 'nuevo') &&
       (isNaN(targetMs) || targetMs <= nowMs + 3 * 60 * 60 * 1000);
@@ -1468,11 +1669,31 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     if (isUnreachableReminder) {
       return {
         bucket: 'urgent',
-        reasonBadge: '🚨 NO FUE POSIBLE CONTACTAR — Recordatorio activo para reintentar',
+        reasonBadge: '🚨 NO CONTESTÓ — Recordatorio activo para reintentar',
         badgeColor: '#f87171',
         badgeBg: 'rgba(239, 68, 68, 0.18)',
         borderColor: '#ef4444',
         sortKey: isNaN(targetMs) ? 0 : targetMs
+      };
+    }
+    if (isPendingInstall) {
+      return {
+        bucket: 'urgent',
+        reasonBadge: '🤖 CARGA CON IA EN CURSO — Dejar Condominio Instalado + 30d IA',
+        badgeColor: '#5eead4',
+        badgeBg: 'rgba(45, 212, 191, 0.2)',
+        borderColor: '#14b8a6',
+        sortKey: isNaN(targetMs) ? nowMs - 60000 : targetMs
+      };
+    }
+    if (isBoardBridgePending) {
+      return {
+        bucket: 'urgent',
+        reasonBadge: '🏛️ PUENTE A JUNTA — Enviar propuesta e instalar gratis',
+        badgeColor: '#7dd3fc',
+        badgeBg: 'rgba(56, 189, 248, 0.2)',
+        borderColor: '#38bdf8',
+        sortKey: isNaN(targetMs) ? nowMs - 30000 : targetMs
       };
     }
     if (isDueOrOverdue) {
@@ -1480,7 +1701,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
       return {
         bucket: 'urgent',
         reasonBadge: isPast
-          ? '⏰ CONTACTO PENDIENTE / VENCIDO — Sigue en espera de contacto'
+          ? '⏰ SEGUIMIENTO PENDIENTE — Contactar para avanzar en el túnel'
           : '🔔 TOCA CONTACTAR AHORA MISMO',
         badgeColor: isPast ? '#fbbf24' : '#38bdf8',
         badgeBg: isPast ? 'rgba(245, 158, 11, 0.2)' : 'rgba(14, 165, 233, 0.2)',
@@ -1491,7 +1712,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     if (isNewImmediate) {
       return {
         bucket: 'urgent',
-        reasonBadge: '🔔 NUEVO LEAD ASIGNADO — Realizar primer contacto',
+        reasonBadge: '🔔 NUEVO LEAD — Mostrar Demo e invitar a Instalar Gratis',
         badgeColor: '#fbbf24',
         badgeBg: 'rgba(245, 158, 11, 0.18)',
         borderColor: '#f59e0b',
@@ -1500,7 +1721,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
     }
     return {
       bucket: 'upcoming',
-      reasonBadge: '📅 EVENTO / CONTACTO PROGRAMADO',
+      reasonBadge: '📅 SEGUIMIENTO / CIERRE PROGRAMADO',
       badgeColor: '#38bdf8',
       badgeBg: 'rgba(56, 189, 248, 0.15)',
       borderColor: 'rgba(56, 189, 248, 0.45)',
@@ -2174,17 +2395,29 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                 const rawPhone = call.clientPhone || call.phone || '';
                 const cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
                 const timeLabel = call.callTimeLabel || call.callTimeDescription || 'Lo antes posible';
-                const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en implementar IA Condo en su condominio.';
+                const summary = call.executiveSummary || call.executiveBriefing || 'Interesado en gestionar su condominio con IA Condo.';
                 const units = String(call.units || call.unitsCount || 'Por confirmar');
                 const formattedUnitsHeader = /casa|apto|apartamento|vivienda|unid/i.test(units)
                   ? units
                   : `${units} Unidades`;
                 const hasAccessControl = call.hasAccessControl || 'Sí (Portón / Garita)';
+                const reservableAreas = call.reservableAreas || '';
+                const isNeighborBridge = call.communityRole === 'vecino' || Boolean(call.wantsBoardReferral);
                 const numericUnits = String(units).replace(/\D/g, '') || '24';
                 const unitType = /apto|apartamento|edificio/i.test(String(units)) ? 'Apto' : 'Casa';
                 const accessParam = hasAccessControl === 'No' ? 'no' : 'si';
-                const personalizedDemoUrl = `${DEMO_URL}?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&access=${accessParam}&client=${encodeURIComponent(clientName)}`;
+                const personalizedDemoUrl = `${DEMO_URL}?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&access=${accessParam}&areas=${encodeURIComponent(reservableAreas)}&client=${encodeURIComponent(clientName)}`;
+                const directAiLoadUrl = `https://app.iacondo.com/admin/inicio?condo=${encodeURIComponent(call.condoName || 'Mi Condominio')}&units=${encodeURIComponent(numericUnits)}&type=${unitType}&aiBuilder=1`;
                 const st = CALL_STATUS_LABELS[call.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
+                const chainNextLabel = CHAIN_ACTION_LABELS[call.status || 'pendiente'] || null;
+                const trialInfo = getTrialStatusInfo(call);
+                const adoptionCount = getAiAdoptionCount(call);
+                const currentMrrDraft =
+                  mrrDraftByLead[callId] !== undefined
+                    ? mrrDraftByLead[callId]
+                    : call.estimatedMonthlyFeeUsd !== undefined && call.estimatedMonthlyFeeUsd !== null
+                    ? String(call.estimatedMonthlyFeeUsd)
+                    : '';
                 const logs = Array.isArray(call.activityLog) ? call.activityLog : [];
                 const transcripts = Array.isArray(call.callTranscripts) ? call.callTranscripts : [];
                 const zoneObj = VENEZUELA_ZONES.find(z => z.id === call.zone);
@@ -2224,6 +2457,21 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', background: st.bg, color: st.color }}>
                             {st.label}
                           </span>
+                          <span style={{
+                            padding: '0.18rem 0.55rem',
+                            borderRadius: '999px',
+                            fontSize: '0.7rem',
+                            fontWeight: '800',
+                            background: isNeighborBridge ? 'rgba(56, 189, 248, 0.18)' : 'rgba(16, 185, 129, 0.18)',
+                            color: isNeighborBridge ? '#7dd3fc' : '#34d399'
+                          }}>
+                            {isNeighborBridge ? '🏡 Vecino • Puente a Junta' : '🏛️ Junta Directiva / Admin'}
+                          </span>
+                          {trialInfo && (
+                            <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '800', background: trialInfo.bg, color: trialInfo.color }}>
+                              {trialInfo.badge}
+                            </span>
+                          )}
                           <span style={{ padding: '0.18rem 0.55rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700', background: 'rgba(56, 189, 248, 0.14)', color: '#38bdf8' }}>
                             {zoneBadgeLabel}
                           </span>
@@ -2232,8 +2480,15 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           🏢 {call.condoName || 'Condominio'} — {formattedUnitsHeader}
                         </h3>
                         <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: '600', marginBlockStart: '0.2rem', overflowWrap: 'anywhere' }}>
-                          👤 {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} • 📍 {call.city || 'Venezuela'}
+                          👤 {clientName} • 📞 {cleanPhone ? `+${cleanPhone}` : 'Sin teléfono'} {call.email ? `• ✉️ ${call.email}` : ''} • 📍 {call.city || 'Venezuela'}
                         </div>
+                        {(call.priorityPillar || reservableAreas) && (
+                          <div style={{ fontSize: '0.76rem', color: '#cbd5e1', marginBlockStart: '0.18rem', overflowWrap: 'anywhere' }}>
+                            {call.priorityPillar ? `🎯 Dolor/Prioridad IA: ${call.priorityPillar}` : ''}
+                            {call.priorityPillar && reservableAreas ? ' • ' : ''}
+                            {reservableAreas ? `🏊 Áreas reservables: ${reservableAreas}` : ''}
+                          </div>
+                        )}
                         <div style={{ fontSize: '0.78rem', color: '#fbbf24', marginBlockStart: '0.2rem', fontWeight: '700', overflowWrap: 'anywhere' }}>
                           ⏰ Programado: {timeLabel} {call.nextTask ? `• 📌 ${call.nextTask.replace(/\(https?:\/\/[^)]+\)/g, '')}` : ''}
                         </div>
@@ -2257,10 +2512,33 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       </button>
                     </div>
 
-                    {/* ACCIONES DIRECTAS DEL AGENTE (AL FRENTE Y SIN RUIDO) */}
+                    {/* BOTÓN MAESTRO DE 1 CLIC PARA AVANZAR EN EL TÚNEL (INSTALACIÓN -> 30D IA -> PAGO PREMIUM) */}
+                    {chainNextLabel && (
+                      <button
+                        type="button"
+                        onClick={() => handleAdvanceChainPhase(call)}
+                        style={{
+                          inlineSize: '100%',
+                          padding: '0.68rem 0.9rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(16, 185, 129, 0.55)',
+                          background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.25) 0%, rgba(14, 165, 233, 0.28) 100%)',
+                          color: '#ecfdf5',
+                          fontWeight: '800',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          boxShadow: '0 6px 18px -8px rgba(16, 185, 129, 0.5)'
+                        }}
+                      >
+                        {chainNextLabel}
+                      </button>
+                    )}
+
+                    {/* ACCIONES DIRECTAS DEL AGENTE (INSTALACIÓN GRATIS, CARGA IA Y CIERRE PLAN PREMIUM) */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 145px), 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
                       gap: '0.5rem',
                       maxInlineSize: '100%'
                     }}>
@@ -2268,13 +2546,13 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'llamada', true)}
                         style={{
-                          padding: '0.68rem 0.6rem',
+                          padding: '0.65rem 0.55rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(56, 189, 248, 0.5)',
                           background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
                           color: '#fff',
                           fontWeight: '800',
-                          fontSize: '0.78rem',
+                          fontSize: '0.76rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
@@ -2286,13 +2564,13 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'whatsapp', true)}
                         style={{
-                          padding: '0.68rem 0.6rem',
+                          padding: '0.65rem 0.55rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(34, 197, 94, 0.5)',
                           background: 'linear-gradient(135deg, #16a34a 0%, #059669 100%)',
                           color: '#fff',
                           fontWeight: '800',
-                          fontSize: '0.78rem',
+                          fontSize: '0.76rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
@@ -2301,7 +2579,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       </button>
 
                       <a
-                        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} del equipo de IA Condo. Hemos generado tu Demo Personalizado para *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas, Control de Acceso: ${hasAccessControl}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo*2026!`)}`}
+                        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te saluda ${currentUser.name} de IA Condo. Preparamos el Demo Personalizado de *${call.condoName || 'tu condominio'}* (${numericUnits} viviendas${reservableAreas ? `, Áreas: ${reservableAreas}` : ''}):\n\n🔗 ${personalizedDemoUrl}\n🔑 Usuario: DEMO | Clave: IACondo*2026!\n\nRecuerda que puedes activarlo GRATIS para siempre y disfrutar 30 días de todas las funciones IA Premium de regalo.`)}`}
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => {
@@ -2318,54 +2596,255 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           alignItems: 'center',
                           justifyContent: 'center',
                           textAlign: 'center',
-                          padding: '0.68rem 0.6rem',
+                          padding: '0.65rem 0.55rem',
                           borderRadius: '10px',
                           background: 'rgba(192, 132, 252, 0.22)',
                           color: '#e9d5ff',
                           border: '1px solid rgba(192, 132, 252, 0.5)',
                           textDecoration: 'none',
                           fontWeight: '800',
-                          fontSize: '0.78rem'
+                          fontSize: '0.76rem'
                         }}
                       >
                         ✨ Enviar Demo WhatsApp
+                      </a>
+
+                      <a
+                        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, para que no tengas que transcribir nada a mano en *${call.condoName || 'tu condominio'}*, nuestros Agentes de IA cargan tus Excels, extractos bancarios y propietarios en segundos (100% gratis) y te activan 30 días de IA Premium de regalo:\n\n🤖 Subir archivos o activar aquí: ${directAiLoadUrl}\n\nTambién puedes responderme por aquí mismo con tus archivos y lo dejamos listo hoy.`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => {
+                          handleUpdateCall(callId, {
+                            status: ['pendiente', 'nuevo', 'contactado', 'visita_demo'].includes(call.status || 'pendiente')
+                              ? 'carga_ia'
+                              : call.status,
+                            newActivity: {
+                              type: 'carga_ia',
+                              actor: currentUser.name,
+                              text: `🤖 Invitación de Alta Gratis + Carga Masiva con IA enviada por WhatsApp a ${clientName}.`
+                            }
+                          });
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          padding: '0.65rem 0.55rem',
+                          borderRadius: '10px',
+                          background: 'rgba(45, 212, 191, 0.18)',
+                          color: '#5eead4',
+                          border: '1px solid rgba(45, 212, 191, 0.48)',
+                          textDecoration: 'none',
+                          fontWeight: '800',
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        🤖 Invitar Carga IA Gratis
+                      </a>
+
+                      <a
+                        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hola ${clientName}, te escribimos de IA Condo respecto a *${call.condoName || 'tu condominio'}*. Queremos asegurarnos de que tu comunidad mantenga activas todas sus funciones de Inteligencia Artificial (Agente de WhatsApp 24/7 para vecinos, Conciliación Bancaria IA por casa, Alertas de Garita en vivo y Respaldo de 5 años). ¿Te parece si revisamos hoy el Plan IA ideal para la Junta?`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => {
+                          handleUpdateCall(callId, {
+                            newActivity: {
+                              type: 'cierre_premium',
+                              actor: currentUser.name,
+                              text: `💎 Propuesta de activación / cierre de Plan IA Premium enviada por WhatsApp a ${clientName}.`
+                            }
+                          });
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          padding: '0.65rem 0.55rem',
+                          borderRadius: '10px',
+                          background: 'rgba(16, 185, 129, 0.2)',
+                          color: '#6ee7b7',
+                          border: '1px solid rgba(16, 185, 129, 0.5)',
+                          textDecoration: 'none',
+                          fontWeight: '800',
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        💎 Cierre Plan Premium
                       </a>
 
                       <button
                         type="button"
                         onClick={() => handleQuickNoAnswer(call)}
                         style={{
-                          padding: '0.68rem 0.6rem',
+                          padding: '0.65rem 0.55rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(239, 68, 68, 0.5)',
                           background: 'rgba(239, 68, 68, 0.16)',
                           color: '#fca5a5',
                           fontWeight: '800',
-                          fontSize: '0.76rem',
+                          fontSize: '0.75rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
                       >
-                        📵 No Contestó (Recordar)
+                        📵 No Contestó
                       </button>
 
                       <button
                         type="button"
                         onClick={() => openOutcomeAndCallModal(call, 'llamada', false)}
                         style={{
-                          padding: '0.68rem 0.6rem',
+                          padding: '0.65rem 0.55rem',
                           borderRadius: '10px',
                           border: '1px solid rgba(245, 158, 11, 0.55)',
                           background: 'rgba(245, 158, 11, 0.2)',
                           color: '#fde68a',
                           fontWeight: '800',
-                          fontSize: '0.78rem',
+                          fontSize: '0.76rem',
                           cursor: 'pointer',
                           textAlign: 'center'
                         }}
                       >
                         ✅ Resultado / Agendar
                       </button>
+                    </div>
+
+                    {/* MOTOR PLG DE INSTALACIÓN Y CONVERSIÓN A PREMIUM (RELOJ 30D + 4 ANCLAS IA + MRR) */}
+                    <div style={{
+                      padding: '0.8rem',
+                      borderRadius: '12px',
+                      background: 'rgba(6, 13, 24, 0.85)',
+                      border: '1px solid rgba(192, 132, 252, 0.3)',
+                      display: 'grid',
+                      gap: '0.65rem'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: '800', color: '#e9d5ff' }}>
+                          🚀 Termómetro de Instalación y Conversión a Plan IA Premium ({adoptionCount}/4 Anclas IA activadas)
+                        </div>
+                        {!trialInfo ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleUpdateCall(
+                                callId,
+                                {
+                                  status: 'prueba_ia_30d',
+                                  installedAt: new Date().toISOString(),
+                                  trialStartedAt: new Date().toISOString(),
+                                  newActivity: {
+                                    type: 'instalacion',
+                                    actor: currentUser.name,
+                                    text: '🎁 Condominio instalado gratis + Reloj de 30 días con funciones IA Premium iniciado.'
+                                  }
+                                },
+                                '🎁 ¡Condominio instalado! Reloj de 30 días de IA Premium activado'
+                              )
+                            }
+                            style={{
+                              padding: '0.32rem 0.7rem',
+                              borderRadius: '8px',
+                              border: '1px solid rgba(192, 132, 252, 0.55)',
+                              background: 'rgba(168, 85, 247, 0.22)',
+                              color: '#f3e8ff',
+                              fontSize: '0.72rem',
+                              fontWeight: '800',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            🎁 Marcar Instalado + Iniciar 30d IA Gratis
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.73rem', fontWeight: '800', color: trialInfo.color }}>
+                            {trialInfo.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      {trialInfo && (
+                        <div
+                          role="progressbar"
+                          aria-label="Avance de los 30 días de prueba IA Premium"
+                          aria-valuenow={trialInfo.progressPct}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          style={{
+                            inlineSize: '100%',
+                            blockSize: '8px',
+                            borderRadius: '999px',
+                            background: 'rgba(30, 41, 59, 0.9)',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <div
+                            style={{
+                              inlineSize: `${trialInfo.progressPct}%`,
+                              blockSize: '100%',
+                              borderRadius: '999px',
+                              background: trialInfo.isPremium
+                                ? 'linear-gradient(90deg, #10b981, #34d399)'
+                                : trialInfo.isExpiredTrial
+                                ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                                : trialInfo.isClosingWindow
+                                ? 'linear-gradient(90deg, #f59e0b, #eab308)'
+                                : 'linear-gradient(90deg, #8b5cf6, #0ea5e9)'
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      {/* 4 Anclas de Valor IA ("Aha! Moments" que llevan a pagar el Plan Premium) */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 165px), 1fr))',
+                        gap: '0.4rem'
+                      }}>
+                        {AI_ADOPTION_MILESTONES.map(m => {
+                          const checked = Boolean(call.aiAdoptionChecks && call.aiAdoptionChecks[m.key]);
+                          return (
+                            <button
+                              key={m.key}
+                              type="button"
+                              onClick={() =>
+                                handleUpdateCall(
+                                  callId,
+                                  {
+                                    aiAdoptionChecks: {
+                                      ...(call.aiAdoptionChecks || {}),
+                                      [m.key]: !checked
+                                    },
+                                    newActivity: {
+                                      type: 'adopcion_ia',
+                                      actor: currentUser.name,
+                                      text: `${!checked ? '✅ Activó/Probó' : '↩️ Desmarcó'} ancla IA: ${m.label}`
+                                    }
+                                  },
+                                  `${!checked ? '✅ Ancla IA marcada' : '↩️ Ancla IA actualizada'}: ${m.label}`
+                                )
+                              }
+                              style={{
+                                padding: '0.42rem 0.55rem',
+                                borderRadius: '8px',
+                                border: checked ? '1px solid rgba(16, 185, 129, 0.55)' : '1px solid rgba(148, 163, 184, 0.22)',
+                                background: checked ? 'rgba(16, 185, 129, 0.16)' : 'rgba(15, 23, 42, 0.8)',
+                                color: checked ? '#6ee7b7' : '#94a3b8',
+                                fontSize: '0.72rem',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem'
+                              }}
+                            >
+                              <span>{checked ? '✅' : '⬜'}</span>
+                              <span>{m.icon} {m.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {/* Resumen puntual del caso */}
@@ -2379,18 +2858,18 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       lineHeight: 1.45,
                       overflowWrap: 'anywhere'
                     }}>
-                      <strong style={{ color: '#38bdf8' }}>📋 Resumen:</strong> {summary}
+                      <strong style={{ color: '#38bdf8' }}>📋 Resumen Consultivo:</strong> {summary}
                     </div>
 
-                    {/* Selectores rápidos: Fase CRM, Agente y Control de Acceso */}
+                    {/* Selectores rápidos: Etapa del Túnel, Rol Comunidad, Plan Objetivo, MRR, Agente y Acceso */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 165px), 1fr))',
                       gap: '0.55rem'
                     }}>
                       <div>
                         <label htmlFor={`status-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
-                          Etapa en el Túnel de Ventas
+                          Etapa en el Túnel de Conversión
                         </label>
                         <select
                           id={`status-${callId}`}
@@ -2404,16 +2883,86 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                               text: `Cambio de etapa a: ${CALL_STATUS_LABELS[e.target.value]?.label || e.target.value}`
                             }
                           })}
-                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.76rem' }}
                         >
-                          <option value="pendiente">1. Nuevo / Contacto Inicial</option>
-                          <option value="visita_demo">2. Contacto / Visita o Demo</option>
-                          <option value="cotizacion">3. Cotización / Propuesta</option>
-                          <option value="en_espera">4. En Espera (Junta)</option>
-                          <option value="implementacion">5. En Implementación</option>
-                          <option value="ganado">6. Ganado (Activo)</option>
-                          <option value="perdido">7. Perdido / Descartado</option>
+                          <option value="pendiente">1. Lead / Diagnóstico Sofía</option>
+                          <option value="visita_demo">2. Demo Personalizado / Puente Junta</option>
+                          <option value="carga_ia">3. Carga IA / Alta Gratis en Curso</option>
+                          <option value="prueba_ia_30d">4. Instalado • 30d IA Gratis</option>
+                          <option value="cierre_premium">5. Cierre Plan IA Premium (Junta)</option>
+                          <option value="premium_pagado">6. 💎 Plan IA Premium Pagado</option>
+                          <option value="activo_plan_gratis">7. 🌱 Plan Gratis ($0 • Upsell IA)</option>
+                          <option value="perdido">8. Descartado / Inactivo</option>
                         </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor={`role-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          Rol en la Comunidad
+                        </label>
+                        <select
+                          id={`role-${callId}`}
+                          name="communityRole"
+                          value={isNeighborBridge ? 'vecino' : 'junta'}
+                          onChange={e =>
+                            handleUpdateCall(callId, {
+                              communityRole: e.target.value,
+                              wantsBoardReferral: e.target.value === 'vecino'
+                            })
+                          }
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#7dd3fc', border: '1px solid rgba(56,189,248,0.3)', fontSize: '0.76rem', fontWeight: '600' }}
+                        >
+                          <option value="junta">🏛️ Junta Directiva / Admin</option>
+                          <option value="vecino">🏡 Vecino (Puente a Junta)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor={`plan-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          Plan Premium Objetivo
+                        </label>
+                        <select
+                          id={`plan-${callId}`}
+                          name="targetPlan"
+                          value={call.targetPlan || 'ia_pro_whatsapp'}
+                          onChange={e => handleUpdateCall(callId, { targetPlan: e.target.value })}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#c084fc', border: '1px solid rgba(192,132,252,0.35)', fontSize: '0.75rem', fontWeight: '600' }}
+                        >
+                          {PREMIUM_PLAN_OPTIONS.map(p => (
+                            <option key={p.id} value={p.id}>{p.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label htmlFor={`mrr-${callId}`} style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', marginBlockEnd: '0.2rem', fontWeight: '600' }}>
+                          MRR Plan ($ USD/mes)
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.3rem' }}>
+                          <input
+                            id={`mrr-${callId}`}
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="Ej. 45"
+                            value={currentMrrDraft}
+                            onChange={e => setMrrDraftByLead({ ...mrrDraftByLead, [callId]: e.target.value })}
+                            style={{ flex: 1, minInlineSize: 0, padding: '0.43rem 0.5rem', borderRadius: '8px', background: '#0f172a', color: '#34d399', border: '1px solid rgba(16,185,129,0.35)', fontSize: '0.78rem', fontWeight: '700' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleUpdateCall(
+                                callId,
+                                { estimatedMonthlyFeeUsd: Number(currentMrrDraft) || 0 },
+                                `💰 MRR actualizado a $${Number(currentMrrDraft) || 0} USD/mes`
+                              )
+                            }
+                            style={{ padding: '0.42rem 0.6rem', borderRadius: '8px', background: 'rgba(16,185,129,0.2)', color: '#34d399', border: '1px solid rgba(16,185,129,0.4)', fontSize: '0.74rem', fontWeight: '800', cursor: 'pointer' }}
+                          >
+                            💾
+                          </button>
+                        </div>
                       </div>
 
                       {isExecutiveRole && (
@@ -2439,7 +2988,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                                 }
                               });
                             }}
-                            style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                            style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.76rem' }}
                           >
                             {users.map(u => (
                               <option key={u.id || u._id || u.email} value={u.email}>
@@ -2459,7 +3008,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                           name="hasAccessControl"
                           value={call.hasAccessControl || 'Sí (Portón / Garita)'}
                           onChange={e => handleUpdateCall(callId, { hasAccessControl: e.target.value })}
-                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.35)', fontSize: '0.78rem', fontWeight: '600' }}
+                          style={{ inlineSize: '100%', padding: '0.45rem', borderRadius: '8px', background: '#0f172a', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.35)', fontSize: '0.76rem', fontWeight: '600' }}
                         >
                           <option value="Sí (Portón / Garita)">✅ Con Portón / Garita</option>
                           <option value="No">❌ Sin Control de Acceso</option>
@@ -2535,134 +3084,171 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
               })()}
             </div>
 
-            {/* 2. SI ES MODO CEO: RESUMEN GLOBAL DE TODA LA EMPRESA Y FILTRO DE EQUIPO */}
-            {!isAgentAppMode && (
-              <div style={{
-                background: 'rgba(15, 23, 42, 0.88)',
-                border: '1px solid rgba(56, 189, 248, 0.25)',
-                borderRadius: '14px',
-                padding: '0.85rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                maxInlineSize: '100%',
-                boxSizing: 'border-box'
-              }}>
-                {/* Indicadores Globales de la Empresa para el CEO */}
+            {/* 2. SI ES MODO CEO: RESUMEN DE CONVERSIÓN PLG -> PLAN PREMIUM Y FILTRO DE EQUIPO */}
+            {!isAgentAppMode && (() => {
+              const captacionCount = salesCalls.filter(c => ['pendiente', 'nuevo', 'contactado', 'visita_demo'].includes(c.status || 'pendiente')).length;
+              const porInstalarCount = salesCalls.filter(c => ['carga_ia', 'implementacion'].includes(c.status)).length;
+              const enPruebaLeads = salesCalls.filter(c => ['prueba_ia_30d', 'trial_activo', 'cierre_premium', 'cotizacion', 'demo_realizada', 'en_espera'].includes(c.status));
+              const expiringSoonCount = enPruebaLeads.filter(c => {
+                const t = getTrialStatusInfo(c);
+                return t && (t.isClosingWindow || t.isExpiredTrial);
+              }).length;
+              const planGratisCount = salesCalls.filter(c => ['activo_plan_gratis', 'plan_gratis'].includes(c.status)).length;
+              const premiumPagadosLeads = salesCalls.filter(c => ['premium_pagado', 'afiliado', 'ganado'].includes(c.status));
+              const totalInstalledCount = enPruebaLeads.length + planGratisCount + premiumPagadosLeads.length;
+              const paidConvPct = totalInstalledCount > 0 ? Math.round((premiumPagadosLeads.length / totalInstalledCount) * 100) : 0;
+              const activeMrrUsd = premiumPagadosLeads.reduce((sum, c) => sum + (Number(c.estimatedMonthlyFeeUsd) || 0), 0);
+              const trialPipelineMrrUsd = enPruebaLeads.reduce((sum, c) => sum + (Number(c.estimatedMonthlyFeeUsd) || 0), 0);
+
+              return (
                 <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-                  gap: '0.5rem'
+                  background: 'rgba(15, 23, 42, 0.88)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  borderRadius: '14px',
+                  padding: '0.85rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  maxInlineSize: '100%',
+                  boxSizing: 'border-box'
                 }}>
-                  <div style={{ background: 'rgba(6, 13, 24, 0.8)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(148,163,184,0.18)' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: '700' }}>📊 TOTAL LEADS EMPRESA</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff' }}>{salesCalls.length}</div>
-                  </div>
-                  <div style={{ background: 'rgba(239, 68, 68, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(239,68,68,0.35)' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#fca5a5', fontWeight: '800' }}>🚨 TOCA CONTACTAR / PENDIENTES</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#f87171' }}>{urgentPendingLeads.length}</div>
-                  </div>
-                  <div style={{ background: 'rgba(56, 189, 248, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(56,189,248,0.3)' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#38bdf8', fontWeight: '800' }}>📅 PRÓXIMOS EVENTOS</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#38bdf8' }}>{upcomingScheduledLeads.length}</div>
-                  </div>
-                  <div style={{ background: 'rgba(74, 222, 128, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(74,222,128,0.3)' }}>
-                    <div style={{ fontSize: '0.68rem', color: '#4ade80', fontWeight: '800' }}>🏢 IMPLEMENTACIÓN / ACTIVOS</div>
-                    <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#4ade80' }}>
-                      {salesCalls.filter(c => ['implementacion', 'afiliado', 'ganado'].includes(c.status)).length}
+                  {/* Indicadores Globales de Instalación Gratis y Conversión a Planes Premium */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 155px), 1fr))',
+                    gap: '0.5rem'
+                  }}>
+                    <div style={{ background: 'rgba(6, 13, 24, 0.85)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.28)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#fbbf24', fontWeight: '800' }}>📥 CAPTACIÓN Y DEMOS</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff' }}>{captacionCount}</div>
+                      <div style={{ fontSize: '0.67rem', color: '#94a3b8' }}>de {salesCalls.length} leads totales</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(45, 212, 191, 0.1)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(45, 212, 191, 0.35)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#5eead4', fontWeight: '800' }}>🤖 POR INSTALAR (CARGA IA)</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#2dd4bf' }}>{porInstalarCount}</div>
+                      <div style={{ fontSize: '0.67rem', color: '#94a3b8' }}>Subiendo Excels / Alta Gratis</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(192, 132, 252, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(192, 132, 252, 0.35)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#e9d5ff', fontWeight: '800' }}>🎁 EN PRUEBA 30D IA</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#c084fc' }}>{enPruebaLeads.length}</div>
+                      <div style={{ fontSize: '0.67rem', color: expiringSoonCount > 0 ? '#fca5a5' : '#94a3b8', fontWeight: expiringSoonCount > 0 ? '700' : '500' }}>
+                        {expiringSoonCount > 0 ? `🔥 ${expiringSoonCount} por cerrar (<=7d)` : 'Reloj 30 días activo'}
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(96, 165, 250, 0.12)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(96, 165, 250, 0.32)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#93c5fd', fontWeight: '800' }}>🌱 PLAN GRATIS (UPSELL)</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#60a5fa' }}>{planGratisCount}</div>
+                      <div style={{ fontSize: '0.67rem', color: '#94a3b8' }}>Instalados $0 • Reactivar IA</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(16, 185, 129, 0.14)', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#6ee7b7', fontWeight: '800' }}>💎 PREMIUM PAGADOS</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#34d399' }}>{premiumPagadosLeads.length}</div>
+                      <div style={{ fontSize: '0.67rem', color: '#a7f3d0' }}>
+                        {totalInstalledCount > 0 ? `${paidConvPct}% de ${totalInstalledCount} instalados` : 'Meta: convertir pruebas 30d'}
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(14, 165, 233, 0.16))', padding: '0.6rem 0.75rem', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
+                      <div style={{ fontSize: '0.66rem', color: '#38bdf8', fontWeight: '800' }}>💰 MRR SUSCRIPCIONES IA</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#4ade80' }}>${activeMrrUsd}/mes</div>
+                      <div style={{ fontSize: '0.67rem', color: '#bae6fd' }}>+${trialPipelineMrrUsd}/mes en prueba/cierre</div>
                     </div>
                   </div>
+
+                  {/* Filtros de Agente, Zona y Búsqueda para el CEO */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: '700' }}>Filtrar por Agente:</span>
+                    <button
+                      type="button"
+                      onClick={() => setAgentFilter('todos')}
+                      style={{
+                        padding: '0.3rem 0.65rem',
+                        borderRadius: '999px',
+                        border: agentFilter === 'todos' ? '1px solid #0ea5e9' : '1px solid rgba(148,163,184,0.25)',
+                        background: agentFilter === 'todos' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(6, 13, 24, 0.7)',
+                        color: agentFilter === 'todos' ? '#fff' : '#cbd5e1',
+                        fontSize: '0.73rem',
+                        fontWeight: '700',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Toda la Empresa ({salesCalls.length})
+                    </button>
+                    {users.map(u => {
+                      const count = salesCalls.filter(c => doesLeadBelongToAgent(c, u)).length;
+                      const isFiltered = agentFilter === u.email;
+                      return (
+                        <button
+                          key={u.id || u._id || u.email}
+                          type="button"
+                          onClick={() => setAgentFilter(isFiltered ? 'todos' : u.email)}
+                          style={{
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '999px',
+                            border: isFiltered ? '1px solid #38bdf8' : '1px solid rgba(148, 163, 184, 0.2)',
+                            background: isFiltered ? 'rgba(56, 189, 248, 0.2)' : 'rgba(6, 13, 24, 0.7)',
+                            color: isFiltered ? '#fff' : '#cbd5e1',
+                            fontSize: '0.73rem',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {u.name.split(' ')[0]} ({count})
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <input
+                      type="search"
+                      aria-label="Buscar condominio, contacto o ciudad"
+                      placeholder="🔍 Buscar condominio, contacto o ciudad..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      style={{
+                        flex: '1 1 180px',
+                        minInlineSize: 0,
+                        padding: '0.42rem 0.7rem',
+                        borderRadius: '8px',
+                        background: '#0f172a',
+                        color: '#fff',
+                        border: '1px solid rgba(148, 163, 184, 0.3)',
+                        fontSize: '0.78rem'
+                      }}
+                    />
+
+                    <select
+                      aria-label="Filtrar por Zona del País"
+                      value={zoneFilter}
+                      onChange={e => setZoneFilter(e.target.value)}
+                      style={{
+                        flex: '1 1 160px',
+                        minInlineSize: 0,
+                        padding: '0.42rem 0.65rem',
+                        borderRadius: '8px',
+                        background: '#0f172a',
+                        color: '#38bdf8',
+                        border: '1px solid rgba(56, 189, 248, 0.35)',
+                        fontSize: '0.76rem',
+                        fontWeight: '700'
+                      }}
+                    >
+                      <option value="todas">🇻🇪 Todas las Zonas</option>
+                      {VENEZUELA_ZONES.map(z => (
+                        <option key={z.id} value={z.id}>{z.label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+              );
+            })()}
 
-                {/* Filtros de Agente, Zona y Búsqueda para el CEO */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: '700' }}>Filtrar por Agente:</span>
-                  <button
-                    type="button"
-                    onClick={() => setAgentFilter('todos')}
-                    style={{
-                      padding: '0.3rem 0.65rem',
-                      borderRadius: '999px',
-                      border: agentFilter === 'todos' ? '1px solid #0ea5e9' : '1px solid rgba(148,163,184,0.25)',
-                      background: agentFilter === 'todos' ? 'rgba(14, 165, 233, 0.22)' : 'rgba(6, 13, 24, 0.7)',
-                      color: agentFilter === 'todos' ? '#fff' : '#cbd5e1',
-                      fontSize: '0.73rem',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Toda la Empresa ({salesCalls.length})
-                  </button>
-                  {users.map(u => {
-                    const count = salesCalls.filter(c => doesLeadBelongToAgent(c, u)).length;
-                    const isFiltered = agentFilter === u.email;
-                    return (
-                      <button
-                        key={u.id || u._id || u.email}
-                        type="button"
-                        onClick={() => setAgentFilter(isFiltered ? 'todos' : u.email)}
-                        style={{
-                          padding: '0.3rem 0.65rem',
-                          borderRadius: '999px',
-                          border: isFiltered ? '1px solid #38bdf8' : '1px solid rgba(148, 163, 184, 0.2)',
-                          background: isFiltered ? 'rgba(56, 189, 248, 0.2)' : 'rgba(6, 13, 24, 0.7)',
-                          color: isFiltered ? '#fff' : '#cbd5e1',
-                          fontSize: '0.73rem',
-                          fontWeight: '700',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {u.name.split(' ')[0]} ({count})
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <input
-                    type="search"
-                    aria-label="Buscar condominio, contacto o ciudad"
-                    placeholder="🔍 Buscar condominio, contacto o ciudad..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    style={{
-                      flex: '1 1 180px',
-                      minInlineSize: 0,
-                      padding: '0.42rem 0.7rem',
-                      borderRadius: '8px',
-                      background: '#0f172a',
-                      color: '#fff',
-                      border: '1px solid rgba(148, 163, 184, 0.3)',
-                      fontSize: '0.78rem'
-                    }}
-                  />
-
-                  <select
-                    aria-label="Filtrar por Zona del País"
-                    value={zoneFilter}
-                    onChange={e => setZoneFilter(e.target.value)}
-                    style={{
-                      flex: '1 1 160px',
-                      minInlineSize: 0,
-                      padding: '0.42rem 0.65rem',
-                      borderRadius: '8px',
-                      background: '#0f172a',
-                      color: '#38bdf8',
-                      border: '1px solid rgba(56, 189, 248, 0.35)',
-                      fontSize: '0.76rem',
-                      fontWeight: '700'
-                    }}
-                  >
-                    <option value="todas">🇻🇪 Todas las Zonas</option>
-                    {VENEZUELA_ZONES.map(z => (
-                      <option key={z.id} value={z.id}>{z.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* 3. PANTALLA DE SEGUIMIENTO: PENDIENTES POR CONTACTAR (CON RECORDATORIO PERSISTENTE SI NO FUE POSIBLE CONTACTAR) Y PRÓXIMOS EVENTOS PROGRAMADOS */}
+            {/* 3. PANTALLA DE SEGUIMIENTO: URGENCIAS DE INSTALACIÓN / CIERRE PREMIUM Y PRÓXIMOS EVENTOS */}
             {(!isAgentAppMode || agentAppTab === 'pendientes') && (
               <div style={{
                 display: 'grid',
@@ -2670,7 +3256,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                 gap: '0.85rem',
                 maxInlineSize: '100%'
               }}>
-                {/* COLUMNA A: PENDIENTES POR CONTACTAR AHORA Y RECORDATORIOS DE NO CONTACTADOS */}
+                {/* COLUMNA A: URGENCIAS DE CONVERSIÓN (PRUEBAS 30D POR VENCER, CARGA IA PENDIENTE, PUENTE A JUNTA Y NO CONTESTADOS) */}
                 <div style={{
                   background: 'rgba(15, 23, 42, 0.92)',
                   border: urgentPendingLeads.length > 0 ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(148, 163, 184, 0.2)',
@@ -2684,10 +3270,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBlockEnd: '1px solid rgba(245, 158, 11, 0.25)', paddingBlockEnd: '0.45rem' }}>
                     <div>
                       <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fbbf24' }}>
-                        🚨 Tareas Pendientes / Toca Contactar Ahora
+                        🔥 Prioridades Hoy: Instalar Gratis y Cerrar Planes Premium
                       </div>
                       <div style={{ fontSize: '0.71rem', color: '#94a3b8' }}>
-                        Si un lead no pudo ser contactado, sigue apareciendo aquí para recordarte hasta lograr el contacto.
+                        Prioriza pruebas de 30 días por vencer (&lt;=7d), cargas con IA pendientes, puentes a Junta y reintentos.
                       </div>
                     </div>
                     <span style={{
@@ -2704,7 +3290,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 
                   {urgentPendingLeads.length === 0 ? (
                     <div style={{ padding: '1rem', textAlign: 'center', color: '#4ade80', fontSize: '0.78rem', fontWeight: '600', background: 'rgba(74, 222, 128, 0.06)', borderRadius: '10px' }}>
-                      ✅ ¡Al día! No tienes contactos vencidos ni llamadas pendientes sin atender en este momento.
+                      ✅ ¡Al día! No tienes pruebas de 30 días venciendo sin atender ni leads pendientes en este momento.
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gap: '0.6rem', maxBlockSize: '440px', overflowY: 'auto' }}>
@@ -2751,7 +3337,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                             </div>
 
                             <div style={{ fontSize: '0.73rem', color: '#fde68a', background: 'rgba(245, 158, 11, 0.1)', padding: '0.3rem 0.5rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
-                              📌 <strong>Acción pendiente:</strong> {(item.nextTask || item.callTimeLabel || 'Llamar o escribir para presentar Demo').replace(/\(https?:\/\/[^)]+\)/g, '')}
+                              📌 <strong>Siguiente acción:</strong> {(item.nextTask || item.callTimeLabel || 'Mostrar Demo e invitar a Alta Gratis + 30d IA').replace(/\(https?:\/\/[^)]+\)/g, '')}
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 105px), 1fr))', gap: '0.35rem', marginBlockStart: '0.2rem' }}>
@@ -2803,7 +3389,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                   )}
                 </div>
 
-                {/* COLUMNA B: PRÓXIMOS EVENTOS Y LLAMADAS PROGRAMADAS */}
+                {/* COLUMNA B: PRÓXIMOS SEGUIMIENTOS DE PRUEBA 30D Y CIERRES PROGRAMADOS */}
                 <div style={{
                   background: 'rgba(15, 23, 42, 0.92)',
                   border: '1px solid rgba(56, 189, 248, 0.3)',
@@ -2817,10 +3403,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', borderBlockEnd: '1px solid rgba(56, 189, 248, 0.2)', paddingBlockEnd: '0.45rem' }}>
                     <div>
                       <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#38bdf8' }}>
-                        📅 Próximos Eventos y Llamadas Programadas
+                        📅 Agenda de Demos, Onboarding IA y Cierres con Juntas
                       </div>
                       <div style={{ fontSize: '0.71rem', color: '#94a3b8' }}>
-                        Agenda de próximas llamadas, demos en vivo, seguimientos de cotización y asambleas.
+                        Acompañamiento durante los 30 días de IA gratis y reuniones de aprobación del Plan Premium.
                       </div>
                     </div>
                     <span style={{
@@ -2837,7 +3423,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 
                   {upcomingScheduledLeads.length === 0 ? (
                     <div style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.76rem', background: 'rgba(6, 13, 24, 0.5)', borderRadius: '10px' }}>
-                      📅 No hay eventos programados para fechas futuras. Cuando agendes una próxima llamada o visita, aparecerá aquí ordenada por fecha.
+                      📅 No hay eventos futuros programados. Cuando agendes un seguimiento de prueba 30d o reunión con Junta, aparecerá aquí ordenado por fecha.
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gap: '0.6rem', maxBlockSize: '440px', overflowY: 'auto' }}>
@@ -2845,6 +3431,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                         const cid = item.id || item._id;
                         const cPhone = String(item.clientPhone || item.phone || '').replace(/[^0-9]/g, '');
                         const st = CALL_STATUS_LABELS[item.status || 'pendiente'] || CALL_STATUS_LABELS.pendiente;
+                        const trialMeta = getTrialStatusInfo(item);
                         return (
                           <div
                             key={cid}
@@ -2864,9 +3451,16 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                               <span style={{ fontSize: '0.7rem', fontWeight: '800', color: '#38bdf8' }}>
                                 🗓️ {item.callTimeLabel || 'Próximo seguimiento'}
                               </span>
-                              <span style={{ fontSize: '0.66rem', fontWeight: '700', padding: '0.12rem 0.45rem', borderRadius: '999px', background: st.bg, color: st.color }}>
-                                {st.label}
-                              </span>
+                              <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                                {trialMeta && (
+                                  <span style={{ fontSize: '0.64rem', fontWeight: '800', padding: '0.12rem 0.42rem', borderRadius: '999px', background: trialMeta.bg, color: trialMeta.color }}>
+                                    {trialMeta.badge}
+                                  </span>
+                                )}
+                                <span style={{ fontSize: '0.66rem', fontWeight: '700', padding: '0.12rem 0.45rem', borderRadius: '999px', background: st.bg, color: st.color }}>
+                                  {st.label}
+                                </span>
+                              </div>
                             </div>
 
                             <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
@@ -2925,12 +3519,17 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
               </div>
             )}
 
-            {/* 4. TÚNEL DE VENTAS CRM Y ETAPAS DE LOS LEADS (VISIBLE SIEMPRE EN CEO Y EN APP DEL AGENTE) */}
+            {/* 4. TÚNEL DE VENTAS PLG (7 ETAPAS): DE LEAD A INSTALACIÓN GRATIS -> PRUEBA 30D IA -> PLAN PREMIUM PAGADO */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBlockEnd: '0.6rem' }}>
-                <h2 style={{ fontSize: '0.96rem', fontWeight: '800', margin: 0, color: '#e2e8f0' }}>
-                  📊 {isAgentAppMode ? 'Mi Túnel de Ventas y Etapas de Mis Leads' : 'Túnel de Ventas CRM de la Empresa'} ({filteredSalesCalls.length})
-                </h2>
+                <div>
+                  <h2 style={{ fontSize: '0.98rem', fontWeight: '800', margin: 0, color: '#e2e8f0' }}>
+                    🚀 {isAgentAppMode ? 'Mi Túnel de Conversión: Instalar Gratis y Cerrar Planes Premium' : 'Túnel de Conversión IA Condo: De Lead a Instalación Gratis → Plan Premium Pagado'} ({filteredSalesCalls.length})
+                  </h2>
+                  <div style={{ fontSize: '0.73rem', color: '#94a3b8', marginBlockStart: '0.15rem' }}>
+                    Meta 1: Que cada comunidad se instale gratis (con Carga IA en segundos). Meta 2: Que viva los 30 días IA y pague su Plan Premium.
+                  </div>
+                </div>
                 {isAgentAppMode && (
                   <input
                     type="search"
@@ -2954,35 +3553,46 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 215px), 1fr))',
-                gap: '0.7rem',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 205px), 1fr))',
+                gap: '0.65rem',
                 maxInlineSize: '100%'
               }}>
                 {CRM_TUNNEL_COLUMNS.map(col => {
                   const colLeads = filteredSalesCalls.filter(c => col.match.includes(c.status || 'pendiente'));
+                  const colMrr = colLeads.reduce((sum, c) => sum + (Number(c.estimatedMonthlyFeeUsd) || 0), 0);
                   return (
                     <div key={col.id} style={{
                       background: 'rgba(15, 23, 42, 0.88)',
                       border: `1px solid ${col.color}44`,
                       borderRadius: '12px',
-                      padding: '0.75rem',
+                      padding: '0.72rem',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '0.55rem',
+                      gap: '0.5rem',
                       minInlineSize: 0,
-                      maxBlockSize: '500px',
+                      maxBlockSize: '540px',
                       overflowY: 'auto'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBlockEnd: `2px solid ${col.color}`, paddingBlockEnd: '0.35rem' }}>
-                        <span style={{ fontSize: '0.76rem', fontWeight: '800', color: col.color }}>{col.title}</span>
-                        <span style={{ fontSize: '0.72rem', fontWeight: '800', padding: '0.08rem 0.45rem', borderRadius: '999px', background: col.bg, color: col.color }}>
-                          {colLeads.length}
-                        </span>
+                      <div style={{ borderBlockEnd: `2px solid ${col.color}`, paddingBlockEnd: '0.4rem', display: 'grid', gap: '0.2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.3rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '800', color: col.color }}>{col.title}</span>
+                          <span style={{ fontSize: '0.71rem', fontWeight: '800', padding: '0.08rem 0.45rem', borderRadius: '999px', background: col.bg, color: col.color }}>
+                            {colLeads.length}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.65rem', color: '#94a3b8', lineHeight: 1.3 }}>
+                          {col.goal}
+                        </div>
+                        {colMrr > 0 && (
+                          <div style={{ fontSize: '0.66rem', fontWeight: '800', color: '#34d399' }}>
+                            💵 ${colMrr}/mes en esta etapa
+                          </div>
+                        )}
                       </div>
 
                       {colLeads.length === 0 ? (
-                        <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.35rem 0' }}>
-                          Sin leads en esta etapa
+                        <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', padding: '0.4rem 0' }}>
+                          Sin condominios en esta etapa
                         </div>
                       ) : (
                         colLeads.map(item => {
@@ -2994,6 +3604,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                             ? rawUnitsStr
                             : `${rawUnitsStr} viv.`;
                           const isNoAnswer = item.lastOutcomeType === 'no_contesto';
+                          const isNeighbor = item.communityRole === 'vecino' || Boolean(item.wantsBoardReferral);
+                          const trialInfo = getTrialStatusInfo(item);
+                          const adoptionScore = getAiAdoptionCount(item);
+                          const mrrVal = Number(item.estimatedMonthlyFeeUsd) || 0;
 
                           return (
                             <div
@@ -3005,40 +3619,82 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                                   ? '2px solid #0ea5e9'
                                   : isNoAnswer
                                   ? '1px solid rgba(239, 68, 68, 0.5)'
+                                  : trialInfo?.isClosingWindow || trialInfo?.isExpiredTrial
+                                  ? '1px solid rgba(245, 158, 11, 0.55)'
                                   : '1px solid rgba(148, 163, 184, 0.25)',
                                 borderRadius: '10px',
-                                padding: '0.68rem',
+                                padding: '0.65rem',
                                 display: 'grid',
-                                gap: '0.3rem',
+                                gap: '0.28rem',
                                 cursor: 'pointer',
                                 minInlineSize: 0
                               }}
                             >
-                              {isNoAnswer && (
-                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#fca5a5', background: 'rgba(239, 68, 68, 0.18)', padding: '0.12rem 0.4rem', borderRadius: '4px', justifySelf: 'start' }}>
-                                  🚨 No contestó — Reintentar
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                {isNoAnswer && (
+                                  <span style={{ fontSize: '0.62rem', fontWeight: '800', color: '#fca5a5', background: 'rgba(239, 68, 68, 0.18)', padding: '0.1rem 0.36rem', borderRadius: '4px' }}>
+                                    🚨 Reintentar
+                                  </span>
+                                )}
+                                <span style={{
+                                  fontSize: '0.62rem',
+                                  fontWeight: '700',
+                                  color: isNeighbor ? '#7dd3fc' : '#6ee7b7',
+                                  background: isNeighbor ? 'rgba(56, 189, 248, 0.15)' : 'rgba(16, 185, 129, 0.14)',
+                                  padding: '0.1rem 0.36rem',
+                                  borderRadius: '4px'
+                                }}>
+                                  {isNeighbor ? '🏡 Vecino → Junta' : '🏛️ Junta'}
                                 </span>
+                                {mrrVal > 0 && (
+                                  <span style={{ fontSize: '0.62rem', fontWeight: '800', color: '#34d399', background: 'rgba(16, 185, 129, 0.16)', padding: '0.1rem 0.36rem', borderRadius: '4px' }}>
+                                    ${mrrVal}/mes
+                                  </span>
+                                )}
+                              </div>
+
+                              {trialInfo && (
+                                <div style={{
+                                  fontSize: '0.64rem',
+                                  fontWeight: '800',
+                                  color: trialInfo.color,
+                                  background: trialInfo.bg,
+                                  padding: '0.15rem 0.42rem',
+                                  borderRadius: '5px',
+                                  overflowWrap: 'anywhere'
+                                }}>
+                                  {trialInfo.badge}
+                                </div>
                               )}
-                              <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
+
+                              <div style={{ fontSize: '0.83rem', fontWeight: '800', color: '#fff', overflowWrap: 'anywhere' }}>
                                 🏢 {item.condoName || 'Condominio'}
                               </div>
-                              <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
+                              <div style={{ fontSize: '0.71rem', color: '#38bdf8', fontWeight: '600', overflowWrap: 'anywhere' }}>
                                 🏘️ {compactUnitsLabel} • 📍 {item.city || 'Venezuela'}
                               </div>
-                              <div style={{ fontSize: '0.72rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
+                              <div style={{ fontSize: '0.71rem', color: '#cbd5e1', overflowWrap: 'anywhere' }}>
                                 👤 {item.clientName || 'Interesado'} {cPhone ? `(+${cPhone})` : ''}
                               </div>
-                              <div style={{ fontSize: '0.7rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.2rem 0.45rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
-                                🕒 {item.callTimeLabel || 'Contacto pendiente'}
+
+                              {(adoptionScore > 0 || trialInfo) && (
+                                <div style={{ fontSize: '0.66rem', color: adoptionScore >= 3 ? '#6ee7b7' : '#cbd5e1', fontWeight: '700' }}>
+                                  ⚡ Adopción IA: {adoptionScore}/4 anclas probadas
+                                </div>
+                              )}
+
+                              <div style={{ fontSize: '0.68rem', color: '#fbbf24', background: 'rgba(245, 158, 11, 0.1)', padding: '0.18rem 0.42rem', borderRadius: '6px', overflowWrap: 'anywhere' }}>
+                                🕒 {item.callTimeLabel || 'Seguimiento activo'}
                               </div>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem', marginBlockStart: '0.25rem' }}>
+
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.32rem', marginBlockStart: '0.2rem' }}>
                                 <button
                                   type="button"
                                   onClick={e => {
                                     e.stopPropagation();
                                     openOutcomeAndCallModal(item, 'llamada', true);
                                   }}
-                                  style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                  style={{ padding: '0.36rem', borderRadius: '6px', border: '1px solid rgba(56,189,248,0.4)', background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
                                 >
                                   📞 Llamar
                                 </button>
@@ -3048,7 +3704,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                                     e.stopPropagation();
                                     openOutcomeAndCallModal(item, 'whatsapp', true);
                                   }}
-                                  style={{ padding: '0.38rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.71rem', fontWeight: '700', cursor: 'pointer' }}
+                                  style={{ padding: '0.36rem', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.4)', background: 'rgba(74,222,128,0.18)', color: '#4ade80', fontSize: '0.7rem', fontWeight: '700', cursor: 'pointer' }}
                                 >
                                   💬 WhatsApp
                                 </button>
@@ -4868,10 +5524,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid rgba(148,163,184,0.2)', paddingBottom: '0.75rem' }}>
           <div>
             <h2 id="new-lead-dialog-title" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#38bdf8' }}>
-              ➕ Registrar Nuevo Lead en el CRM de IA Condo (Paso 1)
+              ➕ Registrar Comunidad en el Túnel de Instalación y Planes Premium
             </h2>
             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
-              El sistema detectará la zona geográfica, lo asignará al agente comercial correspondiente y enviará alerta al celular y calendario (.ics).
+              Asigna por zona geográfica, clasifica si es Junta o Vecino (Puente) y prepara su Demo, Carga IA Gratis o Reloj de 30 días Premium.
             </p>
           </div>
           <button
@@ -4884,7 +5540,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
         </div>
 
         <form onSubmit={handleCreateManualLead} style={{ display: 'grid', gap: '0.9rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '0.75rem' }}>
             <div>
               <label htmlFor="nl-condo" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                 1. Nombre del Condominio o Conjunto *
@@ -4927,10 +5583,10 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0.75rem' }}>
             <div>
               <label htmlFor="nl-access" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
-                3. ¿Tiene Control de Acceso? (Para Demo Personalizado) *
+                3. ¿Tiene Control de Acceso? *
               </label>
               <select
                 id="nl-access"
@@ -4938,14 +5594,28 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                 onChange={e => setNewLeadForm({ ...newLeadForm, hasAccessControl: e.target.value })}
                 style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#4ade80', border: '1px solid rgba(74,222,128,0.35)', fontWeight: '600' }}
               >
-                <option value="Sí (Portón / Garita)">✅ Sí tiene Control de Acceso (Portón / Garita)</option>
-                <option value="No">❌ No tiene Control de Acceso</option>
+                <option value="Sí (Portón / Garita)">✅ Sí tiene Portón / Garita</option>
+                <option value="No">❌ Sin Control de Acceso</option>
               </select>
             </div>
 
             <div>
+              <label htmlFor="nl-areas" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
+                4. Áreas Comunes Reservables (Demo)
+              </label>
+              <input
+                id="nl-areas"
+                type="text"
+                placeholder="Ej. Salón de fiesta, Cancha, Parrillera"
+                value={newLeadForm.reservableAreas}
+                onChange={e => setNewLeadForm({ ...newLeadForm, reservableAreas: e.target.value })}
+                style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              />
+            </div>
+
+            <div>
               <label htmlFor="nl-zone" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
-                Ciudad y Zona Geográfica (Paso 3) *
+                Ciudad y Zona Geográfica *
               </label>
               <div style={{ display: 'flex', gap: '0.4rem' }}>
                 <input
@@ -4961,9 +5631,9 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                   aria-label="Zona de Venezuela"
                   value={newLeadForm.zone}
                   onChange={e => setNewLeadForm({ ...newLeadForm, zone: e.target.value })}
-                  style={{ maxWidth: '175px', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.35)', fontSize: '0.78rem' }}
+                  style={{ maxWidth: '155px', padding: '0.6rem', borderRadius: '8px', background: '#060d18', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.35)', fontSize: '0.76rem' }}
                 >
-                  <option value="">Auto-detectar por ciudad</option>
+                  <option value="">Auto-detectar</option>
                   {VENEZUELA_ZONES.map(z => (
                     <option key={z.id} value={z.id}>{z.label}</option>
                   ))}
@@ -4972,7 +5642,57 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: '0.75rem', padding: '0.7rem', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(192, 132, 252, 0.3)' }}>
+            <div>
+              <label htmlFor="nl-comm-role" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#e9d5ff', marginBottom: '0.25rem' }}>
+                🏛️ Rol en la Comunidad
+              </label>
+              <select
+                id="nl-comm-role"
+                value={newLeadForm.communityRole}
+                onChange={e => setNewLeadForm({ ...newLeadForm, communityRole: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#fff', border: '1px solid rgba(148,163,184,0.3)' }}
+              >
+                <option value="junta">🏛️ Junta Directiva / Administrador</option>
+                <option value="vecino">🏡 Vecino (Hacer Puente con su Junta)</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="nl-init-status" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#e9d5ff', marginBottom: '0.25rem' }}>
+                🚀 Etapa Inicial en el Túnel
+              </label>
+              <select
+                id="nl-init-status"
+                value={newLeadForm.initialStatus}
+                onChange={e => setNewLeadForm({ ...newLeadForm, initialStatus: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#c084fc', border: '1px solid rgba(192,132,252,0.35)', fontWeight: '700' }}
+              >
+                <option value="pendiente">1. Lead / Diagnóstico Inicial</option>
+                <option value="visita_demo">2. Demo Personalizado / Puente Junta</option>
+                <option value="carga_ia">3. Subiendo Archivos con IA / Alta Gratis</option>
+                <option value="prueba_ia_30d">4. Ya Instalado • Iniciar 30d IA Gratis</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="nl-mrr" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#34d399', marginBottom: '0.25rem' }}>
+                💰 MRR Estimado ($ USD/mes)
+              </label>
+              <input
+                id="nl-mrr"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="Ej. 45"
+                value={newLeadForm.estimatedMonthlyFeeUsd}
+                onChange={e => setNewLeadForm({ ...newLeadForm, estimatedMonthlyFeeUsd: e.target.value })}
+                style={{ width: '100%', padding: '0.55rem', borderRadius: '8px', background: '#060d18', color: '#34d399', border: '1px solid rgba(16,185,129,0.35)', fontWeight: '700' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: '0.75rem' }}>
             <div>
               <label htmlFor="nl-client" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                 Persona de Contacto *

@@ -76,17 +76,19 @@ export default async function handler(req, res) {
 
   const aiReplyHtml = `
     <p>¡Hola <strong>${name}</strong>! 👋</p>
-    <p>Te saluda <strong>Sofía</strong>, del equipo comercial de <strong>IA Condo</strong> (<a href="https://www.iacondo.com">www.iacondo.com</a>). Gracias por ponerte en contacto con nosotros.</p>
-    <p>Para prepararte y enviarte de inmediato el enlace de tu <strong>Demostración Interactiva Personalizada</strong> (donde podrás probar tanto la <strong>Visión de Junta de Condominio</strong> como la <strong>Visión del Vecino</strong>), por favor respóndeme a este correo o por WhatsApp con estos 3 datos de tu conjunto:</p>
+    <p>Te saluda <strong>Sofía</strong>, asesora de comunidades en <strong>IA Condo</strong> (<a href="https://www.iacondo.com">www.iacondo.com</a>). Qué gusto saludarte.</p>
+    <p>Con <strong>IA Condo</strong> tu comunidad cuenta con una <strong>plataforma base gratuita para siempre</strong> (contabilidad transparente, aviso a garita, reservas de espacios comunes y directorio de profesionales cercanos), además de <strong>30 días de regalo con todas las funciones IA Premium</strong> (Agente de WhatsApp 24/7, conciliación bancaria predictiva por casa y alertas en vivo).</p>
+    <p>Y lo mejor: <strong>no tienen que transcribir nada a mano</strong>; pueden subir sus Excels, PDFs o extractos bancarios y nuestros Agentes de IA arman su condominio e históricos en segundos.</p>
+    <p>Si deseas que te genere ahora mismo un <strong>Demo Personalizado</strong> a la medida de tu comunidad (o enviárselo a tu Junta Directiva si eres vecino), respóndeme a este correo o por WhatsApp con estos datos:</p>
     <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px 18px; border-radius: 8px; margin: 16px 0;">
       <ol style="margin: 0; padding-left: 20px; color: #0f172a;">
         <li style="margin-bottom: 6px;"><strong>Nombre del Condominio o Conjunto Residencial</strong>${condominium && condominium.trim() ? ` <em>(recibimos: ${condominium.trim()})</em>` : ''}</li>
-        <li style="margin-bottom: 6px;"><strong>Cantidad de viviendas</strong> (y si son Casas/Townhouses o Apartamentos)</li>
-        <li><strong>¿Cuentan con control de acceso o portón eléctrico / garita?</strong> (Sí / No)</li>
+        <li style="margin-bottom: 6px;"><strong>Cantidad de casas o apartamentos</strong></li>
+        <li style="margin-bottom: 6px;"><strong>Áreas comunes reservables</strong> (ej. salón de fiestas, cancha, parrillera)</li>
+        <li><strong>¿Formas parte de la Junta Directiva o te gustaría que les hagamos llegar esta información?</strong></li>
       </ol>
     </div>
-    <p>Apenas me confirmes estos datos, te generaré tu entorno de prueba exclusivo a la medida de tu condominio.</p>
-    <p>También puedes escribirme directamente por WhatsApp haciendo clic aquí: <a href="https://wa.me/584222537239" style="color: #0284c7; font-weight: bold;">+58 422-2537239</a>.</p>
+    <p>También puedes activar tu condominio gratis en segundos desde <a href="https://www.iacondo.com" style="color: #0284c7; font-weight: bold;">www.iacondo.com</a> o escribirme directo por WhatsApp aquí: <a href="https://wa.me/584222537239" style="color: #0284c7; font-weight: bold;">+58 422-2537239</a>.</p>
   `;
 
   const fullCustomerHtml = `
