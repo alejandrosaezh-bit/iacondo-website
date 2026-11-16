@@ -93,6 +93,8 @@ function App() {
   const [scrolled, setScrolled] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [onboardingInitialMode, setOnboardingInitialMode] = useState('wizard'); // 'wizard' | 'ai_files'
+  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'annual'
+  const [calcUnits, setCalcUnits] = useState(40);
 
   const openOnboarding = (mode = 'wizard') => {
     setOnboardingInitialMode(mode);
@@ -423,7 +425,7 @@ function App() {
         </div>
       </section>
 
-      {/* SECCIÓN DE PLANES: GRATIS PARA SIEMPRE VS SÚPER PODERES IA (30 DÍAS DE REGALO) */}
+      {/* SECCIÓN DE SUSCRIPCIÓN Y PLANES: GRATIS PARA SIEMPRE + PLANES HÍBRIDOS (VIVIENDAS + OPERACIONES/IA) */}
       <section
         id="planes"
         style={{
@@ -434,8 +436,8 @@ function App() {
           overflowX: 'clip'
         }}
       >
-        <div style={{ maxWidth: '1120px', width: '100%', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.6rem' }}>
+        <div style={{ maxWidth: '1240px', width: '100%', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.2rem' }}>
             <span style={{
               display: 'inline-block',
               padding: '0.36rem 0.95rem',
@@ -447,127 +449,461 @@ function App() {
               fontWeight: '900',
               marginBottom: '0.85rem'
             }}>
-              💎 TRANSPARENCIA TOTAL • TÚ DECIDES CÓMO USARLO
+              💎 SUSCRIPCIÓN JUSTA POR VIVIENDAS Y OPERACIONES • 30 DÍAS IA GRATIS
             </span>
             <h2 style={{ fontSize: 'clamp(1.65rem, 1.25rem + 2.1vw, 2.6rem)', fontWeight: '900', color: '#ffffff', marginBottom: '0.85rem' }}>
               Gratis para toda tu Comunidad, o potenciado con <span className="text-gradient">Súper Poderes de IA</span>
             </h2>
-            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem)', maxWidth: '760px', margin: '0 auto', lineHeight: 1.65 }}>
-              Al activar tu condominio disfrutas durante tus <strong>primeros 30 días de todas las funciones Premium de IA sin costo ni tarjeta</strong>. Al finalizar ese mes de bienvenida, eliges el plan que más te favorezca o continúas usando el <strong>Plan Comunidad Gratis para siempre</strong> sin perder tu cuenta.
+            <p style={{ color: '#cbd5e1', fontSize: 'clamp(0.95rem, 0.9rem + 0.3vw, 1.08rem)', maxWidth: '820px', margin: '0 auto', lineHeight: 1.65 }}>
+              Al activar tu condominio disfrutas durante tus <strong>primeros 30 días de todas las funciones Premium de IA sin costo ni tarjeta</strong>. Luego eliges un plan adaptado al <strong>número de viviendas y volumen de operaciones mensuales</strong> de tu comunidad, o continúas en el <strong>Plan Comunidad Gratis para siempre</strong>.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 330px), 1fr))', gap: '1.6rem', alignItems: 'stretch' }}>
-            {/* TARJETA 1: PLAN COMUNIDAD GRATIS PARA SIEMPRE */}
-            <div
-              className="glass-panel"
-              style={{
-                background: 'rgba(15, 23, 42, 0.72)',
-                border: '1.5px solid rgba(16, 185, 129, 0.45)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '900', padding: '0.26rem 0.75rem', borderRadius: '999px', background: 'rgba(16, 185, 129, 0.18)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
-                    🌱 SIEMPRE DISPONIBLE
-                  </span>
-                  <span style={{ fontSize: '1.45rem', fontWeight: '900', color: '#34d399' }}>
-                    $0 / siempre
-                  </span>
-                </div>
-                <h3 style={{ fontSize: '1.45rem', fontWeight: '900', color: '#ffffff', marginBottom: '0.45rem' }}>
-                  Plan Comunidad Gratis
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.92rem', marginBottom: '1.25rem', lineHeight: 1.55 }}>
-                  Ideal para comunidades que desean llevar su contabilidad clara, control básico de garita y mantenimiento sin pagar mensualidades.
-                </p>
+          {/* CALCULADORA INTERACTIVA DE PLAN POR NÚMERO DE VIVIENDAS + INTERRUPTOR MENSUAL/ANUAL */}
+          {(() => {
+            const units = Number(calcUnits) || 40;
+            const recommendedPlan =
+              units <= 30
+                ? {
+                    id: 'basic',
+                    name: 'Plan Residencial Básico',
+                    monthlyUSD: 19,
+                    annualUSD: 190,
+                    opsLabel: '150 operaciones/mes + 50 lecturas IA + 300 chats WhatsApp IA',
+                    vaultLabel: 'Bóveda Fiscal de 1 año (1 GB)'
+                  }
+                : units <= 100
+                ? {
+                    id: 'pro',
+                    name: 'Plan Condominio Pro IA',
+                    monthlyUSD: 39,
+                    annualUSD: 390,
+                    opsLabel: '500 operaciones/mes + 200 lecturas IA + 1.000 chats WhatsApp IA',
+                    vaultLabel: 'Bóveda Legal Auditable de 3 años (5 GB)'
+                  }
+                : {
+                    id: 'enterprise',
+                    name: 'Plan Gran Conjunto / Administradora',
+                    monthlyUSD: 79 + Math.max(0, units - 200) * 0.35,
+                    annualUSD: Math.round((79 + Math.max(0, units - 200) * 0.35) * 10),
+                    opsLabel: 'Operaciones Ilimitadas + 600 lecturas IA + 3.500 chats WhatsApp IA',
+                    vaultLabel: 'Bóveda Forense de 5 años (20 GB)'
+                  };
 
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  <BenefitItem text="Gestión contable completa, recibos digitales y cobros en USD / BCV." />
-                  <BenefitItem text="Carga de extractos bancarios y registro de hasta 2 cuentas o cajas." />
-                  <BenefitItem text="Aviso digital de visitantes y deliverys a la Garita de Vigilancia." />
-                  <BenefitItem text="Reserva de áreas comunes y conexión con +100 profesionales para reparaciones." />
-                  <BenefitItem text="Respaldo de información y consulta histórica de hasta 1 año." />
-                </ul>
-              </div>
+            const effectiveMonthlyUSD =
+              billingCycle === 'annual'
+                ? Number((recommendedPlan.annualUSD / 12).toFixed(2))
+                : Number(recommendedPlan.monthlyUSD.toFixed(2));
+            const costPerUnitUSD = Number((effectiveMonthlyUSD / Math.max(1, units)).toFixed(2));
 
-              <button
-                type="button"
-                onClick={() => openOnboarding('wizard')}
-                className="btn btn-secondary"
+            return (
+              <div
+                className="glass-panel"
                 style={{
-                  width: '100%',
-                  padding: '0.92rem 1.2rem',
-                  fontWeight: '800',
-                  borderColor: 'rgba(16, 185, 129, 0.55)',
-                  background: 'rgba(16, 185, 129, 0.14)',
-                  color: '#6ee7b7',
-                  borderRadius: '12px',
-                  whiteSpace: 'normal',
-                  textAlign: 'center'
+                  background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(14, 165, 233, 0.14) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.45)',
+                  marginBottom: '2.2rem',
+                  padding: 'clamp(1.25rem, 3vw, 1.85rem)'
                 }}
               >
-                ✨ Empezar Gratis con mi Comunidad
-              </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+                  <div>
+                    <div style={{ fontSize: '0.76rem', fontWeight: '900', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      🧮 Calculadora de Suscripción por Vivienda y Operaciones
+                    </div>
+                    <h3 style={{ fontSize: 'clamp(1.1rem, 1rem + 0.6vw, 1.38rem)', fontWeight: '900', color: '#ffffff', margin: '0.2rem 0 0 0' }}>
+                      ¿Cuántas casas o apartamentos tiene tu condominio?
+                    </h3>
+                  </div>
+
+                  {/* Selector Ciclo Mensual vs Anual */}
+                  <div
+                    role="group"
+                    aria-label="Ciclo de facturación"
+                    style={{
+                      display: 'inline-flex',
+                      background: 'rgba(6, 13, 24, 0.85)',
+                      padding: '0.3rem',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(148, 163, 184, 0.25)',
+                      gap: '0.3rem'
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setBillingCycle('monthly')}
+                      style={{
+                        padding: '0.45rem 0.95rem',
+                        borderRadius: '999px',
+                        border: 'none',
+                        background: billingCycle === 'monthly' ? 'linear-gradient(135deg, #0ea5e9, #2563eb)' : 'transparent',
+                        color: billingCycle === 'monthly' ? '#ffffff' : '#94a3b8',
+                        fontWeight: '800',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Pago Mensual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBillingCycle('annual')}
+                      style={{
+                        padding: '0.45rem 0.95rem',
+                        borderRadius: '999px',
+                        border: 'none',
+                        background: billingCycle === 'annual' ? 'linear-gradient(135deg, #10b981, #059669)' : 'transparent',
+                        color: billingCycle === 'annual' ? '#ffffff' : '#94a3b8',
+                        fontWeight: '800',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem'
+                      }}
+                    >
+                      <span>Anual</span>
+                      <span style={{ background: 'rgba(251, 191, 36, 0.22)', color: '#fde68a', padding: '0.1rem 0.45rem', borderRadius: '999px', fontSize: '0.68rem', fontWeight: '900' }}>
+                        2 Meses Gratis
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.35rem', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+                      <label htmlFor="calc-units-range" style={{ fontSize: '0.9rem', color: '#cbd5e1', fontWeight: '700' }}>
+                        Tamaño de tu comunidad:
+                      </label>
+                      <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#38bdf8' }}>
+                        {units} {units === 1 ? 'vivienda' : 'viviendas'}
+                      </span>
+                    </div>
+
+                    <input
+                      id="calc-units-range"
+                      type="range"
+                      min="5"
+                      max="250"
+                      step="1"
+                      value={units}
+                      onChange={(e) => setCalcUnits(Number(e.target.value))}
+                      style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer', height: '8px' }}
+                    />
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.75rem' }}>
+                      {[
+                        { label: '15 casas (Pequeño)', val: 15 },
+                        { label: '30 viviendas', val: 30 },
+                        { label: '60 aptos (Mediano)', val: 60 },
+                        { label: '120 aptos (Grande)', val: 120 },
+                        { label: '200+ viviendas', val: 200 }
+                      ].map((preset) => (
+                        <button
+                          key={preset.val}
+                          type="button"
+                          onClick={() => setCalcUnits(preset.val)}
+                          style={{
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '999px',
+                            fontSize: '0.74rem',
+                            fontWeight: '800',
+                            cursor: 'pointer',
+                            border: units === preset.val ? '1px solid #34d399' : '1px solid rgba(148, 163, 184, 0.28)',
+                            background: units === preset.val ? 'rgba(16, 185, 129, 0.2)' : 'rgba(6, 13, 24, 0.65)',
+                            color: units === preset.val ? '#6ee7b7' : '#cbd5e1'
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Resultado instantáneo de la calculadora */}
+                  <div
+                    style={{
+                      background: 'rgba(6, 13, 24, 0.78)',
+                      border: '1px solid rgba(52, 211, 153, 0.4)',
+                      borderRadius: '14px',
+                      padding: '1.1rem 1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#34d399', textTransform: 'uppercase' }}>
+                        ✨ Plan IA Recomendado: {recommendedPlan.name}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fde68a', background: 'rgba(251, 191, 36, 0.14)', padding: '0.18rem 0.55rem', borderRadius: '999px' }}>
+                        Primeros 30 días: $0
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.65rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 'clamp(1.6rem, 1.3rem + 1vw, 2.15rem)', fontWeight: '900', color: '#ffffff' }}>
+                        ${costPerUnitUSD} USD
+                      </span>
+                      <span style={{ fontSize: '0.9rem', color: '#6ee7b7', fontWeight: '800' }}>
+                        por vivienda al mes
+                      </span>
+                      <span style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                        (Total edificio: ${effectiveMonthlyUSD}/mes)
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.45 }}>
+                      Incluye: <strong>{recommendedPlan.opsLabel}</strong> y <strong>{recommendedPlan.vaultLabel}</strong>.
+                      {units <= 20 && (
+                        <span style={{ display: 'block', color: '#34d399', marginTop: '0.25rem', fontWeight: '700' }}>
+                          💡 Por tener {units} viviendas, también calificas para el Plan Comunidad Gratis ($0/mes en modo manual).
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* CUADRÍCULA DE LOS 4 PLANES OFICIALES */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 272px), 1fr))', gap: '1.25rem', alignItems: 'stretch', marginBottom: '2.2rem' }}>
+            {[
+              {
+                id: 'free',
+                badge: '🌱 GRATIS SIEMPRE',
+                badgeBg: 'rgba(16, 185, 129, 0.18)',
+                badgeColor: '#34d399',
+                borderColor: 'rgba(16, 185, 129, 0.45)',
+                title: 'Comunidad Gratis',
+                priceLabel: '$0',
+                periodLabel: '/ siempre',
+                unitNote: 'Hasta 20 viviendas (o modo manual básico)',
+                desc: 'Para juntas que desean llevar su contabilidad manual y garita básica sin pagar mensualidad.',
+                features: [
+                  'Hasta 20 viviendas sin costo mensual',
+                  'Hasta 50 operaciones contables manuales / mes',
+                  '30 pases QR de visita a garita / mes (Web Push gratis)',
+                  'Hasta 2 cuentas bancarias o cajas en USD / BCV',
+                  'Retención temporal de comprobantes por 15 días',
+                  'Acceso a +100 profesionales de reparaciones'
+                ],
+                ctaText: '✨ Empezar Gratis',
+                ctaMode: 'wizard',
+                highlight: false
+              },
+              {
+                id: 'basic',
+                badge: '🏘️ HASTA 30 VIVIENDAS',
+                badgeBg: 'rgba(56, 189, 248, 0.18)',
+                badgeColor: '#7dd3fc',
+                borderColor: 'rgba(56, 189, 248, 0.42)',
+                title: 'Residencial Básico',
+                priceLabel: billingCycle === 'annual' ? '$15.80' : '$19',
+                periodLabel: '/ mes',
+                unitNote: billingCycle === 'annual' ? 'Facturado $190/año (~$0.52 por casa/mes)' : 'Equivale a ~$0.63 por vivienda al mes',
+                desc: 'Ideal para calles cerradas, edificios pequeños y conjuntos de hasta 30 unidades con IA activa.',
+                features: [
+                  'Hasta 30 viviendas registradas',
+                  '150 operaciones contables / mes (Pagos + Gastos)',
+                  '50 lecturas con IA / mes (Facturas, capturas y extractos)',
+                  '300 mensajes del Agente IA 24/7 en WhatsApp / mes',
+                  '300 pases QR de garita / mes + Mando Portón',
+                  'Bóveda Fiscal de Imágenes y PDFs por 1 año (1 GB)'
+                ],
+                ctaText: '🚀 Probar 30 Días Gratis',
+                ctaMode: 'ai_files',
+                highlight: false
+              },
+              {
+                id: 'pro',
+                badge: '⭐ MÁS POPULAR • 31 A 100 VIV.',
+                badgeBg: 'rgba(251, 191, 36, 0.22)',
+                badgeColor: '#fde68a',
+                borderColor: 'rgba(56, 189, 248, 0.75)',
+                title: 'Condominio Pro IA',
+                priceLabel: billingCycle === 'annual' ? '$32.50' : '$39',
+                periodLabel: '/ mes',
+                unitNote: billingCycle === 'annual' ? 'Facturado $390/año (~$0.39 por apto/mes)' : 'Equivale a ~$0.39 - $0.55 por vivienda/mes',
+                desc: 'Automatización total con IA para edificios y conjuntos residenciales medianos con alto movimiento.',
+                features: [
+                  'De 31 a 100 viviendas registradas',
+                  '500 operaciones contables / mes + Conciliación IA',
+                  '200 lecturas OCR con IA / mes (Extractos y Facturas)',
+                  '1.000 mensajes del Agente IA 24/7 en WhatsApp / mes',
+                  'Pases QR y Accesos de Garita Ilimitados + Alertas en vivo',
+                  'Cuentas ilimitadas + Cartas Consulta LPH ilimitadas',
+                  'Bóveda Legal Auditable de 3 años (5 GB)'
+                ],
+                ctaText: '🚀 Activar 30 Días Pro IA Gratis',
+                ctaMode: 'ai_files',
+                highlight: true
+              },
+              {
+                id: 'enterprise',
+                badge: '🏢 101 A 200+ VIVIENDAS',
+                badgeBg: 'rgba(168, 85, 247, 0.22)',
+                badgeColor: '#e9d5ff',
+                borderColor: 'rgba(168, 85, 247, 0.5)',
+                title: 'Gran Conjunto / Admin',
+                priceLabel: billingCycle === 'annual' ? '$65.80' : '$79',
+                periodLabel: '/ mes',
+                unitNote: 'Hasta 200 viviendas (+$0.35 por vivienda adicional)',
+                desc: 'Para grandes urbanismos, conjuntos multi-torre y empresas administradoras de condominios.',
+                features: [
+                  'De 101 a 200+ viviendas (Multi-torre / Urbanismos)',
+                  'Operaciones contables ilimitadas (+2.000 / mes)',
+                  '600 lecturas con IA / mes + Auditoría Forense IA',
+                  '3.500 mensajes del Agente IA 24/7 en WhatsApp / mes',
+                  'Múltiples Garitas de Vigilancia + API Externa',
+                  'Bóveda Forense Blindada de 5 años (20 GB) + Soporte VIP'
+                ],
+                ctaText: '👑 Activar Plan Gran Conjunto',
+                ctaMode: 'ai_files',
+                highlight: false
+              }
+            ].map((plan) => (
+              <div
+                key={plan.id}
+                className="glass-panel"
+                style={{
+                  background: plan.highlight
+                    ? 'linear-gradient(160deg, rgba(14, 165, 233, 0.2) 0%, rgba(15, 23, 42, 0.92) 100%)'
+                    : 'rgba(15, 23, 42, 0.76)',
+                  border: `${plan.highlight ? '2px' : '1.5px'} solid ${plan.borderColor}`,
+                  boxShadow: plan.highlight ? '0 20px 50px rgba(14, 165, 233, 0.22)' : 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '1.35rem'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: '900', padding: '0.24rem 0.65rem', borderRadius: '999px', background: plan.badgeBg, color: plan.badgeColor }}>
+                      {plan.badge}
+                    </span>
+                  </div>
+
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: '#ffffff', marginBottom: '0.3rem' }}>
+                    {plan.title}
+                  </h3>
+
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: '900', color: '#ffffff' }}>{plan.priceLabel}</span>
+                    <span style={{ fontSize: '0.88rem', color: '#94a3b8', fontWeight: '700' }}>{plan.periodLabel}</span>
+                  </div>
+
+                  <div style={{ fontSize: '0.76rem', color: '#38bdf8', fontWeight: '800', marginBottom: '0.75rem' }}>
+                    {plan.unitNote}
+                  </div>
+
+                  <p style={{ color: '#cbd5e1', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}>
+                    {plan.desc}
+                  </p>
+
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.35rem', padding: 0 }}>
+                    {plan.features.map((featText, fIdx) => (
+                      <BenefitItem key={fIdx} text={featText} />
+                    ))}
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openOnboarding(plan.ctaMode)}
+                  className={plan.highlight ? 'btn btn-primary' : 'btn btn-secondary'}
+                  style={{
+                    width: '100%',
+                    padding: '0.85rem 1rem',
+                    fontWeight: '900',
+                    fontSize: '0.88rem',
+                    background: plan.highlight
+                      ? 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)'
+                      : plan.id === 'free'
+                      ? 'rgba(16, 185, 129, 0.15)'
+                      : 'rgba(56, 189, 248, 0.14)',
+                    borderColor: plan.id === 'free' ? 'rgba(16, 185, 129, 0.55)' : 'rgba(56, 189, 248, 0.45)',
+                    color: plan.highlight ? '#ffffff' : plan.id === 'free' ? '#6ee7b7' : '#7dd3fc',
+                    borderRadius: '12px',
+                    whiteSpace: 'normal',
+                    textAlign: 'center'
+                  }}
+                >
+                  {plan.ctaText}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* PAQUETES RECARGABLES POR OPERACIÓN (PAY-AS-YOU-GO / INCLUSO PARA PLAN GRATIS) */}
+          <div
+            className="glass-panel"
+            style={{
+              background: 'rgba(15, 23, 42, 0.82)',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              padding: 'clamp(1.2rem, 3vw, 1.75rem)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.1rem' }}>
+              <div>
+                <span style={{ fontSize: '0.72rem', fontWeight: '900', color: '#fde68a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  ⚡ RECARGAS PUNTUALES POR USO (SIN MENSUALIDAD FIJA)
+                </span>
+                <h3 style={{ fontSize: '1.18rem', fontWeight: '900', color: '#ffffff', margin: '0.2rem 0 0 0' }}>
+                  ¿Estás en el Plan Gratis o necesitas más capacidad un mes puntual? Activa paquetes por operación:
+                </h3>
+              </div>
             </div>
 
-            {/* TARJETA 2: PLANES CON SÚPER PODERES DE INTELIGENCIA ARTIFICIAL */}
-            <div
-              className="glass-panel"
-              style={{
-                background: 'linear-gradient(160deg, rgba(14, 165, 233, 0.18) 0%, rgba(15, 23, 42, 0.88) 100%)',
-                border: '2px solid rgba(56, 189, 248, 0.6)',
-                boxShadow: '0 20px 50px rgba(14, 165, 233, 0.18)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: '900', padding: '0.26rem 0.75rem', borderRadius: '999px', background: 'rgba(56, 189, 248, 0.22)', color: '#7dd3fc', border: '1px solid rgba(56, 189, 248, 0.5)' }}>
-                    🎁 30 DÍAS DE REGALO AL ACTIVAR
-                  </span>
-                  <span style={{ fontSize: '0.86rem', fontWeight: '800', color: '#fde68a' }}>
-                    Luego eliges el plan a tu medida
-                  </span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1rem' }}>
+              {[
+                {
+                  icon: '⚡',
+                  title: 'Paquete "Cierre de Mes con IA"',
+                  price: '$5 USD (Pago único)',
+                  desc: 'Incluye 60 lecturas de IA para escanear las facturas del mes, conciliar el extracto bancario en segundos y conservar los soportes por 30 días.'
+                },
+                {
+                  icon: '🗳️',
+                  title: 'Paquete "Carta Consulta LPH Blindada"',
+                  price: '$7 USD (Por consulta)',
+                  desc: 'Habilita presupuestos en PDF con fotos, votación vinculante por alícuota y generación del Acta Oficial auditable con 3 años de respaldo.'
+                },
+                {
+                  icon: '💬',
+                  title: 'Recarga "+500 Chats IA + 2 GB Bóveda"',
+                  price: '$9 USD (Recarga flexible)',
+                  desc: 'Suma 500 respuestas adicionales del Agente IA en WhatsApp y 2 GB de almacenamiento histórico extra que no vencen a fin de mes.'
+                }
+              ].map((addon, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    background: 'rgba(6, 13, 24, 0.7)',
+                    border: '1px solid rgba(56, 189, 248, 0.25)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontWeight: '800', color: '#ffffff', fontSize: '0.94rem' }}>
+                      {addon.icon} {addon.title}
+                    </span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: '900', color: '#34d399', background: 'rgba(16, 185, 129, 0.16)', padding: '0.2rem 0.55rem', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                      {addon.price}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.45 }}>
+                    {addon.desc}
+                  </p>
                 </div>
-                <h3 style={{ fontSize: '1.45rem', fontWeight: '900', color: '#ffffff', marginBottom: '0.45rem' }}>
-                  Planes Inteligentes con IA Premium
-                </h3>
-                <p style={{ color: '#cbd5e1', fontSize: '0.92rem', marginBottom: '1.25rem', lineHeight: 1.55 }}>
-                  Todo lo del Plan Gratis más automatización avanzada con Inteligencia Artificial para ahorrar hasta el 90% del trabajo operativo.
-                </p>
-
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                  <BenefitItem text="Agente de IA exclusivo de tu condominio 24/7 en la App y por WhatsApp." />
-                  <BenefitItem text="Conciliación predictiva: la IA te sugiere de qué casa es cada pago del extracto y lee facturas." />
-                  <BenefitItem text="Notificaciones instantáneas al celular cuando llega tu visita o delivery a garita." />
-                  <BenefitItem text="Cuentas bancarias y cajas ilimitadas + Auditoría Forense automática." />
-                  <BenefitItem text="Archivo histórico blindado y auditable de hasta 5 años." />
-                </ul>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => openOnboarding('ai_files')}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '0.95rem 1.2rem',
-                  fontWeight: '900',
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  whiteSpace: 'normal',
-                  textAlign: 'center'
-                }}
-              >
-                🚀 Activar Ahora y Disfrutar mis 30 Días con IA Gratis
-              </button>
+              ))}
             </div>
           </div>
         </div>
