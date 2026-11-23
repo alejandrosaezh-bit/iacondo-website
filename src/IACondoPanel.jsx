@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-const API_BASE = 'https://condopro-api.onrender.com';
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://condopro-api.onrender.com').replace(/\/+$/, '').replace(/\/api$/, '');
 const DEMO_URL = 'https://app.iacondo.com/demo';
 
 const VENEZUELA_ZONES = [
@@ -645,8 +645,20 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
   useEffect(() => {
     if (currentUser) {
       fetchDashboard({ background: false });
-      const interval = setInterval(() => fetchDashboard({ background: true }), 25000);
-      return () => clearInterval(interval);
+      const pollIfVisible = () => {
+        if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+          fetchDashboard({ background: true });
+        }
+      };
+      const interval = setInterval(pollIfVisible, 45000);
+      const onVisibility = () => {
+        if (document.visibilityState === 'visible') fetchDashboard({ background: true });
+      };
+      document.addEventListener('visibilitychange', onVisibility);
+      return () => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', onVisibility);
+      };
     }
   }, [currentUser, fetchDashboard]);
 

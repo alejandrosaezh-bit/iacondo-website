@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
 
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://condopro-api.onrender.com').replace(/\/+$/, '').replace(/\/api$/, '');
+
 const WEBSITE_FEATURES = [
   {
     icon: '🤖',
@@ -1165,14 +1167,14 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
       communityRole: userRoleType === 'owner_only' ? 'vecino' : 'junta'
     };
     try {
-      fetch('https://condopro-api.onrender.com/api/iacondo-panel/public-funnel-sync', {
+      fetch(`${API_BASE}/api/iacondo-panel/public-funnel-sync`, {
         method: 'POST',
         keepalive: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(syncPayload)
       }).catch(() => {});
 
-      fetch('https://condopro-api.onrender.com/api/public/contact', {
+      fetch(`${API_BASE}/api/public/contact`, {
         method: 'POST',
         keepalive: true,
         headers: { 'Content-Type': 'application/json' },
@@ -1202,7 +1204,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
 
     // Sincronizar automáticamente con el Túnel PLG de panel.iacondo.com (Etapa 4: Instalado • 30d IA Gratis) y contacto
     try {
-      fetch('https://condopro-api.onrender.com/api/iacondo-panel/public-funnel-sync', {
+      fetch(`${API_BASE}/api/iacondo-panel/public-funnel-sync`, {
         method: 'POST',
         keepalive: true,
         headers: { 'Content-Type': 'application/json' },
@@ -1221,7 +1223,7 @@ function WebsiteOnboardingModal({ initialMode = 'wizard', onClose }) {
         })
       }).catch(() => {});
 
-      fetch('https://condopro-api.onrender.com/api/public/contact', {
+      fetch(`${API_BASE}/api/public/contact`, {
         method: 'POST',
         keepalive: true,
         headers: { 'Content-Type': 'application/json' },
@@ -1850,7 +1852,7 @@ function ContactForm() {
         setStatus('success');
         setFormData({ name: '', email: '', phone: '', condominium: '', message: '' });
       } else {
-        const fallbackRes = await fetch('https://condopro-api.onrender.com/api/public/contact', {
+        const fallbackRes = await fetch(`${API_BASE}/api/public/contact`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
