@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './index.css';
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://condopro-api.onrender.com').replace(/\/+$/, '').replace(/\/api$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://api.iacondo.com').replace(/\/+$/, '').replace(/\/api$/, '');
 
 const WEBSITE_FEATURES = [
   {

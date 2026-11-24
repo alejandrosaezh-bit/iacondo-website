@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'https://condopro-api.onrender.com').replace(/\/+$/, '').replace(/\/api$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL || 'https://api.iacondo.com').replace(/\/+$/, '').replace(/\/api$/, '');
 const DEMO_URL = 'https://app.iacondo.com/demo';
 
 const VENEZUELA_ZONES = [
