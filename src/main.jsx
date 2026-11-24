@@ -1,8 +1,9 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
-import IACondoPanel from './IACondoPanel.jsx'
+
+const App = lazy(() => import('./App.jsx'))
+const IACondoPanel = lazy(() => import('./IACondoPanel.jsx'))
 
 const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
 const path = typeof window !== 'undefined' ? window.location.pathname.toLowerCase() : '';
@@ -22,8 +23,16 @@ if (isPanelRoute && typeof document !== 'undefined') {
   document.title = 'Panel Corporativo & IA | IACONDO.COM';
 }
 
+const LoadingScreen = () => (
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#070b14', color: '#e2e8f0', fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '0.95rem' }}>
+    Cargando IA Condo...
+  </div>
+);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {isPanelRoute ? <IACondoPanel /> : <App />}
+    <Suspense fallback={<LoadingScreen />}>
+      {isPanelRoute ? <IACondoPanel /> : <App />}
+    </Suspense>
   </StrictMode>,
 )
