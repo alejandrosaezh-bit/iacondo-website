@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import PanelGaritasTab from './PanelGaritasTab';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'https://api.iacondo.com').replace(/\/+$/, '').replace(/\/api$/, '');
 const DEMO_URL = 'https://app.iacondo.com/demo';
@@ -262,6 +263,7 @@ export default function IACondoPanel() {
   const [calls, setCalls] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [aiAgents, setAiAgents] = useState([]);
+  const [panelGaritasCount, setPanelGaritasCount] = useState(null);
 
   const DEFAULT_CARLOS_GLOBAL_CONFIG = {
     globalPersonalityAndTone: `1. COMPRENSIÓN HUMANA E INTELIGENTE (CERO ROBOT):
@@ -2266,6 +2268,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
           }}>
             {[
               { id: 'agenda', label: `👑 Control CEO, Agenda y CRM (${salesCalls.length})` },
+              { id: 'garitas', label: `🛡️ Garitas${panelGaritasCount !== null ? ` (${panelGaritasCount})` : ''}` },
               { id: 'usuarios', label: `👥 Equipo y Zonas (${users.length})` },
               { id: 'ia', label: `🤖 Agentes IA (${catalogAiAgents.length})` },
               { id: 'soporte', label: `🛠️ Soporte (${supportTickets.length})` },
@@ -4290,6 +4293,13 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
               </form>
             </div>
           </div>
+        )}
+
+        {/* ===================================================================
+            TAB GARITAS: DIRECTORIO MAESTRO DE GARITAS Y VÍNCULOS N:M
+            =================================================================== */}
+        {!isAgentAppMode && activeTab === 'garitas' && (
+          <PanelGaritasTab apiBase={API_BASE} onCountChange={setPanelGaritasCount} />
         )}
 
         {/* ===================================================================
