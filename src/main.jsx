@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import BrandSplashScreen from './components/BrandSplashScreen.jsx'
 
 const App = lazy(() => import('./App.jsx'))
 const IACondoPanel = lazy(() => import('./IACondoPanel.jsx'))
@@ -31,6 +32,9 @@ const LoadingScreen = () => (
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <BrandSplashScreen
+      subtitle={isPanelRoute ? 'Panel Corporativo & Agentes IA' : 'Gestión Inteligente de Condominios'}
+    />
     <Suspense fallback={<LoadingScreen />}>
       {isPanelRoute ? <IACondoPanel /> : <App />}
     </Suspense>
