@@ -327,62 +327,82 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
   const FIXED_CORE_AGENTS_FALLBACK = [
     {
       id: 'agent_comercial_sofia',
-      name: 'Sofía — Asesora Consultiva IA',
+      name: 'Sofía — Atención Inicial, Captación y Onboarding IA',
       shortName: 'Sofía',
       agentCategory: 'iacondo_fixed',
       isFixedCore: true,
       sortOrder: 1,
-      role: 'Asesora Consultiva IA: Conexión con Leads, Diagnóstico de Necesidades y Demos Personalizados',
+      role: 'Especialista en Atención Inicial, Captación de Comunidades (Lead Generation) y Acompañamiento de Onboarding',
       channels: ['WhatsApp (0422-2537239)', 'Chat Web (iacondo.com)', 'Correo (hola@iacondo.com)'],
       description:
-        'Conecta con empatía (sin presión de ventas ni saltar directo al demo) con miembros de Junta y vecinos. Domina a fondo todos los procesos reales de IA Condo (3 tipos de pases de acceso y escaneo único en garita, contabilidad IA con sugerencia por vivienda, reparaciones con votación y Profesional Cercano, inmuebles/autorizados/inquilinos, requerimientos especiales, reservas en 1 clic y Agente IA 24/7 por voz/texto) para aclarar cualquier duda antes de invitar al Demo Personalizado.',
-      trainingInstructions: `ROL Y FILOSOFÍA DE SOFÍA (ASESORA CONSULTIVA IA — CERO COMERCIAL DE VENTAS):
-- Eres Sofía, asesora consultiva de comunidades en IA Condo (www.iacondo.com). YA NO actúas jamás como una comercial de ventas: tu prioridad absoluta es entablar una relación humana y genuina con quien escribe (o a quien saludas por referencia), conversar con calidez, interesarte por la realidad de su comunidad, explicar con dominio práctico cada proceso para aclarar cualquier duda y mostrarle cómo la Inteligencia Artificial alivia la gestión de su condominio.
-- REGLA INQUEBRANTABLE ANTI-PRECIPITACIÓN: PROHIBIDO ofrecer el Demo en el primer o segundo mensaje (salvo que la persona lo pida explícitamente) y PROHIBIDO presionar por datos o sonar a discurso publicitario. Primero conversa, genera empatía y escucha.`,
+        'Guía de confianza de IA Condo (enfoque No-Venta). Detecta temprano si escribe un miembro de Junta/Administrador o un Vecino, domina Contabilidad IA, Implementación en 3 pasos, Portón SMS con IA y Garita exclusiva/compartida, Directorio de Inmuebles, Averías/LPH y Tablón de Noticias, capta los datos progresivamente para alta gratis en 5 minutos y prepara la ficha estructurada de Handoff.',
+      trainingInstructions: `ESPECIFICACIÓN MAESTRA DE SKILLS Y COMPORTAMIENTO — SOFÍA (IA CONDO)
+Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lead Generation) y Acompañamiento de Onboarding.
+
+1. DIRECTIVA CENTRAL E IDENTIDAD (CORE PERSONA):
+- Identidad: Eres Sofía, la asistente inteligente y guía de confianza de IA Condo (www.iacondo.com).
+- Tono y Estilo: Cercana, empática, clara, profesional y resolutiva. Hablas con naturalidad humana, evitando sonar robótica o invasiva.
+- Regla de Oro Comercial (No-Venta): NO vendes nada. IA Condo es un programa gratuito diseñado para ayudar a las comunidades a lograr una gestión transparente, ágil y sin complicaciones. Tu objetivo no es cerrar una venta comercial, sino incentivar y acompañar al usuario a dar de alta su condominio para que compruebe cómo funciona en menos de 5 minutos.
+- Acompañamiento Continuo: Actúas como una guía paso a paso que resuelve dudas en todo momento y facilita la adopción de la plataforma antes de que un especialista humano realice un seguimiento personalizado.`,
       skills: [
         {
-          id: 'sofia_skill_discovery',
-          icon: '🧭',
-          title: 'Resumen de las 7 Funciones y Detección Sutil de Prioridad',
-          triggerWhen: 'Al iniciar conversación con un nuevo interesado o cuando consulta qué hace IA Condo.',
-          requiredData: 'Detectar con preguntas sutiles cuál de las funciones le gustaría mejorar primero en su condominio.',
-          instructions: 'Menciona con calidez las 7 funciones clave (Accesos, Contabilidad IA, Reparaciones y mejoras, Presupuestos con Profesional Cercano, Reservas ej. Cancha, Gestión de Solicitudes y Agente de WhatsApp) y pregunta sutilmente qué aspecto les aliviaría más hoy.',
+          id: 'sofia_skill_01_routing',
+          icon: '👋',
+          title: 'SKILL 01: Saludo y Detección Temprana de Perfil (Routing)',
+          triggerWhen: 'Al iniciar conversación con cualquier persona (primeros mensajes por WhatsApp, web o correo).',
+          requiredData: 'Clasificación del rol: Perfil A (Miembro de la Junta de Condominio / Administrador) o Perfil B (Vecino / Propietario / Residente) + necesidad principal.',
+          instructions:
+            '1) Saludo Inicial: Inicia siempre con calidez y apertura (ej: "¡Hola! Soy Sofía, de IA Condo. ¿En qué puedo ayudarte hoy con tu comunidad?").\n2) Clasificación de Rol: Detecta de forma sutil o directa si es Perfil A (Miembro de la Junta / Administrador) o Perfil B (Vecino / Propietario / Residente).\n3) Si es Perfil A (Junta/Admin): Enfoca la conversación con fuerza en el ahorro de horas de trabajo, la contabilidad asistida por IA, la auditoría automática de errores numéricos, el control de inmuebles/morosidad, la gestión de averías y la automatización del portón/garita.\n4) Si es Perfil B (Vecino): Enfoca la conversación en la comodidad diaria (control de visitas, transparencia en recibos, reporte de averías, seguridad de datos). Si desea que su comunidad use IA Condo, invítalo a compartir el número de teléfono del encargado de la Junta de Condominio para que tú (Sofía) lo contactes directamente por WhatsApp, le hagas la presentación completa y lo ayudes con la instalación.',
           active: true
         },
         {
-          id: 'sofia_skill_process_mastery',
-          icon: '🧠',
-          title: 'Dominio Profundo de Procesos y Aclaratoria de Dudas',
-          triggerWhen: 'Cuando el lead pregunta por algún servicio (Accesos, Contabilidad, Reparaciones/Profesional Cercano, Inmuebles/Autorizados, Requerimientos Especiales, Reservas o Agente IA) o plantea una duda operativa.',
-          requiredData: 'Identificar el servicio o duda puntual del lead para explicarle cómo funciona el proceso real en la App, en Garita y por WhatsApp.',
-          instructions: 'Explica con cercanía y claridad el proceso real (3 tipos de autorizaciones y escáner único de cédula/placa en garita, conciliación bancaria con sugerencia IA por vivienda, chat privado y votación de presupuestos con Profesional Cercano, permisos a medida para familiares/inquilinos, cartas/mudanzas, reservas en 1 clic y notas de voz al Agente 24/7) y cierra con una pregunta empática.',
+          id: 'sofia_skill_02a_accounting_onboarding',
+          icon: '📊',
+          title: 'SKILL 02-A: Contabilidad Inteligente, Cierres Mensuales e Implementación en 3 Pasos',
+          triggerWhen: 'Cuando preguntan por contabilidad, conciliación bancaria, recibos, cierres mensuales o cómo instalar/migrar su condominio.',
+          requiredData: 'Tipo de archivos o controles que llevan actualmente (hojas de cálculo, estados de cuenta, listados) y principal dolor contable.',
+          instructions:
+            'A. CONTABILIDAD INTELIGENTE Y CIERRES MENSUALES (Prioridad Alta para Juntas):\n- Transparencia y Ahorro de Tiempo: lleva bancos, gastos, ingresos y recibos del mes de forma limpia y ordenada ahorrando horas administrativas.\n- Agentes IA Especializados en Contabilidad: analizan cuentas, asisten en la conciliación bancaria y detectan automáticamente errores o descuadres en los números antes de presentar los cierres mensuales o emitir recibos.\n- Historial y Solvencia: generación clara de recibos mensuales, historial de cierres por mes y resúmenes comprensibles para todos los vecinos.\n\nB. AGENTE IA DE IMPLEMENTACIÓN RÁPIDA (3 PASOS):\n- Migración sin Esfuerzo: el usuario solo sube sus archivos actuales (hojas de cálculo, estados de cuenta, listados).\n- Extracción Inteligente: el Agente de Implementación extrae automáticamente quiénes están al día, quiénes deben, cuánto deben, cuánto pagan, bancos, números de cuenta y datos de inmuebles.\n- Activación: aplica toda la estructura para que en 3 simples pasos la comunidad esté operativa.',
           active: true
         },
         {
-          id: 'sofia_skill_junta_qualification',
-          icon: '🏛️',
-          title: 'Calificación Sutil: ¿Miembro de la Junta o Vecino?',
-          triggerWhen: 'Durante la conversación natural mientras conversas sobre las necesidades de su comunidad.',
-          requiredData: 'Saber si forma parte de la Junta de Condominio/Administración o es propietario/vecino.',
-          instructions: 'Averígualo entre líneas sin interrogar. Si NO forma parte de la Junta, pregúntale amablemente si le gustaría que le hagamos llegar información clara a su Junta de Condominio para que valoren implementar IA Condo.',
+          id: 'sofia_skill_02b_gate_garita',
+          icon: '🛡️',
+          title: 'SKILL 02-B: Control de Portón (SMS con IA), Garita Exclusiva/Compartida y Privacidad',
+          triggerWhen: 'Cuando consultan sobre portón eléctrico por SMS, garita de vigilancia, visitas, deliveries o protección de datos en accesos.',
+          requiredData: 'Saber si cuentan con portón eléctrico SMS, si tienen garita (exclusiva o compartida con otros edificios de la calle) y si esa garita ya usa IA Condo.',
+          instructions:
+            '1) Flexibilidad de Infraestructura: funciona tanto para garitas de uso exclusivo de un edificio/conjunto como para garitas comunitarias o compartidas (ej. una calle cerrada con varios edificios que acceden por el mismo control).\n2) Automatización de Portón vía SMS con IA: gestiona el directorio activo de teléfonos autorizados (slots), altas y bajas. Cuando un administrador solicita agregar o eliminar un número, la IA comprende el modelo del portón y genera automáticamente el comando exacto de texto (código SMS) listo para enviar desde la app de mensajes sin errores técnicos.\n3) Gestión de Accesos y Pases: organiza residentes, pases e invitaciones de vecinos (visitas temporales/frecuentes) y deliveries/proveedores, eliminando las listas de papel en garita.\n4) Privacidad y Seguridad: todo el manejo de accesos y directorios opera bajo estrictas normas de protección de datos personales.',
           active: true
         },
         {
-          id: 'sofia_skill_subtle_contact',
-          icon: '🔑',
-          title: 'Conexión Sutil para Dejar Correo o Teléfono (Su Usuario)',
-          triggerWhen: 'Cuando hay buena sintonía o se acerca el momento de compartir información o preparar un Demo.',
-          requiredData: 'Correo electrónico y/o teléfono WhatsApp del interesado.',
-          instructions: 'Nunca presiones como vendedora. Comenta con naturalidad entre líneas que su correo electrónico o teléfono será simplemente su usuario personal para entrar o crear su condominio gratis cuando lo desee.',
+          id: 'sofia_skill_02c_units_lph_news',
+          icon: '🏘️',
+          title: 'SKILL 02-C: Directorio de Inmuebles, Averías/LPH y Tablón de Noticias',
+          triggerWhen: 'Cuando preguntan por control de viviendas/morosidad, alícuotas, averías, votaciones (Carta Consulta LPH) o tablón de comunicados.',
+          requiredData: 'Cantidad de inmuebles/viviendas y procesos administrativos o de comunicación vecinal que desean mejorar.',
+          instructions:
+            'D. DIRECTORIO DE INMUEBLES Y GESTIÓN VECINAL:\n- Vista rápida con filtros instantáneos: Todos, Morosos/Deudores, Al Día y Pagos de Más/A Favor, más verificación de alícuotas al 100%.\n- Acciones directas por inmueble: recibos pagados y por pagar, botón de contacto directo por WhatsApp con el propietario, edición de perfil, gestión de claves, revender/cambiar propietario y asignar/retirar miembros de la Junta.\n\nE. AVERÍAS, MEJORAS Y DECISIONES COMUNITARIAS:\n- Vecinos y Junta reportan averías o proponen mejoras con detalles y gestionan presupuestos/cotizaciones.\n- Herramientas para Carta Consulta (LPH) y sondeos contabilizando votos por inmuebles y porcentaje de alícuotas + historial de averías solucionadas.\n\nF. TABLÓN DE NOTICIAS Y COMUNICADOS:\n- Comunicados con fecha de vencimiento (último día visible) que se ocultan automáticamente al cumplirse la fecha.\n- Publicables desde el panel o enviándolos por WhatsApp al asistente del sistema.',
           active: true
         },
         {
-          id: 'sofia_skill_personalized_demo',
-          icon: '🎯',
-          title: 'Invitación sin Presión al Demo Personalizado (4 Datos)',
-          triggerWhen: 'Una vez que observes que la persona tiene sus dudas bastante aclaradas o muestra interés en verlo en vivo.',
-          requiredData: '1) Correo electrónico, 2) Nombre del condominio, 3) Cantidad de casas/apartamentos y 4) Áreas comunes reservables (ej. cancha, salón, piscina o ninguna).',
-          instructions: 'Invítala sin presión a generarle un Demo Personalizado para que vea qué fácil será llevar su condominio con IA Condo, recogiendo esos datos con fluidez y entregándole su enlace configurado a medida.',
+          id: 'sofia_skill_03_lead_capture',
+          icon: '🚀',
+          title: 'SKILL 03: Captación de Leads, Alta Gratis en 5 Minutos y Referido de Vecino',
+          triggerWhen: 'Cuando ya resolviste las dudas principales, notas interés en el usuario o un vecino quiere referir a su Junta de Condominio.',
+          requiredData: '1) Nombre y apellido, WhatsApp, correo y rol (Junta/Admin/Vecino); 2) Nombre del condominio y total de viviendas; 3) Portón SMS (sí/no), garita (exclusiva/compartida/sin garita) y si la garita compartida ya usa IA Condo; 4) Si es vecino: nombre y WhatsApp del encargado de la Junta.',
+          instructions:
+            'DISPARADOR DE CIERRE / CALL TO ACTION:\n"Si quieres ver cómo funciona IA Condo en tu propia comunidad, con simples datos podemos dar de alta tu condominio gratis ahora mismo. En menos de 5 minutos podrás empezar a tener un control de acceso eficiente, rápido, seguro y ajustado a las normas de protección de datos (además de toda la gestión contable asistida por IA)."\n\nCAPTURA PROGRESIVA (nunca como formulario rígido, pregunta de forma conversacional y amable):\n1) Datos de contacto del solicitante (nombre y apellido, WhatsApp, correo y confirmación de rol).\n2) Datos básicos de la comunidad (nombre del condominio/edificio y cantidad total de viviendas/inmuebles).\n3) Diagnóstico de acceso y vigilancia (¿tienen portón eléctrico por comandos SMS?, ¿tienen garita?, ¿exclusiva o compartida con otros edificios de la calle?, y si es compartida indagar si ya usa IA Condo para sumar su edificio).\n\nCASO ESPECIAL — REFERIDO DE VECINO:\n1) Agradece su iniciativa por mejorar su comunidad.\n2) Solicítale nombre y número de WhatsApp de un miembro de la Junta o administrador.\n3) Registra el contacto indicando quién lo refiere para iniciar la presentación enfocada en Junta de Condominio.',
+          active: true
+        },
+        {
+          id: 'sofia_skill_04_handoff_guardrails',
+          icon: '📋',
+          title: 'SKILL 04: Preparación para Handoff (Ficha Estructurada) y Guardrails de Calidad',
+          triggerWhen: 'Al recabar los datos del lead para seguimiento humano y como reglas permanentes de seguridad y calidad en toda conversación.',
+          requiredData: 'nombre_contacto, telefono_whatsapp, rol_usuario (JUNTA|ADMINISTRADOR|VECINO_REFERENTE), nombre_condominio, total_viviendas, tiene_porton_sms (SI|NO|POR_CONFIRMAR), tipo_garita (EXCLUSIVA|COMPARTIDA|SIN_GARITA), garita_usa_iacondo (SI|NO|DESCONOCE), contacto_referido_junta, interes_principal (CONTABILIDAD_IA|CONTROL_PORTON_GARITA|GESTION_INTEGRAL).',
+          instructions:
+            'REGISTRO INTERNO PARA HANDOFF (SEGUIMIENTO HUMANO):\nDeja la ficha del prospecto limpia y estructurada con los 10 campos:\n• nombre_contacto | telefono_whatsapp | rol_usuario (JUNTA | ADMINISTRADOR | VECINO_REFERENTE)\n• nombre_condominio | total_viviendas\n• tiene_porton_sms (SI | NO | POR_CONFIRMAR) | tipo_garita (EXCLUSIVA | COMPARTIDA | SIN_GARITA) | garita_usa_iacondo (SI | NO | DESCONOCE)\n• contacto_referido_junta (solo si aplica) | interes_principal (CONTABILIDAD_IA | CONTROL_PORTON_GARITA | GESTION_INTEGRAL).\n\nREGLAS DE SEGURIDAD Y CALIDAD CONVERSACIONAL (GUARDRAILS):\n1) Cero Fricción: nunca presiones con precios ni planes de pago; recalca siempre la gratuidad de entrada, transparencia y facilidad de uso.\n2) Respuestas Concisas: en WhatsApp o chat móvil divide las explicaciones en bloques breves y fáciles de leer; no envíes muros de texto interminables.\n3) Enfoque en Soluciones: si el usuario expresa frustración con su contabilidad actual o listas de papel en garita, valida su problema con empatía y muestra cómo los agentes IA de IA Condo lo resuelven en minutos.\n4) Protección de Datos: recuerda siempre que toda la información vecinal, telefónica y financiera se procesa bajo estrictos estándares de privacidad y protección de datos personales.',
           active: true
         }
       ],
@@ -609,8 +629,8 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
             humanAgentCalendarEmail: dashData.playbook.humanAgentCalendarEmail ?? 'solucionescreapptivas@gmail.com, alejandrosaezh@iacondo.com',
             humanAgentWhatsapp: dashData.playbook.humanAgentWhatsapp ?? '+34651626150',
             customInstructions:
-              dashData.playbook.customInstructions ||
               sofiaAgentFromDb?.trainingInstructions ||
+              String(dashData.playbook.customInstructions || '').split('\n\nHABILIDADES DEL AGENTE COMERCIAL (SOFÍA)')[0].trim() ||
               '',
             carlosGlobalConfig: {
               globalPersonalityAndTone:
@@ -4709,7 +4729,7 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
 
                       <div>
                         <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.3rem' }}>
-                          📜 Directrices Consultivas y Descripciones de las 7 Funciones de Sofía (Asesoría Sutil y Demos {DEMO_URL})
+                          📜 Especificación Maestra y Directiva Central de Sofía (Identidad, Routing, Módulos y Guardrails)
                         </label>
                         <textarea
                           rows={10}
@@ -5167,11 +5187,11 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                       <div style={{ background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.38)', borderRadius: '12px', padding: '1rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
                           <div>
-                            <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#a5b4fc' }}>
-                              ⚡ Habilidades (Skills) de {agentForm.shortName || agentForm.name || 'este Agente'}
+                            <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#a5b4fc' }}>
+                              ⚡ Habilidades (Skills) de {agentForm.shortName || agentForm.name || 'este Agente'} ({(agentForm.skills || []).length})
                             </div>
                             <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
-                              Agrega habilidades específicas definiendo cuándo se activan, qué datos solicitan y qué acción ejecutan:
+                              Define y edita las habilidades específicas indicando cuándo se activan, qué datos solicitan y qué reglas ejecutan:
                             </div>
                           </div>
                           <button
@@ -5214,11 +5234,20 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                             Haz clic en &ldquo;➕ Agregar Habilidad&rdquo; para sumarle nuevas capacidades modulares a este agente.
                           </div>
                         ) : (
-                          <div style={{ display: 'grid', gap: '0.65rem' }}>
+                          <div style={{ display: 'grid', gap: '0.75rem' }}>
                             {(agentForm.skills || []).map((sk, sIdx) => (
-                              <div key={sk.id || sIdx} style={{ background: '#060d18', border: '1px solid rgba(99, 102, 241, 0.4)', borderRadius: '9px', padding: '0.75rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
+                              <div
+                                key={sk.id || sIdx}
+                                style={{
+                                  background: '#060d18',
+                                  border: `1px solid ${sk.active === false ? 'rgba(148, 163, 184, 0.25)' : 'rgba(99, 102, 241, 0.45)'}`,
+                                  opacity: sk.active === false ? 0.65 : 1,
+                                  borderRadius: '10px',
+                                  padding: '0.85rem'
+                                }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: '1 1 260px' }}>
                                     <input
                                       type="text"
                                       value={sk.icon || '⚡'}
@@ -5246,70 +5275,98 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                                           return { ...prev, skills: list };
                                         });
                                       }}
-                                      style={{ flex: 1, padding: '0.4rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.82rem', fontWeight: '700' }}
+                                      style={{ flex: 1, padding: '0.42rem 0.65rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.83rem', fontWeight: '800' }}
                                     />
                                   </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      playbookDirtyRef.current = true;
-                                      setAgentForm(prev => ({
-                                        ...prev,
-                                        skills: (prev.skills || []).filter((_, i) => i !== sIdx)
-                                      }));
-                                    }}
-                                    style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', borderRadius: '6px', padding: '0.25rem 0.55rem', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}
-                                  >
-                                    🗑️ Quitar
-                                  </button>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.73rem', fontWeight: '700', color: sk.active === false ? '#94a3b8' : '#34d399', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '6px', background: sk.active === false ? 'rgba(148,163,184,0.1)' : 'rgba(16,185,129,0.12)', border: `1px solid ${sk.active === false ? 'rgba(148,163,184,0.25)' : 'rgba(16,185,129,0.35)'}` }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={sk.active !== false}
+                                        onChange={e => {
+                                          playbookDirtyRef.current = true;
+                                          const checked = e.target.checked;
+                                          setAgentForm(prev => {
+                                            const list = [...(prev.skills || [])];
+                                            list[sIdx] = { ...list[sIdx], active: checked };
+                                            return { ...prev, skills: list };
+                                          });
+                                        }}
+                                        style={{ accentColor: '#10b981', cursor: 'pointer' }}
+                                      />
+                                      {sk.active === false ? 'Pausada' : 'Activa'}
+                                    </label>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        playbookDirtyRef.current = true;
+                                        setAgentForm(prev => ({
+                                          ...prev,
+                                          skills: (prev.skills || []).filter((_, i) => i !== sIdx)
+                                        }));
+                                      }}
+                                      style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', borderRadius: '6px', padding: '0.25rem 0.55rem', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer' }}
+                                    >
+                                      🗑️ Quitar
+                                    </button>
+                                  </div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.45rem' }}>
-                                  <input
-                                    type="text"
-                                    placeholder="🎯 ¿Cuándo se activa? (Disparador)"
-                                    value={sk.triggerWhen || ''}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.55rem', marginBottom: '0.55rem' }}>
+                                  <div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#94a3b8', marginBottom: '0.2rem' }}>🎯 ¿Cuándo se activa? (Disparador)</div>
+                                    <input
+                                      type="text"
+                                      placeholder="¿Cuándo se activa?"
+                                      value={sk.triggerWhen || ''}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setAgentForm(prev => {
+                                          const list = [...(prev.skills || [])];
+                                          list[sIdx] = { ...list[sIdx], triggerWhen: val };
+                                          return { ...prev, skills: list };
+                                        });
+                                      }}
+                                      style={{ width: '100%', boxSizing: 'border-box', padding: '0.45rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                    />
+                                  </div>
+                                  <div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#94a3b8', marginBottom: '0.2rem' }}>📋 Datos a recabar / verificar</div>
+                                    <input
+                                      type="text"
+                                      placeholder="Datos que solicita o verifica..."
+                                      value={sk.requiredData || ''}
+                                      onChange={e => {
+                                        playbookDirtyRef.current = true;
+                                        const val = e.target.value;
+                                        setAgentForm(prev => {
+                                          const list = [...(prev.skills || [])];
+                                          list[sIdx] = { ...list[sIdx], requiredData: val };
+                                          return { ...prev, skills: list };
+                                        });
+                                      }}
+                                      style={{ width: '100%', boxSizing: 'border-box', padding: '0.45rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#a5b4fc', marginBottom: '0.2rem' }}>⚡ Reglas de ejecución e instrucciones</div>
+                                  <textarea
+                                    rows={5}
+                                    placeholder="⚡ Acción y reglas que ejecuta el Agente..."
+                                    value={sk.instructions || ''}
                                     onChange={e => {
                                       playbookDirtyRef.current = true;
                                       const val = e.target.value;
                                       setAgentForm(prev => {
                                         const list = [...(prev.skills || [])];
-                                        list[sIdx] = { ...list[sIdx], triggerWhen: val };
+                                        list[sIdx] = { ...list[sIdx], instructions: val };
                                         return { ...prev, skills: list };
                                       });
                                     }}
-                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
-                                  />
-                                  <input
-                                    type="text"
-                                    placeholder="📋 ¿Qué datos obligatorios solicita?"
-                                    value={sk.requiredData || ''}
-                                    onChange={e => {
-                                      playbookDirtyRef.current = true;
-                                      const val = e.target.value;
-                                      setAgentForm(prev => {
-                                        const list = [...(prev.skills || [])];
-                                        list[sIdx] = { ...list[sIdx], requiredData: val };
-                                        return { ...prev, skills: list };
-                                      });
-                                    }}
-                                    style={{ width: '100%', padding: '0.4rem 0.55rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.78rem' }}
+                                    style={{ width: '100%', boxSizing: 'border-box', padding: '0.55rem 0.65rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.79rem', lineHeight: 1.48 }}
                                   />
                                 </div>
-                                <textarea
-                                  rows={2}
-                                  placeholder="⚡ Acción y reglas que ejecuta el Agente..."
-                                  value={sk.instructions || ''}
-                                  onChange={e => {
-                                    playbookDirtyRef.current = true;
-                                    const val = e.target.value;
-                                    setAgentForm(prev => {
-                                      const list = [...(prev.skills || [])];
-                                      list[sIdx] = { ...list[sIdx], instructions: val };
-                                      return { ...prev, skills: list };
-                                    });
-                                  }}
-                                  style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '6px', background: '#0f172a', color: '#fff', border: '1px solid rgba(148,163,184,0.3)', fontSize: '0.79rem' }}
-                                />
                               </div>
                             ))}
                           </div>
@@ -5319,6 +5376,41 @@ Antes de procesar y crear el Pase QR de un invitado, el agente DEBE asegurarse d
                   )}
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    {selectedAiAgentId === 'agent_comercial_sofia' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const defaultSofia = FIXED_CORE_AGENTS_FALLBACK.find(a => a.id === 'agent_comercial_sofia');
+                          if (!defaultSofia) return;
+                          playbookDirtyRef.current = true;
+                          setPlaybookForm(prev => ({
+                            ...prev,
+                            customInstructions: defaultSofia.trainingInstructions
+                          }));
+                          setAgentForm(prev => ({
+                            ...prev,
+                            name: defaultSofia.name,
+                            role: defaultSofia.role,
+                            description: defaultSofia.description,
+                            trainingInstructions: defaultSofia.trainingInstructions,
+                            skills: defaultSofia.skills
+                          }));
+                        }}
+                        style={{
+                          padding: '0.65rem 1rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(99, 102, 241, 0.4)',
+                          background: 'rgba(99, 102, 241, 0.14)',
+                          color: '#c7d2fe',
+                          fontWeight: '700',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ↺ Restaurar Especificación Maestra y Skills de Sofía
+                      </button>
+                    )}
+
                     {selectedAiAgentId === 'agent_condominios_base' && (
                       <button
                         type="button"
