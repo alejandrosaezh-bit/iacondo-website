@@ -439,3 +439,109 @@ dialog::backdrop {
   background: rgba(6, 13, 24, 0.8);
   backdrop-filter: blur(6px);
 }
+
+/* ============================================================================
+   PANEL CORPORATIVO RESPONSIVE (panel.iacondo.com)
+   ============================================================================ */
+.panel-root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.panel-root * {
+  min-width: 0;
+}
+
+.panel-root input,
+.panel-root select,
+.panel-root textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.panel-ia-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  width: 100%;
+}
+
+.panel-2col-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.panel-3col-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.panel-1-2-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.75rem;
+}
+
+.panel-tabs-bar {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-block-end: 1rem;
+  border-block-end: 1px solid rgba(148, 163, 184, 0.15);
+  padding-block-end: 0.65rem;
+}
+
+.panel-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .panel-ia-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .panel-header {
+    padding: 0.55rem 0.75rem !important;
+    gap: 0.45rem !important;
+  }
+
+  .panel-main {
+    padding: 0.75rem !important;
+  }
+
+  .panel-tabs-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.55rem;
+  }
+
+  .panel-tabs-bar > button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.75rem !important;
+    padding: 0.48rem 0.72rem !important;
+  }
+
+  .panel-2col-grid,
+  .panel-3col-grid,
+  .panel-1-2-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  dialog:modal {
+    width: calc(100% - 1rem);
+    padding: 1rem;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+}
+

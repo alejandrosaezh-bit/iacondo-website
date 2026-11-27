@@ -533,6 +533,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
   const playbookDirtyRef = useRef(false);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedLeadSectionRef = useRef(null);
+  const agentTrainingPanelRef = useRef(null);
   const [callFilter, setCallFilter] = useState('todos');
   const [agentFilter, setAgentFilter] = useState('todos');
   const [zoneFilter, setZoneFilter] = useState('todas');
@@ -1416,6 +1417,11 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
       isFixedCore: Boolean(ag.isFixedCore),
       agentCategory: ag.agentCategory || 'iacondo_custom'
     });
+    if (typeof window !== 'undefined' && window.innerWidth <= 960) {
+      setTimeout(() => {
+        agentTrainingPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 60);
+    }
   };
 
   const handleSavePlaybook = async (e) => {
@@ -2030,33 +2036,39 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
   // RENDER: PANEL PRINCIPAL IA CONDO (panel.iacondo.com)
   // ============================================================================
   return (
-    <div style={{
-      minBlockSize: '100dvh',
-      maxInlineSize: '100dvw',
-      overflowX: 'hidden',
-      boxSizing: 'border-box',
-      background: '#060d18',
-      color: '#f8fafc',
-      fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-      paddingBlockEnd: '3rem'
-    }}>
-      {/* TOP HEADER CON SELECTOR DE VISTA CEO (TODA LA EMPRESA) VS APP DE SEGUIMIENTO DE AGENTE */}
-      <header style={{
-        background: 'rgba(15, 23, 42, 0.95)',
-        backdropFilter: 'blur(12px)',
-        borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
-        padding: '0.65rem 1rem',
-        position: 'sticky',
-        insetBlockStart: 0,
-        zIndex: 100,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '0.6rem',
+    <div
+      className="panel-root"
+      style={{
+        minBlockSize: '100dvh',
         maxInlineSize: '100%',
-        boxSizing: 'border-box'
-      }}>
+        overflowX: 'clip',
+        boxSizing: 'border-box',
+        background: '#060d18',
+        color: '#f8fafc',
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        paddingBlockEnd: '3rem'
+      }}
+    >
+      {/* TOP HEADER CON SELECTOR DE VISTA CEO (TODA LA EMPRESA) VS APP DE SEGUIMIENTO DE AGENTE */}
+      <header
+        className="panel-header"
+        style={{
+          background: 'rgba(15, 23, 42, 0.95)',
+          backdropFilter: 'blur(12px)',
+          borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
+          padding: '0.65rem 1rem',
+          position: 'sticky',
+          insetBlockStart: 0,
+          zIndex: 100,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.6rem',
+          maxInlineSize: '100%',
+          boxSizing: 'border-box'
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap', minInlineSize: 0 }}>
           <div style={{ fontSize: '1.05rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <img src="/logo-iacondo.png" alt="Logo IA Condo" style={{ inlineSize: '26px', blockSize: '26px', objectFit: 'contain' }} />
@@ -2076,7 +2088,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
 
           {/* Si es CEO / Director, puede alternar entre ver TODA LA EMPRESA o probar la APP DE SEGUIMIENTO DEL AGENTE */}
           {isExecutiveRole && (
-            <div style={{ display: 'inline-flex', background: 'rgba(6, 13, 24, 0.85)', padding: '0.18rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+            <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '0.15rem', background: 'rgba(6, 13, 24, 0.85)', padding: '0.18rem', borderRadius: '14px', border: '1px solid rgba(56, 189, 248, 0.3)', maxWidth: '100%' }}>
               <button
                 type="button"
                 onClick={() => {
@@ -2266,26 +2278,22 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
       )}
 
       {/* MAIN CONTAINER */}
-      <div style={{
-        maxInlineSize: '1380px',
-        inlineSize: '100%',
-        margin: '0 auto',
-        padding: '0.85rem',
-        boxSizing: 'border-box',
-        overflowX: 'hidden'
-      }}>
+      <div
+        className="panel-main"
+        style={{
+          maxInlineSize: '1380px',
+          inlineSize: '100%',
+          margin: '0 auto',
+          padding: '0.85rem',
+          boxSizing: 'border-box',
+          overflowX: 'clip'
+        }}
+      >
         {/* NAVIGATION TABS:
             - MODO CEO: Ve TODAS las áreas de la empresa (Control CEO + CRM, Equipo y Zonas, Sofía IA, Soporte, Chats en Vivo).
             - MODO APP AGENTE COMERCIAL: App enfocada en sus Pendientes / Recordatorios, sus Próximos Eventos Programados y su Túnel de Ventas. */}
         {!isAgentAppMode ? (
-          <div style={{
-            display: 'flex',
-            gap: '0.4rem',
-            flexWrap: 'wrap',
-            marginBlockEnd: '1rem',
-            borderBlockEnd: '1px solid rgba(148, 163, 184, 0.15)',
-            paddingBlockEnd: '0.65rem'
-          }}>
+          <div className="panel-tabs-bar">
             {[
               { id: 'agenda', label: `👑 Control CEO, Agenda y CRM (${salesCalls.length})` },
               { id: 'garitas', label: `🛡️ Garitas${panelGaritasCount !== null ? ` (${panelGaritasCount})` : ''}` },
@@ -3848,7 +3856,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
             TAB 3: CHATS DE WHATSAPP Y WEB EN VIVO
             =================================================================== */}
         {!isAgentAppMode && activeTab === 'chats' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
             <div style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(148, 163, 184, 0.2)', borderRadius: '16px', padding: '1.25rem', maxHeight: '72vh', overflowY: 'auto' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginTop: 0, marginBottom: '1rem' }}>
                 💬 Conversaciones WhatsApp (0422-2537239) y Web (iacondo.com)
@@ -3938,7 +3946,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
             TAB 4: ORGANIGRAMA, ROLES, ZONAS ASIGNADAS (PASO 3) Y FUNCIONES
             =================================================================== */}
         {!isAgentAppMode && activeTab === 'usuarios' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
             {/* Listado del Organigrama, Zonas y Funciones */}
             <div>
               <h2 style={{ fontSize: '1.3rem', fontWeight: '800', marginTop: 0 }}>
@@ -4196,7 +4204,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                     💡 <strong style={{ color: '#34d399' }}>Usuarios Ilimitados sin gastar buzones en IONOS:</strong> El <strong>Correo de Login</strong> es un usuario interno de <code>panel.iacondo.com</code> (puedes autogenerarle <code>nombre@iacondo.com</code> aquí mismo sin crearlo en IONOS, o usar su Gmail). En <strong>Correo Agenda (.ics)</strong> coloca su <code>@gmail.com</code> o <code>@icloud.com</code> personal para que le suenen las alarmas en su celular.
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="panel-2col-grid">
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', gap: '0.3rem' }}>
                         <label htmlFor="user-email" style={{ fontSize: '0.82rem', fontWeight: '600', color: '#cbd5e1' }}>
@@ -4260,7 +4268,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  <div className="panel-2col-grid">
                     <div>
                       <label htmlFor="user-calendar" style={{ display: 'block', fontSize: '0.82rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.3rem' }}>
                         Correo Personal en Celular (Agenda .ics) *
@@ -4328,7 +4336,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
              Agente de los Condominios y Nuevos Agentes Personalizados)
             =================================================================== */}
         {!isAgentAppMode && activeTab === 'ia' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 370px) 1fr', gap: '1.25rem', alignItems: 'start' }}>
+          <div className="panel-ia-layout">
             {/* COLUMNA IZQUIERDA: SELECTOR DE AGENTES DE IA CONDO */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* 1. AGENTES FIJOS DE IA CONDO */}
@@ -4511,7 +4519,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
             </div>
 
             {/* COLUMNA DERECHA: MESA DE ENTRENAMIENTO DEL AGENTE SELECCIONADO */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div ref={agentTrainingPanelRef} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', minWidth: 0, scrollMarginTop: '4.5rem' }}>
               <div style={{
                 background: 'rgba(15, 23, 42, 0.94)',
                 border:
@@ -4521,7 +4529,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                     ? '1px solid rgba(192, 132, 252, 0.45)'
                     : '1px solid rgba(56, 189, 248, 0.35)',
                 borderRadius: '16px',
-                padding: '1.5rem'
+                padding: 'clamp(0.9rem, 3vw, 1.5rem)'
               }}>
                 {/* ENCABEZADO DEL AGENTE EN ENTRENAMIENTO */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem', paddingBottom: '0.85rem', borderBottom: '1px solid rgba(148, 163, 184, 0.18)' }}>
@@ -4574,7 +4582,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                 {/* FORMULARIO DE ENTRENAMIENTO DEL AGENTE SELECCIONADO */}
                 <form onSubmit={handleSaveAiAgent} style={{ display: 'grid', gap: '1rem' }}>
                   {/* Datos de Identidad del Agente */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: '0.75rem' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.3rem' }}>
                         {selectedAiAgentId === 'agent_condominios_base'
@@ -4663,7 +4671,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.55rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: '0.55rem' }}>
                       <div style={{ background: 'rgba(6, 13, 24, 0.8)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '9px', padding: '0.65rem' }}>
                         <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#38bdf8', marginBottom: '0.2rem' }}>
                           🎯 1. Disparador (¿Cuándo se activa?)
@@ -4694,7 +4702,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                   {/* CAMPOS ESPECÍFICOS DE SOFÍA (COMERCIALIZACIÓN) */}
                   {selectedAiAgentId === 'agent_comercial_sofia' && (
                     <div style={{ background: 'rgba(14, 165, 233, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '1rem', display: 'grid', gap: '0.85rem' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: '0.75rem' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
                             WhatsApp Principal de Respaldo Comercial
@@ -4779,7 +4787,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                         />
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '0.85rem' }}>
                         <div style={{ background: 'rgba(6, 13, 24, 0.55)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '10px', padding: '0.75rem' }}>
                           <span style={{ display: 'inline-block', background: 'rgba(52, 211, 153, 0.16)', color: '#34d399', padding: '0.12rem 0.48rem', borderRadius: '999px', fontSize: '0.65rem', fontWeight: '800', marginBottom: '0.25rem' }}>
                             ⚡ HABILIDAD BASE #1
@@ -5099,7 +5107,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                                     🗑️ Quitar
                                   </button>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 190px), 1fr))', gap: '0.5rem', marginBottom: '0.45rem' }}>
                                   <input
                                     type="text"
                                     placeholder="🎯 ¿Cuándo se activa? (Disparador)"
@@ -5311,7 +5319,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                                     </button>
                                   </div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.55rem', marginBottom: '0.55rem' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: '0.55rem', marginBottom: '0.55rem' }}>
                                   <div>
                                     <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#94a3b8', marginBottom: '0.2rem' }}>🎯 ¿Cuándo se activa? (Disparador)</div>
                                     <input
@@ -5864,7 +5872,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', padding: '0.75rem', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+          <div className="panel-3col-grid" style={{ padding: '0.75rem', background: 'rgba(14, 165, 233, 0.1)', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
             <div>
               <label htmlFor="nl-date" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '700', color: '#38bdf8', marginBottom: '0.25rem' }}>
                 📅 Fecha para Llamar / Contactar
@@ -6039,7 +6047,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="panel-2col-grid">
                 <div>
                   <label htmlFor="oc-transcript" style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                     Transcripción completa de la conversación (o dicta / pega aquí):
@@ -6072,7 +6080,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
 
             {/* SECCIÓN INFERIOR (PASO 5): RESULTADO DEL CONTACTO Y RE-AGENDAMIENTO AUTOMÁTICO */}
             <form onSubmit={handleSubmitContactOutcome} style={{ display: 'grid', gap: '0.85rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
+              <div className="panel-1-2-grid">
                 <div>
                   <label htmlFor="oc-method" style={{ display: 'block', fontSize: '0.8rem', fontWeight: '700', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                     Vía del Contacto Realizado
@@ -6116,7 +6124,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                 <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#fbbf24', marginBottom: '0.45rem' }}>
                   📅 ¿Requiere volver a contactar o agendar el Demo / Seguimiento? (Genera alarma .ics y notificación al celular):
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                <div className="panel-3col-grid">
                   <div>
                     <label htmlFor="oc-nextdate" style={{ display: 'block', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
                       Fecha del Próximo Contacto
@@ -6160,7 +6168,7 @@ Rol Principal: Especialista en Atención Inicial, Captación de Comunidades (Lea
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="panel-2col-grid">
                 <div>
                   <label htmlFor="oc-notes" style={{ display: 'block', fontSize: '0.78rem', fontWeight: '600', color: '#cbd5e1', marginBottom: '0.25rem' }}>
                     Observaciones adicionales del Agente Comercial

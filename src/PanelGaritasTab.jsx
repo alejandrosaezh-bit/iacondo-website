@@ -246,7 +246,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.55rem', flexWrap: 'wrap', alignItems: 'center', width: '100%' }}>
           <input
             type="text"
             value={search}
@@ -259,7 +259,8 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
               background: '#0b1120',
               color: '#fff',
               fontSize: '0.8rem',
-              minWidth: '230px'
+              flex: '1 1 200px',
+              minWidth: 0
             }}
           />
           <button
@@ -338,7 +339,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
           <div style={{ fontWeight: '900', fontSize: '0.88rem', color: '#a5b4fc', marginBottom: '0.65rem' }}>
             🤖 Solicitudes de Alta de Garitas Externas ({onboardingRequests.length})
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '0.7rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 270px), 1fr))', gap: '0.7rem' }}>
             {onboardingRequests.map((req) => (
               <div
                 key={req.condominiumId}
@@ -417,7 +418,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1rem' }}>
           {filteredGaritas.map((g) => {
             const approved = (g.linkedCondominiums || []).filter((l) => l.status === 'approved');
             const pending = (g.linkedCondominiums || []).filter((l) => l.status === 'pending');
@@ -654,7 +655,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
             </div>
 
             <form onSubmit={handleSaveGarita} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 210px), 1fr))', gap: '0.75rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8', marginBottom: '0.25rem' }}>
                     Nombre de la Garita *
@@ -756,7 +757,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
                     </option>
                   ))}
                 </select>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginTop: '0.65rem' }}>
+                <div className="panel-2col-grid" style={{ gap: '0.65rem', marginTop: '0.65rem' }}>
                   <input
                     type="text"
                     value={form.delegateName}
@@ -788,7 +789,7 @@ export default function PanelGaritasTab({ apiBase, onCountChange }) {
                     style={{ padding: '0.35rem 0.65rem', borderRadius: '7px', border: '1px solid rgba(148, 163, 184, 0.25)', background: '#0b1120', color: '#fff', fontSize: '0.76rem' }}
                   />
                 </div>
-                <div style={{ maxHeight: '190px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: '0.4rem', paddingRight: '0.2rem' }}>
+                <div style={{ maxHeight: '190px', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 210px), 1fr))', gap: '0.4rem', paddingRight: '0.2rem' }}>
                   {filteredCondosForModal.map((c) => {
                     const checked = form.linkedCondominiumIds.includes(String(c._id));
                     return (
